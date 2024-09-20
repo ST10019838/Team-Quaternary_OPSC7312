@@ -50,7 +50,15 @@ android {
 }
 
 dependencies {
+    // Ktor Client and Engine (CIO or OkHttp)
+    implementation("io.ktor:ktor-client-core:2.3.0")
+    implementation("io.ktor:ktor-client-cio:2.3.0") // or ktor-client-okhttp if you prefer
 
+    // Ktor Content Negotiation
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
+    implementation("io.ktor:ktor-serialization-gson:2.3.0")
+
+    // Other necessary dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,49 +74,29 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-
     // Voyager Dependencies
-    // Navigator
     implementation(libs.voyager.navigator)
-    // Screen Model
     implementation(libs.voyager.screenmodel)
-    // BottomSheetNavigator
     implementation(libs.voyager.bottom.sheet.navigator)
-    // TabNavigator
     implementation(libs.voyager.tab.navigator)
-    // Transitions
     implementation(libs.voyager.transitions)
-    // Koin integration
     implementation(libs.voyager.koin)
-    // Hilt integration
     implementation(libs.voyager.hilt)
-    // LiveData integration
     implementation(libs.voyager.livedata)
-    // Kodein integration
     implementation(libs.voyager.kodein)
-    // RxJava integration
     implementation(libs.voyager.rxjava)
 
-
-
-
-//    // Retrofit
-//    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-//    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-//    implementation ("com.squareup.okhttp3:okhttp:4.9.0")
+    // Retrofit and OkHttp
     implementation(libs.retrofit)
-    implementation (libs.converter.gson)
-    implementation (libs.okhttp)
-//    // Coroutines
-//    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0-RC2")
-//    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation (libs.kotlinx.coroutines.core)
-    implementation (libs.kotlinx.coroutines.android)
-//    // Coroutine Lifecycle Scopes
-//    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
-//    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.8.5")
-    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Lifecycle Scopes
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation (libs.androidx.lifecycle.runtime.ktx.v285)
+    implementation(libs.androidx.lifecycle.runtime.ktx.v285)
 }
