@@ -14,21 +14,25 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
-import com.example.bot_lobby.ui.pages.EventsTab
-import com.example.bot_lobby.ui.pages.HomeTab
-import com.example.bot_lobby.ui.pages.ProfileTab
-import com.example.bot_lobby.ui.pages.ScoutingTab
-import com.example.bot_lobby.ui.pages.TeamsTab
+import com.example.bot_lobby.models.User
+import com.example.bot_lobby.ui.pages.*
 import com.example.bot_lobby.ui.theme.BotLobbyTheme
+import io.ktor.client.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private val client = ApiClient.client
+    private val client = HttpClient {
+        install(ContentNegotiation) {
+            json() // Use Kotlinx serialization for JSON
+        }
+    }
+
     private val loginService = LoginService(client)
     private val registerService = RegisterService(client)
 
@@ -70,11 +74,12 @@ fun AuthScreen(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
+    var firstname by remember { mutableStateOf("") }
+    var lastname by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
     var isLoginMode by remember { mutableStateOf(true) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -90,10 +95,32 @@ fun AuthScreen(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         )
 
+        if (!isLoginMode) {
+            TextField(
+                value = firstname,
+                onValueChange = { firstname = it },
+                label = { Text("First Name") }
+            )
+
+            TextField(
+                value = lastname,
+                onValueChange = { lastname = it },
+                label = { Text("Last Name") }
+            )
+
+            TextField(
+                value = age,
+                onValueChange = { age = it },
+                label = { Text("Age") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+            )
+        }
+
         TextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") }
+            label = { Text("Email") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
         )
 
         TextField(
@@ -103,38 +130,30 @@ fun AuthScreen(
             visualTransformation = PasswordVisualTransformation()
         )
 
-        if (!isLoginMode) {
-            TextField(
-                value = firstName,
-                onValueChange = { firstName = it },
-                label = { Text("First Name") }
-            )
-
-            TextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text("Last Name") }
-            )
-
-            TextField(
-                value = age,
-                onValueChange = { age = it },
-                label = { Text("Age") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-        }
-
         Button(onClick = {
             coroutineScope.launch {
+                isLoading = true
                 result = if (isLoginMode) {
                     loginService.login(username, password)
                 } else {
-                    val ageInt = age.toIntOrNull() ?: 0
-                    registerService.register(username, password, firstName, lastName, ageInt)
+                    // Create a User instance and pass it to register
+                    val user = User(
+                        username = username,
+                        password = password,
+                        firstname = firstname,
+                        lastname = lastname,
+                        age = age.toIntOrNull() ?: 0 // Use a default value if parsing fails
+                    )
+                    registerService.register(user)
                 }
+                isLoading = false
             }
         }) {
             Text(text = if (isLoginMode) "Login" else "Register")
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.padding(8.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -180,20 +199,4 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
             selectedTextColor = MaterialTheme.colorScheme.primary
         )
     )
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BotLobbyTheme {
-        Greeting("Android")
-    }
 }

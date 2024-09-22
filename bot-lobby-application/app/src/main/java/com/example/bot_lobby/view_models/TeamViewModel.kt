@@ -9,10 +9,6 @@ import com.example.bot_lobby.models.TeamInsert
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.Objects
 
 class TeamViewModel : ViewModel() {
     private val _teamData: MutableStateFlow<List<Team>> = MutableStateFlow(listOf())
@@ -21,7 +17,7 @@ class TeamViewModel : ViewModel() {
     fun getTeamData() {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.Api.getTeams(RetrofitInstance.apiKey)
+                val response = RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey)
                 val body = response.body()
                 if (body != null) {
                     _teamData.value = response.body()!!
@@ -35,7 +31,7 @@ class TeamViewModel : ViewModel() {
     fun createTeam(newTeam: TeamInsert) {
         viewModelScope.launch {
             try {
-                RetrofitInstance.Api.createTeam(RetrofitInstance.apiKey, newTeam)
+                RetrofitInstance.TeamApi.createTeam(RetrofitInstance.apiKey, newTeam)
             } catch (exception: Exception) {
                 Log.i("ERROR!", exception.message.toString())
             }
@@ -45,7 +41,7 @@ class TeamViewModel : ViewModel() {
     fun updateTeam(team: Team) {
         viewModelScope.launch {
             try {
-                RetrofitInstance.Api.updateTeam(
+                RetrofitInstance.TeamApi.updateTeam(
                     RetrofitInstance.apiKey,
                     "eq.${team.id}",
                     team
@@ -59,7 +55,7 @@ class TeamViewModel : ViewModel() {
     fun deleteTeam(teamId: Int) {
         viewModelScope.launch {
             try {
-                RetrofitInstance.Api.deleteTeam(
+                RetrofitInstance.TeamApi.deleteTeam(
                     RetrofitInstance.apiKey,
                     "eq.${teamId}",
                 )
@@ -68,5 +64,4 @@ class TeamViewModel : ViewModel() {
             }
         }
     }
-
 }

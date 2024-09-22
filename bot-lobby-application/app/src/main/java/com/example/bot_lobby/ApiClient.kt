@@ -3,13 +3,12 @@ package com.example.bot_lobby
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.gson.*
+import io.ktor.serialization.kotlinx.json.*
 
-// Object to configure and provide a singleton HttpClient instance
-object ApiClient {
+object KtorApiClient {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
-            gson() // Use Gson for JSON serialization/deserialization
+            json() // Use Kotlinx for JSON serialization/deserialization
         }
     }
 }
