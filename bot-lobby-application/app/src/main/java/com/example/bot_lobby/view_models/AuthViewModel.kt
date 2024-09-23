@@ -28,7 +28,7 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val request = AuthRequest(email, password)
-                val response = RetrofitInstance.AuthApi.login(RetrofitInstance.apiKey, request)
+                val response = RetrofitInstance.AuthApi.login(RetrofitInstance.apiKey, request) // Pass request directly to body
 
                 if (response.isSuccessful) {
                     val authResponse = response.body()
@@ -47,6 +47,7 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
     // Function to register
     fun registerUser(email: String, password: String, username: String, typeId: Int, firstname: String, lastname: String, age: Int) {
         viewModelScope.launch {

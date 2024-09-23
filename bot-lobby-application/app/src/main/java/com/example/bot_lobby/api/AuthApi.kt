@@ -6,16 +6,17 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface AuthApi {
 
-    @POST("/auth/v1/token?grant_type=password")
+    @POST("token")
     suspend fun login(
         @Header("apikey") key: String,
-        @Body request: AuthRequest
+        @Body request: AuthRequest // Change to use the request body, not query parameter
     ): Response<AuthResponse>
 
-    @POST("/auth/v1/signup")
+    @POST("signup")
     suspend fun register(
         @Header("apikey") key: String,
         @Body request: AuthRequest

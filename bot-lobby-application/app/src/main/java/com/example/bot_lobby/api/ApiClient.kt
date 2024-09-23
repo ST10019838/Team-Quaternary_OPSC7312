@@ -1,11 +1,14 @@
 package com.example.bot_lobby.api
 
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 
-object ApiClient {
-    val client: Retrofit = Retrofit.Builder()
-        .baseUrl("https://ynsntpgpunobawajnbow.supabase.co")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+object KtorApiClient {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json() // Use Kotlinx for JSON serialization/deserialization
+        }
+    }
 }

@@ -8,10 +8,12 @@ object RetrofitInstance {
 
     private const val BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/rest/v1"
 
+    private const val AUTH_BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/auth/v1"
+
     // AuthApi for login and registration
     val AuthApi by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(AUTH_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(AuthApi::class.java)

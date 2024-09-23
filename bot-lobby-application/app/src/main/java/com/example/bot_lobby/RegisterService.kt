@@ -49,9 +49,18 @@ class RegisterService(private val client: HttpClient) {
                     headers {
                         append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                         append("apikey", apiKey)
+                        append("Authorization", "Bearer $apiKey")
                     }
-                    // Use serialization to convert user to JSON
-                    setBody(user) // This should work now
+                    setBody(
+                        """{
+                        "username": "${user.username}",
+                        "password": "${user.password}",
+                        "firstname": "${user.firstname}",
+                        "lastname": "${user.lastname}",
+                        "age": ${user.age},
+                        "type_id": 1
+                    }"""
+                    )
                 }
 
                 Log.d("RegisterService", "User data insertion status: ${response.status.value}")
