@@ -2,10 +2,9 @@ package com.example.bot_lobby.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.* // Import StateFlow, Flow, and coroutines
+import kotlinx.coroutines.flow.*
 import android.util.Log
 import com.example.bot_lobby.models.*
-
 
 // Define the ViewModel to handle team data
 class TeamViewModel : ViewModel() {
@@ -24,8 +23,8 @@ class TeamViewModel : ViewModel() {
             teamList
         } else {
             teamList.filter {
-                it.name.contains(query, ignoreCase = true) ||
-                        it.members.any { member -> member.name.contains(query, ignoreCase = true) }
+                it.teamtag.contains(query, ignoreCase = true) ||
+                        it.members.any { member -> member.playertag.contains(query, ignoreCase = true) }
             }
         }
     }.stateIn(
@@ -44,33 +43,34 @@ class TeamViewModel : ViewModel() {
     private fun loadInitialData() {
         val initialTeams = listOf(
             Team(
-                name = "Team Tag 1",
+                teamtag = "Team Tag 1",  // Adjusted field
                 members = listOf(
-                    Member(name = "Player Tag 3", role = "Leader"),
-                    Member(name = "Player Tag 1", role = "Member")
+                    Member(playertag = "Player Tag 3", role = "Leader"),
+                    Member(playertag = "Player Tag 1", role = "Member")
                 ),
                 isPublic = true
             ),
             Team(
-                name = "Team Tag 2",
+                teamtag = "Team Tag 2",  // Adjusted field
                 members = listOf(
-                    Member(name = "Player Tag 4", role = "Leader"),
-                    Member(name = "Player Tag 6", role = "Member")
+                    Member(playertag = "Player Tag 4", role = "Leader"),
+                    Member(playertag = "Player Tag 6", role = "Member")
                 ),
                 isPublic = false
             ),
             Team(
-                name = "Team Tag 3",
+                teamtag = "Team Tag 3",  // New team added
                 members = listOf(
-                    Member(name = "Player Tag 5", role = "Leader"),
-                    Member(name = "Player Tag 7", role = "Member")
+                    Member(playertag = "Player Tag 7", role = "Leader"),
+                    Member(playertag = "Player Tag 8", role = "Member")
                 ),
                 isPublic = true
             ),
             Team(
-                name = "Team Tag 4",
+                teamtag = "Team Tag 4",  // New team added
                 members = listOf(
-                    Member(name = "Player Tag 8", role = "Leader")
+                    Member(playertag = "Player Tag 9", role = "Leader"),
+                    Member(playertag = "Player Tag 10", role = "Member")
                 ),
                 isPublic = false
             )

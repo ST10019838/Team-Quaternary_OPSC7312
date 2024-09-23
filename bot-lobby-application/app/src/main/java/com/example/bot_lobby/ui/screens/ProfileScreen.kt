@@ -1,6 +1,7 @@
 package com.example.bot_lobby.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +30,8 @@ import com.example.bot_lobby.ui.viewmodels.TeamViewModel
 import com.example.bot_lobby.models.*
 import com.example.bot_lobby.ui.components.TeamItem
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,161 +41,225 @@ fun ProfileScreen(
     playerTag: String,
     onExitClick: () -> Unit
 ) {
-    // Get the current FirebaseAuth instance and navigator
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
     val navigator = LocalNavigator.currentOrThrow
 
-    // Get the player data from the ViewModel
-    val player = playerViewModel.players.collectAsState().value.find { it.tag == playerTag }
+    // Get the player from the ViewModel, if not found, assign a default player
+    val player = playerViewModel.players.collectAsState().value.find { it.playertag == playerTag }
+        ?: Player(
+            player = "user1@demo.com",  // Default email if player not found
+            playertag = "Player Tag: Default",  // Default player tag
+            teams = emptyList(),  // No teams assigned
+            description = "Default description"  // Default description
+        )
+
     val teams = teamViewModel.teams.collectAsState().value
-    var description by remember { mutableStateOf(player?.team ?: "") }  // Player description
+    var description by remember { mutableStateOf(player.teams.joinToString(", ") { it }) }
 
-    // Default player tag if player is not found
-    val defaultPlayerTag = "Player Tag: Default"
-    val displayPlayerTag = player?.tag ?: defaultPlayerTag
-
-    // Main layout for the ProfileScreen
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(0.dp),  // Removed padding
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
-        if (player != null) {
-            // Row with Player Image and details
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Player image (ic_player_tag.png)
-                Image(
-                    painter = painterResource(id = R.drawable.ic_player_tag),
-                    contentDescription = "Player Image",
-                    modifier = Modifier.size(200.dp)
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Content next to the image in 3 rows
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    // Row 1: Player name
-                    Text(
-                        text = player.name,
-                        style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    // Row 2: LFT button and Public button
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Button(
-                            onClick = { /* Handle LFT button click */ },
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.Check, contentDescription = null)
-                            Text("LFT")
-                        }
-                        Button(onClick = { /* Handle Public button click */ }) {
-                            Icon(imageVector = Icons.Default.Public, contentDescription = null)
-                            Text("Public")
-                        }
-                    }
-
-                    // Row 3: Invite button (stretches across)
-                    Button(
-                        onClick = { /* Handle Invite click */ },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Email, contentDescription = null)
-                        Text("Invite")
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Input field for player description
-            TextField(
-                value = description,
-                onValueChange = { newDesc -> description = newDesc },
-                placeholder = { Text("Enter player description") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                singleLine = false
+        // Row with Player Image and Player details (Edit button, LFT, Public, Invite)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth() // Stretch row across full width
+                .padding(0.dp),  // Remove internal padding
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Image Section (Column 1)
+            Image(
+                painter = painterResource(id = R.drawable.ic_team_tag),
+                contentDescription = "Player Image",
+                modifier = Modifier
+                    .width(120.dp) // Set image width
+                    .height(150.dp) // Set image height
+                    .clip(RoundedCornerShape(16.dp)) // Rounded corners
+                    .border(1.dp, Color.Transparent, RoundedCornerShape(16.dp)), // Transparent border
+                contentScale = ContentScale.Crop // Scale image to fit
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.width(16.dp)) // No spacing between image and content
 
-            // Teams heading with dynamic XX/XX teams count
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            // Player Info & Buttons Section (Column 2)
+            Column(
+                modifier = Modifier
+                    .weight(1f) // Stretch to fill remaining space
+                    .align(Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(8.dp) // Space between items
             ) {
-                Text(text = "Teams", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
-                Text("${teams.size}/10", style = TextStyle(fontSize = 16.sp))
-            }
+                // Row for Player Tag and Edit button
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Player Tag
+                    Text(
+                        text = player.playertag,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // Edit Button
+                    Button(
+                        onClick = { /* Handle Edit Click */ },
+                            colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = Color.Black  // Icon color
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, Color.Transparent)  // Transparent border
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_edit),
+                            contentDescription = "Edit",
+                            modifier = Modifier.size(24.dp)  // Adjust icon size
+                        )
+                    }
+                }
+
+                // Row for LFT and Public buttons
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // LFT Button
+                    Button(
+                        onClick = { /* Handle LFT button click */ },
+                        modifier = Modifier.width(110.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = Color.Black
+                        ),
+                        border = BorderStroke(1.dp, Color.Gray),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("LFT", fontSize = 12.sp)
+                    }
+
+                    // Public Button
+                    Button(
+                        onClick = { /* Handle Public button click */ },
+                        modifier = Modifier.width(110.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = Color.Black
+                        ),
+                        border = BorderStroke(1.dp, Color.Gray),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.Public, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Public", fontSize = 12.sp)
+                    }
+                }
+
+                // Invite Button
+                Button(
+                    onClick = { /* Handle Invite button click */ },
+                    modifier = Modifier.width(250.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    border = BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Invite", fontSize = 12.sp)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Input field for player description
+        TextField(
+            value = description,
+            onValueChange = { newDesc -> description = newDesc },
+            placeholder = { Text("Enter player description") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                .background(Color.White),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            singleLine = false,
+            shape = RoundedCornerShape(8.dp),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                cursorColor = Color.Black,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Teams heading with dynamic XX/XX teams count
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "Teams", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
+            Text("${teams.size}/10", style = TextStyle(fontSize = 16.sp))
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // List of teams the player belongs to
+        teams.forEach { team ->
+            TeamItem(team = team)
             Spacer(modifier = Modifier.height(8.dp))
+        }
 
-            // List of teams the player belongs to
-            teams.forEach { team ->
-                TeamItem(team = team)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+        Spacer(modifier = Modifier.weight(1f))
 
-            Spacer(modifier = Modifier.weight(1f))
+        // Exit Button
+        Button(
+            onClick = onExitClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
+            border = BorderStroke(1.dp, Color.Gray),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "X",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
-            // Exit button
-            Button(
-                onClick = onExitClick,
-                modifier = Modifier
-                    .size(56.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Exit")
-            }
+        Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Logoff Button
-            Button(
-                onClick = {
-                    // Call the Firebase signOut() method to log off
-                    auth.signOut()
-
-                    // Show a toast message to notify the user
-                    Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT).show()
-
-                    // Navigate back to the root screen (LoginScreen) after signing out
-                    navigator.popUntilRoot()
-                    navigator.push(LoginScreen())
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Log Off")
-            }
-        } else {
-            // Default display when player is not found
-            Text("Player not found")
-            Text(displayPlayerTag, style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Medium))
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = onExitClick,
-                modifier = Modifier
-                    .size(56.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Icon(imageVector = Icons.Default.Close, contentDescription = "Exit")
-            }
+        // Logoff Button
+        Button(
+            onClick = {
+                auth.signOut()
+                Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT).show()
+                navigator.popUntilRoot()
+                navigator.push(LoginScreen())
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
+            border = BorderStroke(1.dp, Color.Gray),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Log Off", fontSize = 12.sp)
         }
     }
 }
-

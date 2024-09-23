@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bot_lobby.models.*
+import com.example.bot_lobby.models.* // Import your models
 import androidx.compose.foundation.border
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,16 +46,16 @@ fun ScoutTeamListItem(team: Team) {
                 .fillMaxWidth()
                 .padding(8.dp) // Padding inside the box
         ) {
-            // First Row: Team name and View Details button
+            // First Row: Team tag and View Details button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth() // Fill width to edge
             ) {
-                // Team name (bold)
+                // Team tag (bold)
                 Text(
-                    text = team.name,
+                    text = team.teamtag,  // Changed from `team.name` to `team.teamtag`
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(1f) // Fill remaining space for the team's name
+                    modifier = Modifier.weight(1f) // Fill remaining space for the team's tag
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -94,7 +94,7 @@ fun ScoutTeamListItem(team: Team) {
                             .padding(4.dp)
                     ) {
                         Text(
-                            text = "${member.name} (${member.role})",
+                            text = "${member.playertag} (${member.role})",  // Changed `member.name` to `member.playertag`
                             fontSize = 12.sp,
                             color = Color.Gray
                         )

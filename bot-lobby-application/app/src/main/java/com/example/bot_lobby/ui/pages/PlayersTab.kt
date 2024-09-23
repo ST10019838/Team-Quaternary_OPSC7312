@@ -40,7 +40,7 @@ fun PlayersTab(
 
     // Log the filtered players
     Log.d("PlayersTab", "Number of filtered players: ${filteredPlayers.size}")
-    filteredPlayers.forEach { Log.d("PlayersTab", "Player: ${it.name}, Tag: ${it.tag}, Team: ${it.team}") }
+    filteredPlayers.forEach { Log.d("PlayersTab", "Player: ${it.player}, Tag: ${it.playertag}, Teams: ${it.teams}") }
 
     // Main Column layout
     Column(
