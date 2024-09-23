@@ -1,7 +1,7 @@
 // Apply necessary plugins for the Android application
 plugins {
     id("com.android.application") // Android application plugin
-    id("org.jetbrains.kotlin.android") // Official Kotlin Android plugin for Kotlin development
+    id("org.jetbrains.kotlin.android")  // Official Kotlin Android plugin for Kotlin development
     id("com.google.gms.google-services") // Google services plugin for Firebase integration
 }
 
@@ -62,7 +62,7 @@ android {
 
     composeOptions {
         // Specify the Kotlin compiler extension version for Jetpack Compose
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
 
     packaging {
@@ -86,13 +86,13 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.2") // Extended Material icons for Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2") // ViewModel integration with Jetpack Compose
     implementation("androidx.compose.ui:ui:1.7.2")
+    implementation("androidx.compose.ui:ui-text:1.7.2")
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.7.2")
     implementation("androidx.compose.foundation:foundation:1.7.2")
     implementation("androidx.compose.material:material-icons-extended:1.7.2")
     implementation("androidx.compose.runtime:runtime:1.7.2")
-    implementation("androidx.compose.ui:ui-text:1.7.2")
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.2")
+        implementation("androidx.compose.ui:ui-text-google-fonts:1.7.2")
 
     // Additional library for number picker in Jetpack Compose
     implementation("com.chargemap.compose:numberpicker:1.0.3")
@@ -103,7 +103,8 @@ dependencies {
     implementation("com.google.firebase:firebase-common-ktx") // Firebase common utilities KTX
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication KTX
     implementation("com.google.firebase:firebase-analytics-ktx") // Firebase Analytics KTX
-    implementation("com.google.firebase:firebase-database-ktx:20.1.0") // Firebase Realtime Database KTX
+    implementation("com.google.firebase:firebase-database-ktx:20.1.0")
+    implementation("androidx.navigation:navigation-runtime-ktx:2.8.1") // Firebase Realtime Database KTX
 
     // Voyager navigation library dependencies for Jetpack Compose navigation
     val voyagerVersion = "1.0.0"

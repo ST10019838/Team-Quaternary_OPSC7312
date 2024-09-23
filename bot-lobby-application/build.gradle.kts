@@ -1,22 +1,22 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    extra["kotlin_version"] = "1.9.10"
     repositories {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
     }
     dependencies {
-        // Add Google Services plugin classpath
         classpath("com.google.gms:google-services:4.4.2")
-        classpath("com.android.tools.build:gradle:8.0.0")
+        classpath("com.android.tools.build:gradle:8.0.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${project.extra["kotlin_version"]}")
     }
 }
 
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
-    // Apply the Google services plugin
     id("com.google.gms.google-services") version "4.4.2" apply false
 }
 
