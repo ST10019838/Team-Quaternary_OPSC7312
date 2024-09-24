@@ -3,11 +3,9 @@ package com.example.bot_lobby.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import android.util.Log
-import com.example.bot_lobby.models.*
+import com.example.bot_lobby.models.Player
 
-// Define the ViewModel to handle player data
 class PlayerViewModel : ViewModel() {
 
     // StateFlow for the search query
@@ -24,46 +22,44 @@ class PlayerViewModel : ViewModel() {
             playerList
         } else {
             playerList.filter {
-                it.tag.contains(query, ignoreCase = true) || it.name.contains(query, ignoreCase = true)
+                it.player.contains(query, ignoreCase = true) ||
+                        it.playertag.contains(query, ignoreCase = true) ||
+                        it.teams.any { team -> team.contains(query, ignoreCase = true) }
             }
         }
     }.stateIn(
-        viewModelScope, // Use viewModelScope for lifecycle-awareness
-        SharingStarted.Lazily, // Sharing strategy
-        emptyList() // Initial value
+        viewModelScope,
+        SharingStarted.Lazily,
+        emptyList()
     )
 
-    // Initialize the ViewModel with default data
     init {
         loadInitialData()
-        Log.d("PlayerViewModel", "ViewModel initialized with data")
+        Log.d("UserViewModel", "ViewModel initialized with data")
     }
 
-    // Load initial data (sample players)
     private fun loadInitialData() {
         val initialPlayers = listOf(
-            Player(tag = "player1", name = "Player Tag 1", team = "", description =""),
-            Player(tag = "player2", name = "Player Tag 2", team = "", description =""),
-            Player(tag = "player3", name = "Player Tag 3", team = "Team Tag 1", description =""),
-            Player(tag = "player4", name = "Player Tag 4", team = "Team Tag 2", description =""),
-            Player(tag = "player5", name = "Player Tag 5", team = "Team Tag 3", description =""),
-            Player(tag = "player6", name = "Player Tag 6", team = "Team Tag 2", description =""),
-            Player(tag = "player7", name = "Player Tag 7", team = "Team Tag 3", description =""),
-            Player(tag = "player8", name = "Player Tag 8", team = "Team Tag 4", description ="")
+            Player(player = "user1@demo.com", playertag = "Player Tag 1", teams = listOf("Team A", "Team B","Team C", "Team D"), description = "Description for User 1"),
+            Player(player = "user2@demo.com", playertag = "Player Tag 2", teams = listOf("Team A"), description = "Description for User 2"),
+            Player(player = "user3@demo.com", playertag = "Player Tag 3", teams = emptyList(), description = "Description for User 3"),
+            Player(player = "user4@demo.com", playertag = "Player Tag 4", teams = emptyList(), description = "Description for User 4"),
+            Player(player = "user5@demo.com", playertag = "Player Tag 5", teams = listOf("Team A", "Team D"), description = "Description for User 5"),
+            Player(player = "user6@demo.com", playertag = "Player Tag 6", teams = listOf("Team B", "Team D"), description = "Description for User 6"),
+            Player(player = "user7@demo.com", playertag = "Player Tag 7", teams = listOf("Team C", "Team D"), description = "Description for User 7"),
+            Player(player = "user8@demo.com", playertag = "Player Tag 8", teams = listOf("Team A", "Team B", "Team C"), description = "Description for User 8")
         )
         _players.value = initialPlayers
-        Log.d("PlayerViewModel", "Loaded initial players: ${initialPlayers.size}")
+        Log.d("UserViewModel", "Loaded initial players: ${initialPlayers.size}")
     }
 
-    // Update the search query
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
-        Log.d("PlayerViewModel", "Search query updated to: $query")
+        Log.d("UserViewModel", "Search query updated to: $query")
     }
 
-    // Reload data (for manual reload testing)
     fun reloadData() {
         loadInitialData()
-        Log.d("PlayerViewModel", "Data reloaded")
+        Log.d("UserViewModel", "Data reloaded")
     }
 }

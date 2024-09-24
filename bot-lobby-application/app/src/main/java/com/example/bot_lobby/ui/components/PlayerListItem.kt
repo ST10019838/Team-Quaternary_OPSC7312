@@ -7,8 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,85 +18,72 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import com.example.bot_lobby.R
-import com.example.bot_lobby.models.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
+import com.example.bot_lobby.R
+import com.example.bot_lobby.models.Player
+import com.example.bot_lobby.models.Team
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerListItem(player: Player, teams: List<Team>) {
-    // Initialize FocusRequester for controlling focus on the TextField
     val focusRequester = remember { FocusRequester() }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedTeam by remember { mutableStateOf("") }
 
-    // Manage state for dropdown expansion and selected team
-    var expanded by remember { mutableStateOf(false) }  // Controls dropdown expansion state
-    var selectedTeam by remember { mutableStateOf("") }  // Stores the selected team
-
-    // Main container for the player list item
     Box(
         modifier = Modifier
-            .fillMaxWidth()  // Ensure the item takes up the full width of the screen
-            .border(BorderStroke(1.dp, Gray))  // Add a gray border around the item
-            .padding(8.dp)  // Padding inside the item
+            .fillMaxWidth()
+            .border(BorderStroke(1.dp, Gray))
+            .padding(8.dp)
     ) {
-        // Column to stack elements vertically
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp)  // Padding between the box border and the content
+                .padding(4.dp)
         ) {
             // First Row: Player Icon, Player Name, LFT Button, and View Profile Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()  // Make the row fill the available width
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Display the player icon (can be replaced with an actual image)
                 Image(
-                    painter = painterResource(id = R.drawable.ic_player_tag),  // Replace with player image resource
+                    painter = painterResource(id = R.drawable.ic_player_tag),
                     contentDescription = "Player Icon",
-                    modifier = Modifier.size(48.dp),  // Set the size of the player icon
+                    modifier = Modifier.size(48.dp)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))  // Add space between the icon and the text
+                Spacer(modifier = Modifier.width(8.dp))
 
-                // Display the player's name
                 Text(
-                    text = player.name,  // Player's name text
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),  // Bold text style
-                    modifier = Modifier.weight(1f)  // Make the text take up available space
+                    text = player.playertag,  // Changed to `playertag`
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))  // Add space between the text and buttons
+                Spacer(modifier = Modifier.width(8.dp))
 
-                // LFT (Looking for Team) Button
                 LFTButton(
-                    inTeam = player.team.isNotEmpty(),  // Check if the player is already in a team
+                    inTeam = player.teams.isNotEmpty(),  // Check if the player is already in a team
                     onClick = {
-                        // Handle LFT button action here (e.g., mark player as LFT)
+                        // Handle LFT button action
                     }
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))  // Add space between the LFT button and the view profile button
+                Spacer(modifier = Modifier.width(8.dp))
 
-                // View Profile Button (for viewing more details about the player)
                 IconButton(onClick = {
-                    // Handle view profile action here (e.g., navigate to the player profile)
+                    // Handle view profile action
                 }) {
                     Icon(
-                        imageVector = Icons.Default.Visibility,  // Use the visibility icon for viewing profile
+                        imageVector = Icons.Default.Visibility,
                         contentDescription = "View Profile",
-                        modifier = Modifier.size(32.dp)  // Set the size of the icon
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             }
@@ -107,111 +93,100 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp)  // Add space above the second row
+                    .padding(top = 8.dp)
             ) {
-                // Box to contain the dropdown menu for team selection
                 Box(modifier = Modifier.width(150.dp)) {
-                    // Start of ExposedDropdownMenuBox
                     ExposedDropdownMenuBox(
                         expanded = expanded,
                         onExpandedChange = {
-                            // Toggle dropdown expansion only if no team is assigned
-                            if (player.team.isEmpty()) {
+                            if (player.teams.isEmpty()) {
                                 expanded = !expanded
                             }
                         }
                     ) {
-                        // Determine the text color based on whether the dropdown is enabled or not
-                        val textColor = if (player.team.isEmpty()) Color.Black else Color.LightGray
+                        val textColor = if (player.teams.isEmpty()) Color.Black else Color.LightGray
 
-                        // TextField that shows selected team or placeholder if no team is assigned
                         TextField(
-                            value = if (player.team.isNotEmpty()) player.team else selectedTeam,  // Show current or selected team
-                            onValueChange = {},  // Disable manual text input
+                            value = if (player.teams.isNotEmpty()) player.teams.first() else selectedTeam,
+                            onValueChange = {},
                             placeholder = {
                                 Text(
-                                    text = "Team Tag",  // Placeholder text when no team is selected
+                                    text = "Team Tag",
                                     fontSize = 12.sp,
-                                    textAlign = TextAlign.Center  // Center the text horizontally
+                                    textAlign = TextAlign.Center
                                 )
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp)
-                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Grey border with rounded corners
-                                .focusRequester(focusRequester)  // Attach FocusRequester to handle focus
-                                .menuAnchor()  // Use as anchor for the dropdown menu
-                                .clickable(
-                                    enabled = player.team.isEmpty()  // Disable clicking if player has a team
-                                ) {
-                                    if (player.team.isEmpty()) {
+                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                                .focusRequester(focusRequester)
+                                .menuAnchor()
+                                .clickable(enabled = player.teams.isEmpty()) {
+                                    if (player.teams.isEmpty()) {
                                         expanded = !expanded
-                                        focusRequester.requestFocus()  // Request focus on click
+                                        focusRequester.requestFocus()
                                     }
                                 },
-                            readOnly = true,  // Disable manual typing
-                            textStyle = TextStyle(fontSize = 12.sp, color = textColor),  // Adjust text color dynamically
+                            readOnly = true,
+                            textStyle = TextStyle(fontSize = 12.sp, color = textColor),
                             colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,  // Set background color to white when focused
-                                unfocusedContainerColor = Color.White,  // Set background color to white when unfocused
-                                disabledContainerColor = Color.White,  // Keep the background white when disabled
-                                focusedIndicatorColor = Color.Transparent,  // Remove focus indicator
-                                unfocusedIndicatorColor = Color.Transparent,  // Remove unfocused indicator
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                disabledContainerColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
                                 disabledTextColor = Gray
                             ),
                             trailingIcon = {
                                 Icon(
                                     imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                                    contentDescription = if (player.team.isEmpty()) "Dropdown" else "Dropdown Disabled",
-                                    // Set the arrow to be grayed out when disabled
+                                    contentDescription = if (player.teams.isEmpty()) "Dropdown" else "Dropdown Disabled",
                                     modifier = Modifier.graphicsLayer {
-                                        alpha = if (player.team.isEmpty()) 1f else 0.3f  // Reduce opacity if disabled
+                                        alpha = if (player.teams.isEmpty()) 1f else 0.3f
                                     }
                                 )
                             }
                         )
 
-                        // Dropdown menu for selecting teams
                         ExposedDropdownMenu(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false },  // Collapse dropdown when an item is clicked or outside click
+                            onDismissRequest = { expanded = false },
                             modifier = Modifier
-                                .background(Color.White)  // Set background to white
-                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Add grey border with rounded corners
+                                .background(Color.White)
+                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
                         ) {
                             teams.forEach { team ->
                                 DropdownMenuItem(
-                                    text = { Text(text = team.name, fontSize = 14.sp) },
+                                    text = { Text(text = team.teamtag, fontSize = 14.sp) },  // Changed to `teamtag`
                                     onClick = {
-                                        selectedTeam = team.name  // Set selected team when clicked
-                                        expanded = false  // Collapse the dropdown
+                                        selectedTeam = team.teamtag  // Set selected team when clicked
+                                        expanded = false
                                     }
                                 )
                             }
                         }
-                    }  // End of ExposedDropdownMenuBox
+                    }
                 }
 
-                Spacer(modifier = Modifier.width(18.dp))  // Add space between the dropdown and the invite button
+                Spacer(modifier = Modifier.width(18.dp))
 
-                // Invite Button (enabled only if the player is not in a team)
                 InviteButton(
-                    enabled = player.team.isEmpty(),  // Enable only if the player is not in a team
+                    enabled = player.teams.isEmpty(),
                     onClick = {
-                        if (player.team.isEmpty()) {
-                            // Handle invite action here (e.g., invite player to a team)
+                        if (player.teams.isEmpty()) {
+                            // Handle invite action
                         }
                     },
-                    modifier = Modifier.width(150.dp)  // Set the width of the button to match the dropdown
+                    modifier = Modifier.width(150.dp)
                 )
             }
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))  // Add space between player boxes
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
-// Composable for the LFT (Looking for Team) Button
 @Composable
 fun LFTButton(inTeam: Boolean, onClick: () -> Unit) {
     Button(
@@ -239,20 +214,19 @@ fun LFTButton(inTeam: Boolean, onClick: () -> Unit) {
     }
 }
 
-// Composable for the Invite Button
 @Composable
 fun InviteButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,  // Background color when enabled
-            contentColor = if (enabled) Color.Black else Gray,  // Text/Icon color based on enabled state
-            disabledContainerColor = Color.White,  // Set background color to white when disabled
-            disabledContentColor = Gray  // Set content color to grey when disabled
+            containerColor = Color.White,
+            contentColor = if (enabled) Color.Black else Gray,
+            disabledContainerColor = Color.White,
+            disabledContentColor = Gray
         ),
-        border = BorderStroke(1.dp, Gray),  // Grey border
-        shape = RoundedCornerShape(8.dp),  // Rounded corners
+        border = BorderStroke(1.dp, Gray),
+        shape = RoundedCornerShape(8.dp),
         modifier = modifier
             .height(48.dp)
             .width(180.dp)

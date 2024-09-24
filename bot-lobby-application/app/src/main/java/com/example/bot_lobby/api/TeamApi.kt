@@ -1,7 +1,6 @@
 package com.example.bot_lobby.api
 
 import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.models.TeamInsert
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -15,8 +14,6 @@ interface TeamApi {
     @GET("teams")
     suspend fun getTeams(@Header("apiKey") key: String): Response<List<Team>>
 
-    @POST("teams")
-    suspend fun createTeam(@Header("apiKey") key: String, @Body team: TeamInsert): Response<Team>
 
     @PATCH("teams")
     suspend fun updateTeam(
