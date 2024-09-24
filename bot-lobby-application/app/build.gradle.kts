@@ -92,7 +92,8 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.2")
     implementation("androidx.compose.material:material-icons-extended:1.7.2")
     implementation("androidx.compose.runtime:runtime:1.7.2")
-        implementation("androidx.compose.ui:ui-text-google-fonts:1.7.2")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.2")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     // Additional library for number picker in Jetpack Compose
     implementation("com.chargemap.compose:numberpicker:1.0.3")
@@ -104,7 +105,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication KTX
     implementation("com.google.firebase:firebase-analytics-ktx") // Firebase Analytics KTX
     implementation("com.google.firebase:firebase-database-ktx:20.1.0")
-    implementation("androidx.navigation:navigation-runtime-ktx:2.8.1") // Firebase Realtime Database KTX
+    implementation("androidx.navigation:navigation-runtime-ktx:2.8.1")
+    implementation("androidx.navigation:navigation-compose:2.8.1") // Firebase Realtime Database KTX
 
     // Voyager navigation library dependencies for Jetpack Compose navigation
     val voyagerVersion = "1.0.0"

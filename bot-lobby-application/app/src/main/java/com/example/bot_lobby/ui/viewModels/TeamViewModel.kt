@@ -47,8 +47,10 @@ class TeamViewModel : ViewModel() {
                 teamtag = "Team Tag 1",
                 teamname = "Alpha Team",
                 members = listOf(
-                    Member(playertag = "Player Tag 3", role = "Leader"),
-                    Member(playertag = "Player Tag 1", role = "Member")
+                    Member(playertag = "Player Tag 1", role = "Leader"),
+                    Member(playertag = "Player Tag 2", role = "Member"),
+                    Member(playertag = "Player Tag 3", role = "Member"),
+                    Member(playertag = "Player Tag 4", role = "Member")
                 ),
                 isPublic = true
             ),
