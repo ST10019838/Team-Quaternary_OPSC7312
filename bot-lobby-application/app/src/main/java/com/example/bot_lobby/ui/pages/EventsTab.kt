@@ -1,6 +1,7 @@
 package com.example.bot_lobby.ui.pages
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -13,8 +14,8 @@ object EventsTab: Tab {
     override val options: TabOptions
         @Composable
         get() {
-            val title = "Home"
-            val icon = rememberVectorPainter(Icons.Default.Home) // Change Icon
+            val title = "Events"
+            val icon = rememberVectorPainter(Icons.Default.ElectricBolt) // Change Icon
 
             return remember {
                 TabOptions(

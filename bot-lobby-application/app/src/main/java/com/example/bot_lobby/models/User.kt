@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class User(
     val user_id: Int? = null,           // Assuming the ID is auto-generated
-    val type_id: Int = 1,               // The type_id references user type (User, Admin, etc.)
+    val user_role: Int = 1,               // The type_id references user type (User, Admin, etc.)
+    val user_bio: String? = null,
     val username: String,               // Username of the user
     val password: String,               // Password of the user (may want to consider encryption later)
     val biometrics: String? = null,     // Nullable in case biometrics are not provided

@@ -32,40 +32,52 @@ import com.example.bot_lobby.models.*
 import com.example.bot_lobby.models.Team
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
-import io.supabase.kotlin.SupabaseClient
+//import io.supabase.kotlin.SupabaseClient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    userViewModel: UserViewModel,  // Changed PlayerViewModel to UserViewModel
-    teamViewModel: TeamViewModel,
-    userTag: String,
-    onExitClick: () -> Unit
+    userViewModel: UserViewModel?,  // Changed PlayerViewModel to UserViewModel
+    teamViewModel: TeamViewModel?,
+    userTag: String?,
+    onExitClick: (() -> Unit)?
 ) {
-    val supabaseClient = SupabaseClient(
-        supabaseUrl = "your-supabase-url",
-        supabaseKey = "your-supabase-key"
-    )
-    val auth = supabaseClient.auth
-    val context = LocalContext.current
-    val navigator = LocalNavigator.currentOrThrow
+//    val supabaseClient = SupabaseClient(
+//        supabaseUrl = "your-supabase-url",
+//        supabaseKey = "your-supabase-key"
+//    )
+//    val auth = supabaseClient.auth
 
-    // Get the user from the ViewModel, if not found, assign a default user
-    val user = userViewModel.userData.collectAsState().value.find { it.usertag == userTag }
-        ?: User(
-            user = "user1@demo.com",
-            usertag = "User Tag: Default",
-            teams = emptyList(),
-            description = "Default description",
-            age = 0,  // Provide missing parameters
+//    val navigator = LocalNavigator.currentOrThrow
+//
+//    // Get the user from the ViewModel, if not found, assign a default user
+//    val user = userViewModel.userData.collectAsState().value.find { it.usertag == userTag }
+//        ?: User(
+//            user = "user1@demo.com",
+//            usertag = "User Tag: Default",
+//            teams = emptyList(),
+//            description = "Default description",
+//            age = 0,  // Provide missing parameters
+//            firstname = "John",
+//            lastname = "Doe",
+//            password = "password",
+//            username = "defaultUsername"
+//        )
+//
+//    val teams = teamViewModel.teams.collectAsState().value
+    var description by remember { mutableStateOf("Bio") }
+    val context = LocalContext.current
+
+    val user = User(
+            user_id = 1,
+            user_role = 1,
+            age = 20,  // Provide missing parameters
             firstname = "John",
             lastname = "Doe",
             password = "password",
-            username = "defaultUsername"
+            username = "defaultUsername",
+            user_bio = "This is a user bio"
         )
-
-    val teams = teamViewModel.teams.collectAsState().value
-    var description by remember { mutableStateOf(user.teams.joinToString(", ") { it }) }
 
     // Wrapping the entire content in a LazyColumn for scrolling
     LazyColumn(
@@ -84,15 +96,14 @@ fun ProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Image Section
-                Image(
-                    painter = painterResource(id = R.drawable.ic_team_tag),
+                Icon(
+                    imageVector = Icons.Default.Person,
                     contentDescription = "User Image",
                     modifier = Modifier
-                        .width(120.dp)
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(1.dp, Color.Transparent, RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
+                        .size(150.dp)
+                        .clip(RoundedCornerShape(25.dp))
+                        .border(1.dp, Color.Transparent, RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primary),
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -109,7 +120,7 @@ fun ProfileScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = user.username,  // Changed from playertag to usertag
+                            text = user.username,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -126,16 +137,57 @@ fun ProfileScreen(
                             shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, Color.Transparent)
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_edit),
+                            Icon(
+                                imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
                                 modifier = Modifier.size(24.dp)
                             )
                         }
                     }
 
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start)
+                    {
+                        Text("${user.firstname} ${user.lastname}")
+                    }
+
+                    // The following code needs to be added
                     // Row for LFT and Public buttons
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                        Button(
+//                            onClick = { /* Handle LFT button click */ },
+//                            modifier = Modifier.width(110.dp),
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = Color.White,
+//                                contentColor = Color.Black
+//                            ),
+//                            border = BorderStroke(1.dp, Color.Gray),
+//                            shape = RoundedCornerShape(8.dp)
+//                        ) {
+//                            Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+//                            Spacer(modifier = Modifier.width(4.dp))
+//                            Text("LFT", fontSize = 12.sp)
+//                        }
+//
+//                        Button(
+//                            onClick = { /* Handle Public button click */ },
+//                            modifier = Modifier.width(110.dp),
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = Color.White,
+//                                contentColor = Color.Black
+//                            ),
+//                            border = BorderStroke(1.dp, Color.Gray),
+//                            shape = RoundedCornerShape(8.dp)
+//                        ) {
+//                            Icon(imageVector = Icons.Default.Public, contentDescription = null, modifier = Modifier.size(16.dp))
+//                            Spacer(modifier = Modifier.width(4.dp))
+//                            Text("Public", fontSize = 12.sp)
+//                        }
+//                    }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Button(
                             onClick = { /* Handle LFT button click */ },
                             modifier = Modifier.width(110.dp),
@@ -220,17 +272,17 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "Teams", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
-                Text("${teams.size}/10", style = TextStyle(fontSize = 16.sp))
+                Text("${/*teams.size */ "6"}/10", style = TextStyle(fontSize = 16.sp))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
         }
 
         item {
-            teams.forEach { team ->
-                TeamItem(team = team)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+//            teams.forEach { team ->
+//                TeamItem(team = team)
+//                Spacer(modifier = Modifier.height(8.dp))
+//            }
         }
 
         item {
@@ -241,21 +293,23 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Exit Button
-            Button(
-                onClick = onExitClick,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black
-                ),
-                border = BorderStroke(1.dp, Color.Gray),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    text = "X",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            if (onExitClick != null) {
+                Button(
+                    onClick = onExitClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    border = BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "X",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -263,10 +317,10 @@ fun ProfileScreen(
             // Logoff Button
             Button(
                 onClick = {
-                    auth.signOut()
-                    Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT).show()
-                    navigator.popUntilRoot()
-                    navigator.push(LoginScreen())
+//                    auth.signOut()
+                    Toast.makeText(context, "Successfully Signed Out", Toast.LENGTH_SHORT).show()
+//                    navigator.popUntilRoot()
+//                    navigator.push(LoginScreen())
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -276,7 +330,7 @@ fun ProfileScreen(
                 border = BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Log Off", fontSize = 12.sp)
+                Text("Sign Out", fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -284,10 +338,10 @@ fun ProfileScreen(
             //Delete Account
             Button(
                 onClick = {
-                    auth.signOut()
-                    Toast.makeText(context, "Successfully Deleted", Toast.LENGTH_SHORT).show()
-                    navigator.popUntilRoot()
-                    navigator.push(LoginScreen())
+//                    auth.signOut()
+                    Toast.makeText(context, "Successfully Deleted Account", Toast.LENGTH_SHORT).show()
+//                    navigator.popUntilRoot()
+//                    navigator.push(LoginScreen())
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(

@@ -57,16 +57,27 @@ android {
 
 dependencies {
     // Ktor Client and Engine (CIO or OkHttp)
-    implementation("io.ktor:ktor-client-core:2.3.0")
-    implementation("io.ktor:ktor-client-cio:2.3.0")
+//    implementation("io.ktor:ktor-client-core:2.3.0")
+//    implementation("io.ktor:ktor-client-cio:2.3.0")
+//
+//// Ktor Content Negotiation and JSON serialization
+//    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
+//    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.0") // Ensure this is included
+//
+//
+//    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+//    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
 
 // Ktor Content Negotiation and JSON serialization
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.0") // Ensure this is included
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json) // Ensure this is included
 
 
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
     // Other necessary dependencies
     implementation(libs.androidx.core.ktx)
@@ -77,6 +88,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Material Icons
+    implementation(libs.androidx.material.icons.extended)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -112,4 +127,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx.v285)
+
+
+
 }

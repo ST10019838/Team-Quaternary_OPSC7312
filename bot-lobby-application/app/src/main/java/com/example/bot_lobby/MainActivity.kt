@@ -1,5 +1,6 @@
 package com.example.bot_lobby
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
@@ -36,6 +38,7 @@ class MainActivity : ComponentActivity() {
     private val loginService = LoginService(client)
     private val registerService = RegisterService(client)
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,12 +46,15 @@ class MainActivity : ComponentActivity() {
             BotLobbyTheme {
                 TabNavigator(HomeTab) {
                     Scaffold(
-                        content = { innerPadding ->
-                            AuthScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                loginService = loginService,
-                                registerService = registerService
-                            )
+                        content = {
+                            //innerPadding ->
+//                            AuthScreen(
+//                                modifier = Modifier.padding(innerPadding),
+//                                loginService = loginService,
+//                                registerService = registerService
+//                            )
+
+                            CurrentTab()
                         },
                         bottomBar = {
                             NavigationBar {
@@ -66,107 +72,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun AuthScreen(
-    modifier: Modifier = Modifier,
-    loginService: LoginService,
-    registerService: RegisterService
-) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var firstname by remember { mutableStateOf("") }
-    var lastname by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
-    var isLoginMode by remember { mutableStateOf(true) }
-    var isLoading by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
-        Text(
-            text = if (isLoginMode) "Login" else "Register",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-        )
-
-        if (!isLoginMode) {
-            TextField(
-                value = firstname,
-                onValueChange = { firstname = it },
-                label = { Text("First Name") }
-            )
-
-            TextField(
-                value = lastname,
-                onValueChange = { lastname = it },
-                label = { Text("Last Name") }
-            )
-
-            TextField(
-                value = age,
-                onValueChange = { age = it },
-                label = { Text("Age") },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-            )
-        }
-
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Email") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
-        )
-
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        Button(onClick = {
-            coroutineScope.launch {
-                isLoading = true
-                result = if (isLoginMode) {
-                    loginService.login(username, password)
-                } else {
-                    // Create a User instance and pass it to register
-                    val user = User(
-                        username = username,
-                        password = password,
-                        firstname = firstname,
-                        lastname = lastname,
-                        age = age.toIntOrNull() ?: 0 // Use a default value if parsing fails
-                    )
-                    registerService.register(user)
-                }
-                isLoading = false
-            }
-        }) {
-            Text(text = if (isLoginMode) "Login" else "Register")
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(text = result)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = { isLoginMode = !isLoginMode }) {
-            Text(text = if (isLoginMode) "Don't have an account? Register" else "Already have an account? Login")
-        }
-    }
-}
 
 @Composable
 private fun RowScope.TabNavigationItem(tab: Tab) {
