@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 
+//Used by Scouting
+
 @Composable
 fun TeamItem(team: Team) {
     Row(

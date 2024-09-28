@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +32,7 @@ fun HomeScreenContent() {
     Column(
         modifier = Modifier
             .fillMaxSize()  // Fill the entire screen space
-            .padding(16.dp),  // Apply padding to the content
+            .padding(4.dp),  // Apply padding to the content
         horizontalAlignment = Alignment.CenterHorizontally  // Center-align content horizontally
     ) {
         // Display the "Welcome Back!" heading centered on the screen
@@ -51,7 +52,8 @@ fun HomeScreenContent() {
                 // List of sample events
                 val events = listOf(
                     Event("Event 1", "Description of Event 1", "01/10/2024", "02/10/2024", "Team A", listOf("Player 1", "Player 2")),
-                    Event("Event 2", "Description of Event 2", "05/10/2024", "06/10/2024", "Team B", listOf("Player 3", "Player 4"))
+                    Event("Event 2", "Description of Event 2", "05/10/2024", "06/10/2024", "Team B", listOf("Player 3", "Player 4")),
+                    Event("Event 2", "Description of Event 2", "05/10/2024", "06/10/2024", "Team B", listOf("Player 2", "Player 3"))
                 )
                 // Loop through each event and display it
                 events.forEach { event ->
@@ -70,7 +72,8 @@ fun HomeScreenContent() {
                 // List of sample announcements
                 val announcements = listOf(
                     Announcement("Team A", "Player 1", "Important Announcement for Team A"),
-                    Announcement("Team B", "Player 2", "Important Announcement for Team B")
+                    Announcement("Team B", "Player 2", "Important Announcement for Team B"),
+                    Announcement("Team C", "Player 3", "Important Announcement for Team C")
                 )
                 // Loop through each announcement and display it
                 announcements.forEach { announcement ->
@@ -84,7 +87,7 @@ fun HomeScreenContent() {
 // Composable function to create a collapsible section
 @Composable
 fun CollapsibleSection(heading: String, content: @Composable () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }  // State to track whether the section is expanded or collapsed
+    var expanded by remember { mutableStateOf(true) }  // Set expanded to true by default
 
     Column {
         // Heading row with an expand/collapse icon
@@ -101,18 +104,17 @@ fun CollapsibleSection(heading: String, content: @Composable () -> Unit) {
             )
             // IconButton to toggle the expand/collapse state
             IconButton(onClick = { expanded = !expanded }) {
-                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Expand or collapse")  // Dropdown arrow icon
+                Icon(imageVector = Icons.Default.Visibility, contentDescription = "Expand or collapse")  // Dropdown arrow icon
             }
         }
 
-        // If expanded is true, display the content passed to this function
+        // Display the content (events or announcements) if expanded is true
         if (expanded) {
-            content()  // Display the section content (events or announcements)
+            content()  // Show the section content
         }
     }
 }
 
-// Composable function to display a single event item
 @Composable
 fun EventItem(event: Event) {
     var expanded by remember { mutableStateOf(false) }  // State to track whether the event details are expanded
@@ -129,13 +131,13 @@ fun EventItem(event: Event) {
         Column(
             modifier = Modifier.padding(8.dp)  // Add padding inside the event box
         ) {
-            // First row contains the event title and a dropdown arrow to expand the details
+            // First row contains the event date and title and a dropdown arrow to expand the details
             Row(
                 modifier = Modifier.fillMaxWidth(),  // Fill available width
                 verticalAlignment = Alignment.CenterVertically  // Center the content vertically
             ) {
-                // Display the event title and date
-                Text(text = "${event.title} - ${event.startDate}")
+                // Display the event date first, then title
+                Text(text = "${event.startDate} - ${event.title}")  // Display start date first and then title
                 Spacer(modifier = Modifier.weight(1f))  // Push the arrow to the right side
                 // Dropdown arrow to expand/collapse event details
                 IconButton(onClick = { expanded = !expanded }) {
@@ -157,6 +159,7 @@ fun EventItem(event: Event) {
         }
     }
 }
+
 
 // Composable function to display a single announcement item
 @Composable

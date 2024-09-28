@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Member
 
+// Handles role access (Teamsprofile)
+
 @Composable
 fun PlayerItem(member: Member, onProfileClick: () -> Unit) {
     Row(

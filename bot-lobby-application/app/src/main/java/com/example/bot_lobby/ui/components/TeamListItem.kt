@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
@@ -16,29 +17,31 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.R
+import java.text.SimpleDateFormat
+import java.util.*
 
-//USed by scouting
+//used by Navigationtab/Teams
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScoutTeamListItem(
-    team: Team,
-    navController: NavController // Add NavController parameter
+fun TeamListItem(
+    team: Team
 ) {
-    // Main Box for each team
+    // Get the current date in xx/xx/xxxx format
+    val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(BorderStroke(1.dp, Color.Gray)) // Border for each box
-            .padding(8.dp) // Padding inside the box
+            .padding(8.dp)
+            .border(BorderStroke(1.dp, Color.Gray), shape = RoundedCornerShape(8.dp)) // Add a grey border with rounded corners
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp) // Padding inside the box
+                .padding(8.dp)
         ) {
             // First Row: Icon, Team tag and name, Teams Button, and View Profile Button
             Row(
@@ -85,7 +88,7 @@ fun ScoutTeamListItem(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .height(36.dp)
-                        .width(120.dp)
+                        .width(90.dp)
                 ) {
                     Text(
                         text = "${team.members.size} / 10", // Example for team count
@@ -108,7 +111,7 @@ fun ScoutTeamListItem(
 
                         // Ensure the navigation graph has been set before navigating
                         try {
-                            navController.navigate("team_profile/$teamTagToNavigate")
+                            //navController.navigate("team_profile/$teamTagToNavigate")
                         } catch (e: IllegalArgumentException) {
                             // Handle the case where the navigation graph is not properly set
                             println("Navigation graph is not properly set: ${e.message}")
@@ -121,68 +124,39 @@ fun ScoutTeamListItem(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Add a horizontal divider
+            Divider(
+                color = Color.Gray,
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
 
-            // Second Row: Open and Join Buttons
+            // Second Row: "Next Event:" text and today's date
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Open Button
-                Button(
-                    onClick = {
-                        // Handle open action
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .height(36.dp)
-                        .weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_open_book),
-                        contentDescription = "Open",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Open")
-                }
+                // Text for "Next Event:"
+                Text(
+                    text = "Next Event:",
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    modifier = Modifier.weight(1f) // This will take up the available space on the left
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Join Button
-                Button(
-                    onClick = {
-                        // Handle join action
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .height(36.dp)
-                        .weight(2f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_square_plus),
-                        contentDescription = "Join",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Join")
-                }
+                // Today's date aligned to the right
+                Text(
+                    text = currentDate,
+                    color = Color.Black,
+                    fontSize = 14.sp
+
+                )
             }
         }
     }
-
     Spacer(modifier = Modifier.height(16.dp))
 }
