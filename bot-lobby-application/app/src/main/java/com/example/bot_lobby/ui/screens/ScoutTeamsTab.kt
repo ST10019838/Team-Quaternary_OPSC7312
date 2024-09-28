@@ -1,25 +1,39 @@
-package com.example.bot_lobby.ui.pages
+package com.example.bot_lobby.ui.screens
 
-import androidx.compose.foundation.layout.* // Import layout components
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.* // Import Material Design components
-import androidx.compose.runtime.* // Import Compose runtime state functions
-import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController // Import NavController for navigation
+import androidx.navigation.NavController
+import com.example.bot_lobby.ui.composables.ScoutTeamListItem
+import com.example.bot_lobby.ui.theme.BlackCursor
+import com.example.bot_lobby.ui.theme.FocusedContainerGray
+import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
 import com.example.bot_lobby.ui.viewmodels.TeamViewModel
-import com.example.bot_lobby.ui.components.ScoutTeamListItem
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.shape.RoundedCornerShape
-import com.example.bot_lobby.ui.theme.* // Import custom theme
 
 @Composable
 fun ScoutTeamsTab(navController: NavController, teamViewModel: TeamViewModel = viewModel()) {
@@ -59,12 +73,18 @@ fun ScoutTeamsTab(navController: NavController, teamViewModel: TeamViewModel = v
 
             // Search Icon
             IconButton(onClick = { teamViewModel.updateSearchQuery(searchQuery) }) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = "Search Scout Team Icon")
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Scout Team Icon"
+                )
             }
 
             // Refresh Icon to clear the scouting team search
             IconButton(onClick = { teamViewModel.updateSearchQuery("") }) {
-                Icon(imageVector = Icons.Default.Refresh, contentDescription = "Clear Scout Team Search Icon")
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Clear Scout Team Search Icon"
+                )
             }
         }
 
@@ -75,7 +95,10 @@ fun ScoutTeamsTab(navController: NavController, teamViewModel: TeamViewModel = v
             modifier = Modifier.fillMaxSize()  // Fill the available space
         ) {
             items(filteredTeams) { team ->  // Dynamically populate the list
-                ScoutTeamListItem(team = team, navController = navController)  // Pass the navController to each item
+                ScoutTeamListItem(
+                    team = team,
+                    navController = navController
+                )  // Pass the navController to each item
             }
         }
 

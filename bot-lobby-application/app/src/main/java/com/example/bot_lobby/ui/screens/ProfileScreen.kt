@@ -1,14 +1,25 @@
 package com.example.bot_lobby.ui.screens
 
-import androidx.compose.foundation.layout.* // Import layout components
-import androidx.compose.material3.* // Import Material Design 3 components
-import androidx.compose.runtime.* // Import Compose runtime state functions
-import androidx.compose.ui.Modifier // Import Modifier for UI configurations
-import androidx.compose.ui.unit.dp // Import dp for padding and size units
-import com.example.bot_lobby.ui.pages.PlayerProfileTab // Import PlayerProfileTab composable
-import com.example.bot_lobby.ui.pages.SettingsTab // Import SettingsTab composable
-import com.example.bot_lobby.ui.viewmodels.PlayerViewModel // Import PlayerViewModel
-import com.example.bot_lobby.ui.viewmodels.TeamViewModel // Import TeamViewModel
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.example.bot_lobby.ui.viewmodels.PlayerViewModel
+import com.example.bot_lobby.ui.viewmodels.TeamViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,10 +47,12 @@ fun ProfileScreen(
                 ) {
                     // "PlayerProfile" Tab Navigation Item
                     NavigationBarItem(
-                        icon = {}, // No icon for PlayerProfile tab
+                        icon = { }, // No icon for PlayerProfile tab
                         label = { Text("PlayerProfile") }, // Tab label
                         selected = selectedTabIndex == 0, // Check if "PlayerProfile" tab is selected
-                        onClick = { selectedTabIndex = 0 } // Switch to PlayerProfile tab when clicked
+                        onClick = {
+                            selectedTabIndex = 0
+                        } // Switch to PlayerProfile tab when clicked
                     )
 
                     // "Settings" Tab Navigation Item
@@ -69,6 +82,7 @@ fun ProfileScreen(
                         playerTag = playerTag,
                         onExitClick = onExitClick
                     )
+
                     1 -> SettingsTab()
                 }
             }
