@@ -1,12 +1,16 @@
 package com.example.bot_lobby.models
 
+// Team data class
 data class Team(
-    var id: Int,
-    var name: String,
-    var tag: String
+    val teamtag: String,
+    val teamname: String,
+    val members: List<Member>,
+    val isPublic: Boolean
 )
 
-data class TeamInsert(
-    var name: String,
-    var tag: String
+// Member data class
+data class Member(
+    val playertag: String,
+    val role: String
 )
+
