@@ -50,6 +50,14 @@ android {
 }
 
 dependencies {
+//    // Ktor Client and Engine (CIO or OkHttp)
+//    implementation("io.ktor:ktor-client-core:2.3.0")
+//    implementation("io.ktor:ktor-client-cio:2.3.0") // or ktor-client-okhttp if you prefer
+//
+//    // Ktor Content Negotiation
+//    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
+//    implementation("io.ktor:ktor-serialization-gson:2.3.0")
+
     // Ktor Client and Engine (CIO or OkHttp)
     implementation("io.ktor:ktor-client-core:2.3.0")
     implementation("io.ktor:ktor-client-cio:2.3.0") // or ktor-client-okhttp if you prefer
@@ -74,6 +82,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Material Icons
+    implementation("androidx.compose.material:material-icons-extended")
+    
+
     // Voyager Dependencies
     implementation(libs.voyager.navigator)
     implementation(libs.voyager.screenmodel)

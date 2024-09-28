@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
@@ -40,11 +41,20 @@ class MainActivity : ComponentActivity() {
                 TabNavigator(HomeTab) {
                     Scaffold(
                         content = { innerPadding ->
-                            AuthScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                loginService = loginService,
-                                registerService = registerService
-                            )
+//                            AuthScreen(
+//                                modifier = Modifier.padding(innerPadding),
+//                                loginService = loginService,
+//                                registerService = registerService
+//                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(innerPadding)
+                                    .padding(horizontal = 25.dp, vertical = 15.dp)
+                            ) {
+                                CurrentTab()
+                            }
+
                         },
                         bottomBar = {
                             NavigationBar {
@@ -62,92 +72,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun AuthScreen(
-    modifier: Modifier = Modifier,
-    loginService: LoginService,
-    registerService: RegisterService
-) {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
-    var isLoginMode by remember { mutableStateOf(true) }
-
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
-        Text(
-            text = if (isLoginMode) "Login" else "Register",
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-        )
-
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") }
-        )
-
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        if (!isLoginMode) {
-            TextField(
-                value = firstName,
-                onValueChange = { firstName = it },
-                label = { Text("First Name") }
-            )
-
-            TextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text("Last Name") }
-            )
-
-            TextField(
-                value = age,
-                onValueChange = { age = it },
-                label = { Text("Age") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-        }
-
-        Button(onClick = {
-            coroutineScope.launch {
-                result = if (isLoginMode) {
-                    loginService.login(username, password)
-                } else {
-                    val ageInt = age.toIntOrNull() ?: 0
-                    registerService.register(username, password, firstName, lastName, ageInt)
-                }
-            }
-        }) {
-            Text(text = if (isLoginMode) "Login" else "Register")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(text = result)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = { isLoginMode = !isLoginMode }) {
-            Text(text = if (isLoginMode) "Don't have an account? Register" else "Already have an account? Login")
-        }
-    }
-}
 
 @Composable
 private fun RowScope.TabNavigationItem(tab: Tab) {
@@ -180,20 +104,4 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
             selectedTextColor = MaterialTheme.colorScheme.primary
         )
     )
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BotLobbyTheme {
-        Greeting("Android")
-    }
 }

@@ -1,24 +1,24 @@
 package com.example.bot_lobby.ui.pages
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.example.bot_lobby.ui.screens.HomeScreen
+import com.example.bot_lobby.ui.screens.ScoutingPlayersScreen
 
-object HomeTab : Tab {
+object ScoutingPlayersTab : Tab {
     override val options: TabOptions
         @Composable
         get() {
-            val title = "Home"
-            val icon = rememberVectorPainter(Icons.Default.Home)
+            val title = "Players"
+            val icon = rememberVectorPainter(Icons.Default.PersonOutline)
 
             return remember {
                 TabOptions(
-                    index = 2u, // Change
+                    index = 1u,
                     title = title,
                     icon = icon
                 )
@@ -27,6 +27,6 @@ object HomeTab : Tab {
 
     @Composable
     override fun Content() {
-        HomeScreen()
+        ScoutingPlayersScreen()
     }
 }

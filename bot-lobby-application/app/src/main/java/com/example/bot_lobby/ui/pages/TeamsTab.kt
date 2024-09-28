@@ -2,6 +2,7 @@ package com.example.bot_lobby.ui.pages
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.People
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -9,16 +10,16 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.example.bot_lobby.ui.screens.TeamsScreen
 
-object TeamsTab: Tab {
+object TeamsTab : Tab {
     override val options: TabOptions
         @Composable
         get() {
-            val title = "Home"
-            val icon = rememberVectorPainter(Icons.Default.Home) // Change Icon
+            val title = "Teams"
+            val icon = rememberVectorPainter(Icons.Default.People)
 
             return remember {
                 TabOptions(
-                    index = 0u, // Change
+                    index = 1u, // Change
                     title = title,
                     icon = icon
                 )
