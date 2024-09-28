@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.bot_lobby.ui.components.PlayerListItem
 import com.example.bot_lobby.ui.viewmodels.PlayerViewModel
 import com.example.bot_lobby.ui.viewmodels.TeamViewModel
@@ -26,104 +27,105 @@ import android.util.Log
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayersTab(
-    playerViewModel: PlayerViewModel = viewModel(),
-    teamViewModel: TeamViewModel = viewModel() // Get the TeamViewModel
+    navController: NavController, // Add NavController as a parameter
+    playerViewModel: PlayerViewModel = viewModel(), // Initialize PlayerViewModel
+    teamViewModel: TeamViewModel = viewModel() // Initialize TeamViewModel
 ) {
-    // Collect state from PlayerViewModel
+    // Collect searchQuery and filtered players from the PlayerViewModel
     val searchQuery by playerViewModel.searchQuery.collectAsState()
     val filteredPlayers by playerViewModel.filteredPlayers.collectAsState()
 
-    // Collect teams from TeamViewModel
+    // Collect teams from the TeamViewModel
     val teams by teamViewModel.teams.collectAsState()
 
+    // Focus manager for clearing the focus when search is triggered
     val focusManager = LocalFocusManager.current
 
-    // Log the filtered players
+    // Debugging logs to track the filtered players
     Log.d("PlayersTab", "Number of filtered players: ${filteredPlayers.size}")
     filteredPlayers.forEach { Log.d("PlayersTab", "Player: ${it.player}, Tag: ${it.playertag}, Teams: ${it.teams}") }
 
-    // Main Column layout
+    // Main Column layout to structure the screen
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxSize()
             .padding(2.dp)
     ) {
-        // Search Bar, Search Icon, and Refresh Button Row
+        // Row for the Search Bar, Search Icon, and Refresh Button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 0.dp, bottom = 4.dp), // Reduces the space on top of the search bar
+                .padding(top = 0.dp, bottom = 4.dp), // Adjusts padding for a tight layout
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Search TextField
+            // Search TextField for searching players by tag
             TextField(
-                value = searchQuery,
-                onValueChange = { playerViewModel.updateSearchQuery(it) },
-                placeholder = { Text("Search a Player's Tag") },
+                value = searchQuery, // Binds the searchQuery state
+                onValueChange = { playerViewModel.updateSearchQuery(it) }, // Updates searchQuery state
+                placeholder = { Text("Search a Player's Tag") }, // Placeholder text for search field
                 modifier = Modifier
-                    .weight(1f) // Ensures the search bar takes up as much space as possible
+                    .weight(1f) // Expands the search field to take full available width
                     .padding(end = 4.dp),
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                shape = RoundedCornerShape(16.dp), // Rounded corner for aesthetic
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), // Search keyboard action
                 keyboardActions = KeyboardActions(
-                    onSearch = {
-                        focusManager.clearFocus()
-                    }
+                    onSearch = { focusManager.clearFocus() } // Clears focus when search is triggered
                 ),
-                singleLine = true,
+                singleLine = true, // Restrict search bar to one line
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.LightGray,
                     unfocusedContainerColor = Color.LightGray,
                     cursorColor = Color.Black,
-                    focusedIndicatorColor = Color.Transparent, // Removes the focus line
-                    unfocusedIndicatorColor = Color.Transparent // Removes the unfocused line
+                    focusedIndicatorColor = Color.Transparent, // Remove default focus underline
+                    unfocusedIndicatorColor = Color.Transparent // Remove default unfocused underline
                 )
             )
 
-            // Search IconButton
+            // Search IconButton to trigger search
             IconButton(onClick = {
-                focusManager.clearFocus()
+                focusManager.clearFocus() // Clears focus when search button is clicked
                 Log.d("PlayersTab", "Search triggered")
             }) {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon"
+                    contentDescription = "Search Icon" // Describes the search button
                 )
             }
 
-            // Refresh IconButton to clear the search and reload data
+            // Refresh IconButton to clear search and reload the data
             IconButton(onClick = {
-                playerViewModel.updateSearchQuery("") // Clear the search query
-                playerViewModel.reloadData() // Reload the initial data
+                playerViewModel.updateSearchQuery("") // Clears the search query
+                playerViewModel.reloadData() // Triggers data reload from PlayerViewModel
             }) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh Icon"
+                    contentDescription = "Refresh Icon" // Describes the refresh button
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Display the number of filtered players
+        // Display the number of players found after filtering
         Text("Players found: ${filteredPlayers.size}", style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Player List inside a LazyColumn to make it scrollable
+        // Player List within LazyColumn for scrolling through players
         Box(modifier = Modifier.weight(1f)) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
                 items(filteredPlayers) { player ->
-                    PlayerListItem(player = player, teams = teams) // Pass the teams to PlayerListItem
+                    // Pass navController to PlayerListItem to enable navigation
+                    PlayerListItem(player = player, teams = teams, navController = navController)
                 }
             }
         }
 
-        // Display "No players found" if the list is empty
+        // Display message if no players are found
         if (filteredPlayers.isEmpty()) {
             Text("No players found")
         }

@@ -25,13 +25,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
+import androidx.navigation.NavController
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Player
 import com.example.bot_lobby.models.Team
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerListItem(player: Player, teams: List<Team>) {
+fun PlayerListItem(player: Player, teams: List<Team>, navController: NavController) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
     var selectedTeam by remember { mutableStateOf("") }
@@ -61,24 +62,39 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = player.playertag,  // Changed to `playertag`
+                    text = player.playertag,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.weight(1f)
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                // LFT Button
                 LFTButton(
-                    inTeam = player.teams.isNotEmpty(),  // Check if the player is already in a team
+                    inTeam = player.teams.isNotEmpty(),
                     onClick = {
-                        // Handle LFT button action
+                        // Handle LFT action
                     }
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                // View Profile Button
                 IconButton(onClick = {
-                    // Handle view profile action
+                    // Check if player.playertag is empty, and assign "Player Tag 1" if so
+                    val playertagToNavigate = if (player.playertag.isNullOrEmpty()) {
+                        "Player Tag 1"
+                    } else {
+                        player.playertag
+                    }
+
+                    // Ensure the navigation graph has been set before navigating
+                    try {
+                        navController.navigate("player_profile/$playertagToNavigate")
+                    } catch (e: IllegalArgumentException) {
+                        // Handle the case where the navigation graph is not properly set
+                        println("Navigation graph is not properly set: ${e.message}")
+                    }
                 }) {
                     Icon(
                         imageVector = Icons.Default.Visibility,
@@ -86,6 +102,7 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                         modifier = Modifier.size(32.dp)
                     )
                 }
+
             }
 
             // Second Row: Team Selection Dropdown and Invite Button
@@ -141,7 +158,7 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                             trailingIcon = {
                                 Icon(
                                     imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-                                    contentDescription = if (player.teams.isEmpty()) "Dropdown" else "Dropdown Disabled",
+                                    contentDescription = "Dropdown",
                                     modifier = Modifier.graphicsLayer {
                                         alpha = if (player.teams.isEmpty()) 1f else 0.3f
                                     }
@@ -149,6 +166,7 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                             }
                         )
 
+                        // Dropdown menu for selecting team
                         ExposedDropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -158,9 +176,9 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                         ) {
                             teams.forEach { team ->
                                 DropdownMenuItem(
-                                    text = { Text(text = team.teamtag, fontSize = 14.sp) },  // Changed to `teamtag`
+                                    text = { Text(text = team.teamtag, fontSize = 14.sp) },
                                     onClick = {
-                                        selectedTeam = team.teamtag  // Set selected team when clicked
+                                        selectedTeam = team.teamtag
                                         expanded = false
                                     }
                                 )
@@ -171,6 +189,7 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
 
                 Spacer(modifier = Modifier.width(18.dp))
 
+                // Invite Button
                 InviteButton(
                     enabled = player.teams.isEmpty(),
                     onClick = {

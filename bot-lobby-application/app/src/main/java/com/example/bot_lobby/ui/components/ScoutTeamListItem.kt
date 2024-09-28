@@ -16,13 +16,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bot_lobby.models.Member
+import androidx.navigation.NavController
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScoutTeamListItem(team: Team) {
+fun ScoutTeamListItem(
+    team: Team,
+    navController: NavController // Add NavController parameter
+) {
     // Main Box for each team
     Box(
         modifier = Modifier
@@ -38,9 +41,8 @@ fun ScoutTeamListItem(team: Team) {
             // First Row: Icon, Team tag and name, Teams Button, and View Profile Button
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth() // Fill width to edge
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Icon on the first row (ic_player_tag.png)
                 Image(
                     painter = painterResource(id = R.drawable.ic_player_tag),
                     contentDescription = "Player Tag Icon",
@@ -49,20 +51,19 @@ fun ScoutTeamListItem(team: Team) {
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Team tag (bold) and team name (smaller font)
                 Column(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = team.teamtag,  // Team tag in bold
+                        text = team.teamtag,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         ),
                     )
                     Text(
-                        text = team.teamname,  // Team name in smaller font size
+                        text = team.teamname,
                         fontSize = 11.sp,
                         color = Color.Black
                     )
@@ -70,24 +71,23 @@ fun ScoutTeamListItem(team: Team) {
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Teams Button showing XX/XX for number of teams
                 Button(
                     onClick = {
                         // Handle teams button action here
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White, // White background
-                        contentColor = Color.Black // Black text color
+                        containerColor = Color.White,
+                        contentColor = Color.Black
                     ),
-                    border = BorderStroke(1.dp, Color.Gray), // Grey border
-                    shape = RoundedCornerShape(8.dp), // Rounded edges
+                    border = BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
-                        .height(36.dp) // Adjust height
-                        .width(120.dp) // Adjust width
+                        .height(36.dp)
+                        .width(120.dp)
                 ) {
                     Text(
                         text = "${team.members.size} / 10", // Example for team count
-                        fontSize = 14.sp // Text size
+                        fontSize = 14.sp
                     )
                 }
 
@@ -96,15 +96,29 @@ fun ScoutTeamListItem(team: Team) {
                 // View Profile Button with icon
                 IconButton(
                     onClick = {
-                        // Handle view profile action
+                        // Check if team.teamtag is empty, and assign a default value if so
+                        val teamTagToNavigate = if (team.teamtag.isNullOrEmpty()) {
+                            "Default Team Tag" // Provide a default team tag if team.tag is null or empty
+                        } else {
+                            team.teamtag
+                        }
+
+                        // Ensure the navigation graph has been set before navigating
+                        try {
+                            navController.navigate("team_profile/$teamTagToNavigate")
+                        } catch (e: IllegalArgumentException) {
+                            // Handle the case where the navigation graph is not properly set
+                            println("Navigation graph is not properly set: ${e.message}")
+                        }
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Visibility,
-                        contentDescription = "View Profile",
+                        contentDescription = "View Team Profile",
                         modifier = Modifier.size(32.dp)
                     )
                 }
+
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -112,7 +126,7 @@ fun ScoutTeamListItem(team: Team) {
             // Second Row: Open and Join Buttons
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth() // Fill the width
+                modifier = Modifier.fillMaxWidth()
             ) {
                 // Open Button
                 Button(
@@ -120,17 +134,17 @@ fun ScoutTeamListItem(team: Team) {
                         // Handle open action
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White, // White background
-                        contentColor = Color.Black // Black text color
+                        containerColor = Color.White,
+                        contentColor = Color.Black
                     ),
-                    border = BorderStroke(1.dp, Color.Gray), // Grey border
-                    shape = RoundedCornerShape(8.dp), // Rounded edges
+                    border = BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .height(36.dp)
-                        .weight(1f) // Make the button fill 1/3 the width
+                        .weight(1f)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_open_book), // Open book icon
+                        painter = painterResource(id = R.drawable.ic_open_book),
                         contentDescription = "Open",
                         modifier = Modifier.size(20.dp)
                     )
@@ -146,17 +160,17 @@ fun ScoutTeamListItem(team: Team) {
                         // Handle join action
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White, // White background
-                        contentColor = Color.Black // Black text color
+                        containerColor = Color.White,
+                        contentColor = Color.Black
                     ),
-                    border = BorderStroke(1.dp, Color.Gray), // Grey border
-                    shape = RoundedCornerShape(8.dp), // Rounded edges
+                    border = BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .height(36.dp)
-                        .weight(2f) // Make the button fill 2/3f the width
+                        .weight(2f)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_square_plus), // Square block with plus sign icon
+                        painter = painterResource(id = R.drawable.ic_square_plus),
                         contentDescription = "Join",
                         modifier = Modifier.size(20.dp)
                     )
@@ -167,5 +181,5 @@ fun ScoutTeamListItem(team: Team) {
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp)) // Spacer between team boxes
+    Spacer(modifier = Modifier.height(16.dp))
 }

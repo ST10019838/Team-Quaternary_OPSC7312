@@ -1,37 +1,14 @@
 package com.example.bot_lobby.ui.screens
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.bot_lobby.R
-import com.example.bot_lobby.ui.viewmodels.PlayerViewModel
-import com.example.bot_lobby.ui.viewmodels.TeamViewModel
-import com.example.bot_lobby.models.*
-import com.example.bot_lobby.ui.components.TeamItem
-import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.* // Import layout components
+import androidx.compose.material3.* // Import Material Design 3 components
+import androidx.compose.runtime.* // Import Compose runtime state functions
+import androidx.compose.ui.Modifier // Import Modifier for UI configurations
+import androidx.compose.ui.unit.dp // Import dp for padding and size units
+import com.example.bot_lobby.ui.pages.PlayerProfileTab // Import PlayerProfileTab composable
+import com.example.bot_lobby.ui.pages.SettingsTab // Import SettingsTab composable
+import com.example.bot_lobby.ui.viewmodels.PlayerViewModel // Import PlayerViewModel
+import com.example.bot_lobby.ui.viewmodels.TeamViewModel // Import TeamViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,225 +18,60 @@ fun ProfileScreen(
     playerTag: String,
     onExitClick: () -> Unit
 ) {
-    val auth = FirebaseAuth.getInstance()
-    val context = LocalContext.current
-    val navigator = LocalNavigator.currentOrThrow
+    // Define the available tabs: "PlayerProfile" and "Settings"
+    val tabs = listOf("PlayerProfile", "Settings")
 
-    // Get the player from the ViewModel, if not found, assign a default player
-    val player = playerViewModel.players.collectAsState().value.find { it.playertag == playerTag }
-        ?: Player(
-            player = "user1@demo.com",  // Default email if player not found
-            playertag = "Player Tag: Default",  // Default player tag
-            teams = emptyList(),  // No teams assigned
-            description = "Default description"  // Default description
-        )
+    // State to track which tab is currently selected
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
-    val teams = teamViewModel.teams.collectAsState().value
-    var description by remember { mutableStateOf(player.teams.joinToString(", ") { it }) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp),  // Removed padding
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        // Row with Player Image and Player details (Edit button, LFT, Public, Invite)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth() // Stretch row across full width
-                .padding(0.dp),  // Remove internal padding
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Image Section (Column 1)
-            Image(
-                painter = painterResource(id = R.drawable.ic_team_tag),
-                contentDescription = "Player Image",
-                modifier = Modifier
-                    .width(120.dp) // Set image width
-                    .height(150.dp) // Set image height
-                    .clip(RoundedCornerShape(16.dp)) // Rounded corners
-                    .border(1.dp, Color.Transparent, RoundedCornerShape(16.dp)), // Transparent border
-                contentScale = ContentScale.Crop // Scale image to fit
-            )
-
-            Spacer(modifier = Modifier.width(16.dp)) // No spacing between image and content
-
-            // Player Info & Buttons Section (Column 2)
-            Column(
-                modifier = Modifier
-                    .weight(1f) // Stretch to fill remaining space
-                    .align(Alignment.CenterVertically),
-                verticalArrangement = Arrangement.spacedBy(8.dp) // Space between items
-            ) {
-                // Row for Player Tag and Edit button
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+    // Scaffold provides a structured layout with support for top bars, bottom bars, etc.
+    Scaffold(
+        bottomBar = {
+            // Bottom Navigation Bar for switching between tabs
+            Box(Modifier.padding(bottom = 0.dp)) {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface, // Navigation bar background color
+                    contentColor = MaterialTheme.colorScheme.onSurface, // Navigation bar text color
+                    modifier = Modifier.height(48.dp) // Custom height for the navigation bar (default is 56.dp)
                 ) {
-                    // Player Tag
-                    Text(
-                        text = player.playertag,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                    // "PlayerProfile" Tab Navigation Item
+                    NavigationBarItem(
+                        icon = {}, // No icon for PlayerProfile tab
+                        label = { Text("PlayerProfile") }, // Tab label
+                        selected = selectedTabIndex == 0, // Check if "PlayerProfile" tab is selected
+                        onClick = { selectedTabIndex = 0 } // Switch to PlayerProfile tab when clicked
                     )
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    // Edit Button
-                    Button(
-                        onClick = { /* Handle Edit Click */ },
-                            colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = Color.Black  // Icon color
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, Color.Transparent)  // Transparent border
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_edit),
-                            contentDescription = "Edit",
-                            modifier = Modifier.size(24.dp)  // Adjust icon size
-                        )
-                    }
-                }
-
-                // Row for LFT and Public buttons
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // LFT Button
-                    Button(
-                        onClick = { /* Handle LFT button click */ },
-                        modifier = Modifier.width(110.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black
-                        ),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("LFT", fontSize = 12.sp)
-                    }
-
-                    // Public Button
-                    Button(
-                        onClick = { /* Handle Public button click */ },
-                        modifier = Modifier.width(110.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black
-                        ),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Public, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Public", fontSize = 12.sp)
-                    }
-                }
-
-                // Invite Button
-                Button(
-                    onClick = { /* Handle Invite button click */ },
-                    modifier = Modifier.width(250.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.Email, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Invite", fontSize = 12.sp)
+                    // "Settings" Tab Navigation Item
+                    NavigationBarItem(
+                        icon = {}, // No icon for Settings tab
+                        label = { Text("Settings") }, // Tab label
+                        selected = selectedTabIndex == 1, // Check if "Settings" tab is selected
+                        onClick = { selectedTabIndex = 1 } // Switch to Settings tab when clicked
+                    )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Input field for player description
-        TextField(
-            value = description,
-            onValueChange = { newDesc -> description = newDesc },
-            placeholder = { Text("Enter player description") },
+    ) { paddingValues ->
+        // Main content area for displaying the selected tab content
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                .background(Color.White),
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            singleLine = false,
-            shape = RoundedCornerShape(8.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                cursorColor = Color.Black,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Teams heading with dynamic XX/XX teams count
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize() // Take up the full screen space
+                .padding(0.dp) // Remove padding for top and sides
         ) {
-            Text(text = "Teams", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
-            Text("${teams.size}/10", style = TextStyle(fontSize = 16.sp))
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // List of teams the player belongs to
-        teams.forEach { team ->
-            TeamItem(team = team)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Exit Button
-        Button(
-            onClick = onExitClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            ),
-            border = BorderStroke(1.dp, Color.Gray),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                text = "X",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Logoff Button
-        Button(
-            onClick = {
-                auth.signOut()
-                Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT).show()
-                navigator.popUntilRoot()
-                navigator.push(LoginScreen())
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            ),
-            border = BorderStroke(1.dp, Color.Gray),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Log Off", fontSize = 12.sp)
+            // Box to contain the content of the currently selected tab
+            Box(modifier = Modifier.weight(1f)) {
+                // Switch content based on selectedTabIndex (0: PlayerProfile, 1: Settings)
+                when (selectedTabIndex) {
+                    0 -> PlayerProfileTab(
+                        playerViewModel = playerViewModel,
+                        teamViewModel = teamViewModel,
+                        playerTag = playerTag,
+                        onExitClick = onExitClick
+                    )
+                    1 -> SettingsTab()
+                }
+            }
         }
     }
 }
