@@ -2,7 +2,6 @@ package com.example.bot_lobby.ui.pages
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ElectricBolt
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -19,7 +18,7 @@ object EventsTab : Tab {
 
             return remember {
                 TabOptions(
-                    index = 0u, // Change
+                    index = 0u,
                     title = title,
                     icon = icon
                 )

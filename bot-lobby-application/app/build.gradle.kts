@@ -85,7 +85,12 @@ dependencies {
 
     // Material Icons
     implementation("androidx.compose.material:material-icons-extended")
-    
+
+    // Additional library for number picker in Jetpack Compose
+    implementation("com.chargemap.compose:numberpicker:1.0.3")
+
+    // Compose form library for managing forms in Jetpack Compose
+    implementation("com.github.benjamin-luescher:compose-form:0.2.8")
 
     // Voyager Dependencies
     implementation(libs.voyager.navigator)

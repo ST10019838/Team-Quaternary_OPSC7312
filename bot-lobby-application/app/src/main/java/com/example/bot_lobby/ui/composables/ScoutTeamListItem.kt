@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 
@@ -40,8 +39,7 @@ import com.example.bot_lobby.models.Team
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScoutTeamListItem(
-    team: Team,
-    navController: NavController // Add NavController parameter
+    team: Team
 ) {
     // Main Box for each team
     Box(
@@ -111,7 +109,7 @@ fun ScoutTeamListItem(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // View Profile Button with icon
-                // This should call the TeamProfileScreen.kt
+                // This should call the TeamProfile.kt
                 IconButton(
                     onClick = {
                         // Check if team.teamtag is empty, and assign a default value if so
@@ -123,7 +121,7 @@ fun ScoutTeamListItem(
 
                         // Ensure the navigation graph has been set before navigating
                         try {
-                            navController.navigate("team_profile/$teamTagToNavigate")
+//                            navController.navigate("team_profile/$teamTagToNavigate")
                         } catch (e: IllegalArgumentException) {
                             // Handle the case where the navigation graph is not properly set
                             println("Navigation graph is not properly set: ${e.message}")

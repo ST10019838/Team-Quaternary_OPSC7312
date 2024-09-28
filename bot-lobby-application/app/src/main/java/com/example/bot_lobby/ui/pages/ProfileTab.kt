@@ -1,7 +1,6 @@
 package com.example.bot_lobby.ui.pages
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -19,7 +18,7 @@ object ProfileTab : Tab {
 
             return remember {
                 TabOptions(
-                    index = 3u, // Change
+                    index = 3u,
                     title = title,
                     icon = icon
                 )

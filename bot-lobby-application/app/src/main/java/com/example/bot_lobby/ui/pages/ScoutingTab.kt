@@ -38,14 +38,14 @@ object ScoutingTab : Tab {
 
             return remember {
                 TabOptions(
-                    index = 4u, // Change
+                    index = 4u,
                     title = title,
                     icon = icon
                 )
             }
         }
 
-    
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {

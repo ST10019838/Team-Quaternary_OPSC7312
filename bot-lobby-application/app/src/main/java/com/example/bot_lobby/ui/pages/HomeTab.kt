@@ -18,7 +18,7 @@ object HomeTab : Tab {
 
             return remember {
                 TabOptions(
-                    index = 2u, // Change
+                    index = 2u,
                     title = title,
                     icon = icon
                 )

@@ -1,4 +1,4 @@
-package com.example.bot_lobby.ui.screens
+package com.example.bot_lobby.ui.composables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -23,7 +23,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -42,14 +41,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
-import com.example.bot_lobby.models.Member
 import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.ui.composables.PlayerItem
 import com.example.bot_lobby.ui.viewmodels.TeamViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TeamProfileScreen(
+fun TeamProfile(
     teamTag: String,
     teamViewModel: TeamViewModel,
     onExitClick: () -> Unit
@@ -294,52 +291,6 @@ fun TeamProfileScreen(
                 text = "X",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun PlayerItem(member: Member, onProfileClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Player Icon
-        Image(
-            painter = painterResource(id = R.drawable.ic_player_tag),
-            contentDescription = "Player Icon",
-            modifier = Modifier.size(48.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Player Tag
-        Text(
-            text = member.playertag,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
-
-        // Role Button
-        Button(
-            onClick = { /* Handle role click */ },
-
-            ) {
-            Text(text = member.role.uppercase(), fontSize = 12.sp)
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Profile view icon
-        IconButton(onClick = onProfileClick) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_eye_profile),
-                contentDescription = "View Profile",
-                modifier = Modifier.size(24.dp)
             )
         }
     }

@@ -1,4 +1,4 @@
-package com.example.bot_lobby.ui.screens
+package com.example.bot_lobby.ui.composables
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -15,9 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Email
@@ -44,55 +43,56 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Player
-import com.example.bot_lobby.ui.composables.TeamItem
+import com.example.bot_lobby.ui.screens.LoginScreen
 import com.example.bot_lobby.ui.viewmodels.PlayerViewModel
 import com.example.bot_lobby.ui.viewmodels.TeamViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerProfileTab(
-    playerViewModel: PlayerViewModel,
-    teamViewModel: TeamViewModel,
-    playerTag: String,
-    onExitClick: () -> Unit
+fun PlayerProfile(
+    playerViewModel: PlayerViewModel? = null,
+    teamViewModel: TeamViewModel? = null,
+    playerTag: String? = null,
+//    onExitClick: (() -> Unit)? =
 ) {
     // Firebase Auth instance for managing user sessions
-    val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
+    val navigator = LocalNavigator.currentOrThrow
 
-    // Get the player based on the playerTag, fallback to default values if not found
-    val player = playerViewModel.players.collectAsState().value.find { it.playertag == playerTag }
-        ?: Player(
-            player = "user1@demo.com",  // Default email if player not found
-            playertag = "Player Tag: Default",  // Default player tag
-            teams = emptyList(),  // No teams assigned
-            description = "Default description"  // Default description
-        )
+    // Get the player based on the playerTag, fallback to default if not found
+    val player =
+        playerViewModel?.players?.collectAsState()?.value?.find { it.playertag == playerTag }
+            ?: Player(
+                player = "user1@demo.com",  // Default email if player not found
+                playertag = "Player Tag: Default",  // Default player tag
+                teams = emptyList(),  // No teams assigned
+                description = "Default description"  // Default description
+            )
 
     // Retrieve the list of teams from the TeamViewModel
-    val teams = teamViewModel.teams.collectAsState().value
+    val teams = teamViewModel?.teams?.collectAsState()?.value
 
     // State to manage the description field, initialized from the player's teams
     var description by remember { mutableStateOf(player.teams.joinToString(", ") { it }) }
 
-    // Main scrollable container
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(0.dp)
-            .verticalScroll(rememberScrollState()), // Enable scrolling when content overflows
+            .padding(0.dp),  // No padding around the entire column
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
         // Row for player image, tag, and action buttons
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth()  // Row fills the available width
                 .padding(0.dp),  // No internal padding
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -101,8 +101,8 @@ fun PlayerProfileTab(
                 painter = painterResource(id = R.drawable.ic_team_tag),  // Sample image resource
                 contentDescription = "Player Image",
                 modifier = Modifier
-                    .width(100.dp)
-                    .height(140.dp)
+                    .width(120.dp)
+                    .height(150.dp)
                     .clip(RoundedCornerShape(16.dp))  // Rounded corners for the image
                     .border(
                         1.dp,
@@ -117,7 +117,7 @@ fun PlayerProfileTab(
             // Column for player information and buttons
             Column(
                 modifier = Modifier
-                    .weight(2f)  // Take up available width after image
+                    .weight(1f)  // Take up available width after image
                     .align(Alignment.CenterVertically),
                 verticalArrangement = Arrangement.spacedBy(8.dp)  // Space between elements
             ) {
@@ -157,7 +157,7 @@ fun PlayerProfileTab(
                     // LFT Button
                     Button(
                         onClick = { /* Handle LFT button click */ },
-                        modifier = Modifier.width(125.dp),
+                        modifier = Modifier.width(110.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
                             contentColor = Color.Black
@@ -177,7 +177,7 @@ fun PlayerProfileTab(
                     // Public Button
                     Button(
                         onClick = { /* Handle Public button click */ },
-                        modifier = Modifier.width(125.dp),
+                        modifier = Modifier.width(110.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
                             contentColor = Color.Black
@@ -228,6 +228,7 @@ fun PlayerProfileTab(
                 .fillMaxWidth()
                 .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Border styling
                 .background(Color.White),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),  // Keyboard options
             singleLine = false,
             shape = RoundedCornerShape(8.dp),
             colors = TextFieldDefaults.colors(
@@ -249,7 +250,7 @@ fun PlayerProfileTab(
         ) {
             Text(text = "Teams", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
             Text(
-                "${teams.size}/10",
+                "${teams?.size}/10",
                 style = TextStyle(fontSize = 16.sp)
             )  // Display the current team count
         }
@@ -257,19 +258,45 @@ fun PlayerProfileTab(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Iterate through teams and display each team using TeamItem composable
-        teams.forEach { team ->
+        teams?.forEach { team ->
             TeamItem(team = team)
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.weight(1f))  // Space to push buttons to the bottom
+
+        // Exit Button to exit the profile screen
+//        if (onExitClick != null) {
+//            Button(
+//                onClick = onExitClick,  // Triggered when the exit button is clicked
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .align(Alignment.CenterHorizontally),
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color.White,
+//                    contentColor = Color.Black
+//                ),
+//                border = BorderStroke(1.dp, Color.Gray),
+//                shape = RoundedCornerShape(8.dp)
+//            ) {
+//                Text(
+//                    text = "X",
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.Bold
+//                )
+//            }
+//        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Logoff Button to sign out the user
         Button(
             onClick = {
-                auth.signOut()  // Sign out the current user
+//                auth.signOut()  // Sign out the current user
                 Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT)
                     .show()  // Show a confirmation toast
+                navigator.popUntilRoot()  // Navigate back to the root screen
+                navigator.push(LoginScreen())  // Push the LoginScreen back onto the stack
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(

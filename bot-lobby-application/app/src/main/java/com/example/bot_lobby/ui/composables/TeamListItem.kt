@@ -118,7 +118,7 @@ fun TeamListItem(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // View Profile Button with icon
-                // This should call the TeamProfileScreen.kt
+                // This should call the TeamProfile.kt
                 IconButton(
                     onClick = {
                         // Check if team.teamtag is empty, and assign a default value if so

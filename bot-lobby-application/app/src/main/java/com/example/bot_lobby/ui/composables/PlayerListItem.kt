@@ -51,14 +51,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Player
 import com.example.bot_lobby.models.Team
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerListItem(player: Player, teams: List<Team>, navController: NavController) {
+fun PlayerListItem(player: Player, teams: List<Team>) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
     var selectedTeam by remember { mutableStateOf("") }
@@ -116,7 +115,7 @@ fun PlayerListItem(player: Player, teams: List<Team>, navController: NavControll
 
                     // Ensure the navigation graph has been set before navigating
                     try {
-                        navController.navigate("player_profile/$playertagToNavigate")
+//                        navController.navigate("player_profile/$playertagToNavigate")
                     } catch (e: IllegalArgumentException) {
                         // Handle the case where the navigation graph is not properly set
                         println("Navigation graph is not properly set: ${e.message}")
