@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.models.User
-import com.example.bot_lobby.models.UserInsert
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,6 +24,7 @@ class UserViewModel : ViewModel() {
                     val body = response.body()
                     if (body != null) {
                         _userData.value = body
+                        Log.d("UserViewModel", "User registered successfully: $body")
                     } else {
                         Log.e("ERROR!", "Response body is null")
                     }
@@ -38,12 +38,12 @@ class UserViewModel : ViewModel() {
     }
 
     // Function to create a new user
-    fun createUser(newUser: UserInsert) {
+    fun createUser(newUser: User) {
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.UserApi.createUser(RetrofitInstance.apiKey, newUser)
                 if (response.isSuccessful) {
-                    Log.i("SUCCESS", "User created: ${response.body()}")
+                    Log.d("UserViewModel", "User registered successfully: $newUser")
                     getUserData() // Refresh user list after creation
                 } else {
                     Log.e("ERROR", "User creation failed: ${response.errorBody()?.string()}")
@@ -60,7 +60,7 @@ class UserViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.UserApi.updateUser(
                     RetrofitInstance.apiKey,
-                    "eq.${user.user_id}",
+                    "eq.${user.id}",
                     user
                 )
                 if (response.isSuccessful) {

@@ -68,16 +68,6 @@ fun ProfileScreen(
     var description by remember { mutableStateOf("Bio") }
     val context = LocalContext.current
 
-    val user = User(
-            user_id = 1,
-            user_role = 1,
-            age = 20,  // Provide missing parameters
-            firstname = "John",
-            lastname = "Doe",
-            password = "password",
-            username = "defaultUsername",
-            user_bio = "This is a user bio"
-        )
 
     // Wrapping the entire content in a LazyColumn for scrolling
     LazyColumn(
@@ -120,7 +110,7 @@ fun ProfileScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = user.username,
+                            text = "Placeholder",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -148,7 +138,7 @@ fun ProfileScreen(
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start)
                     {
-                        Text("${user.firstname} ${user.lastname}")
+                        //Text("${user.firstname} ${user.lastname}")
                     }
 
                     // The following code needs to be added

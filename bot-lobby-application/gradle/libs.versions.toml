@@ -1,11 +1,7 @@
 [versions]
 agp = "8.6.1"
 converterGson = "2.9.0"
-credentials = "<latest version>"
-credentialsPlayServicesAuth = "1.2.2"
-credentialsVersion = "1.2.2"
-googleid = "<latest version>"
-googleidVersion = "1.1.1"
+identity = "1.1.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -14,12 +10,8 @@ espressoCore = "3.6.1"
 kotlinxCoroutinesAndroid = "1.7.3"
 kotlinxCoroutinesCore = "1.8.0-RC2"
 ktorClientCio = "2.3.0"
-ktorClientCioVersion = "1.5.0"
 ktorClientContentNegotiation = "2.3.0"
 ktorClientCore = "2.3.0"
-ktorClientCoreVersion = "1.5.0"
-ktorClientHttpTimeout = "2.3.12"
-ktorClientSerialization = "2.3.0"
 ktorSerializationKotlinxJson = "2.3.0"
 lifecycleRuntimeKtx = "2.8.4"
 activityCompose = "1.9.1"
@@ -28,28 +20,19 @@ lifecycleRuntimeKtxVersion = "2.8.5"
 lifecycleViewmodelCompose = "2.8.5"
 okhttp = "4.9.0"
 playServicesAuth = "21.2.0"
-postgrestKt = "v100"
 retrofit = "2.9.0"
-supabaseKt = "VERSION"
-supabaseKtAndroidDebug = "3.0.0-rc-1"
-supabaseKtVersion = "1.0.0"
 voyagerVersion = "1.1.0-beta02"
+media3CommonKtx = "1.4.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
-androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
-androidx-credentials-play-services-auth-v122 = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
-androidx-credentials-v122 = { module = "androidx.credentials:credentials", version.ref = "credentialsVersion" }
 androidx-lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata", version.ref = "lifecycleViewmodelCompose" }
 androidx-lifecycle-runtime-ktx-v285 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
-googleid-v111 = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleidVersion" }
-gotrue-kt = { module = "io.github.jan-tennert.supabase:gotrue-kt" }
+identity = { module = "com.google.android.libraries.identity:identity", version.ref = "identity" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -66,21 +49,12 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCio" }
-ktor-client-cio-v150 = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCioVersion" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
-ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktorClientSerialization" }
-ktor-client-core-v150 = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCoreVersion" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "postgrestKt" }
-realtime-kt = { module = "io.github.jan-tennert.supabase:realtime-kt" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-supabase-kt = { module = "io.supabase:supabase-kt", version.ref = "supabaseKt" }
-supabase-kt-android-debug = { module = "io.github.jan-tennert.supabase:supabase-kt-android-debug", version.ref = "supabaseKtAndroidDebug" }
-supabase-kt-v100 = { module = "io.supabase:supabase-kt", version.ref = "supabaseKtVersion" }
-supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerVersion" }
 voyager-hilt = { module = "cafe.adriel.voyager:voyager-hilt", version.ref = "voyagerVersion" }
 voyager-kodein = { module = "cafe.adriel.voyager:voyager-kodein", version.ref = "voyagerVersion" }
@@ -91,6 +65,7 @@ voyager-rxjava = { module = "cafe.adriel.voyager:voyager-rxjava", version.ref = 
 voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyagerVersion" }
 voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

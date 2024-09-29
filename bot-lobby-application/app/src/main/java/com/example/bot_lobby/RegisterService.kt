@@ -53,14 +53,15 @@ class RegisterService(private val client: HttpClient) {
                     }
                     setBody(
                         """{
-                        "username": "${user.username}",
-                        "password": "${user.password}",
-                        "firstname": "${user.firstname}",
-                        "lastname": "${user.lastname}",
-                        "age": ${user.age},
-                        "type_id": 1
-                    }"""
+        "username": "${user.username}",
+        "password": "${user.password}",
+        "type_id": ${user.role},  // Assuming the role corresponds to type_id
+        "biometrics": ${user.biometrics?.let { "\"$it\"" } ?: "null"},
+        "bio": ${user.bio?.let { "\"$it\"" } ?: "null"},
+        "team_ids": ${user.teamIds}
+    }"""
                     )
+
                 }
 
                 Log.d("RegisterService", "User data insertion status: ${response.status.value}")

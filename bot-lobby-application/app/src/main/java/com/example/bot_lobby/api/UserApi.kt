@@ -1,7 +1,6 @@
 package com.example.bot_lobby.api
 
 import com.example.bot_lobby.models.User
-import com.example.bot_lobby.models.UserInsert
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -17,7 +16,7 @@ interface UserApi {
     suspend fun getUsers(@Header("apikey") key: String): Response<List<User>>
 
     @POST("users")
-    suspend fun createUser(@Header("apikey") key: String, @Body user: UserInsert): Response<User>
+    suspend fun createUser(@Header("apikey") key: String, @Body user: User): Response<User>
 
     @PATCH("users")
     suspend fun updateUser(

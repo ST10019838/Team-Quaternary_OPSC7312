@@ -24,6 +24,7 @@ class LoginService(private val client: HttpClient) {
                         mapOf(
                             "email" to email,
                             "password" to password
+                            //TO-Do pull the user instance that is logged in to the database. there should only be 1 user login instance locally
                         )
                     )
                 }

@@ -6,7 +6,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitInstance {
     const val apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluc250cGdwdW5vYmF3YWpuYm93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQ1MjAyNjAsImV4cCI6MjA0MDA5NjI2MH0.LpyqZLqJp8bgSOXd3Tuw9Nntq60WJ4-GtAGK9bbJko8"
 
-    private const val BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/rest/v1"
+    // Fix the trailing slash in the base URL
+    private const val BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/rest/v1/"
 
     private const val AUTH_BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/auth/v1"
 
@@ -18,7 +19,7 @@ object RetrofitInstance {
             .build()
             .create(AuthApi::class.java)
     }
-    //User Api for user functions
+
     val UserApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -26,6 +27,7 @@ object RetrofitInstance {
             .build()
             .create(UserApi::class.java)
     }
+
     val TeamApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)

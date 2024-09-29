@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Bot-Lobby"
 include(":app")
- 
