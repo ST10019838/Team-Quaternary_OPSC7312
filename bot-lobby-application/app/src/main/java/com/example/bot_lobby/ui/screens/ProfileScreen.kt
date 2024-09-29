@@ -21,6 +21,11 @@ fun ProfileScreen(
     // Define the available tabs: "PlayerProfile" and "Settings"
     val tabs = listOf("PlayerProfile", "Settings")
 
+    // This was taken form the following website to use the mutualstateof function
+    // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+    // Ahmad Shubita
+    // https://medium.com/@ah.shubita
+
     // State to track which tab is currently selected
     var selectedTabIndex by remember { mutableStateOf(0) }
 

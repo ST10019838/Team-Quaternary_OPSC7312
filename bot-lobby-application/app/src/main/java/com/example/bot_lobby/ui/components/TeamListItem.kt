@@ -29,6 +29,11 @@ import java.util.*
 fun TeamListItem(
     team: Team
 ) {
+    // This was taken form the following website to use the SimpleDateFormat function
+    // https://medium.com/@abdulqadirtr/android-how-to-convert-your-datetime-to-different-formats-using-extension-function-7ade5de76522
+    // Abdul Qadir
+    // https://medium.com/@abdulqadirtr
+
     // Get the current date in xx/xx/xxxx format
     val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
 

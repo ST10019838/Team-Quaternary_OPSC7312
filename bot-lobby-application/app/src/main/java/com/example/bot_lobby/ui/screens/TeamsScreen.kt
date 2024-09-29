@@ -48,6 +48,10 @@ fun TeamsScreen() {
             }
         }
 
+        // This was taken form the following website to use the FloatingActionButton function
+        // https://developer.android.com/reference/com/google/android/material/floatingactionbutton/FloatingActionButton
+        // Android Developers
+
         // Floating button in the bottom-right corner with a plus sign
         FloatingActionButton(
             onClick = {

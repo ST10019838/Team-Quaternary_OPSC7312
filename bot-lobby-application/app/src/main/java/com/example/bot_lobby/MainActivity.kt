@@ -17,6 +17,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             BotLobbyTheme {
                 val auth = FirebaseAuth.getInstance()
+
+                // This was taken form the following website to use the mutualstateof function
+                // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+                // Ahmad Shubita
+                // https://medium.com/@ah.shubita
+                //
+                // Manage SSO
                 val isLoggedIn by remember { mutableStateOf(auth.currentUser != null) }
 
                 // Pass either the LoginScreen or HomeScreen to the Navigator

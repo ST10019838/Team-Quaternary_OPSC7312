@@ -31,12 +31,23 @@ fun PlayersTab(
     playerViewModel: PlayerViewModel = viewModel(), // Initialize PlayerViewModel
     teamViewModel: TeamViewModel = viewModel() // Initialize TeamViewModel
 ) {
+
+    // This was taken form the following website to use the collectAsState function
+    // https://medium.com/androiddevelopers/consuming-flows-safely-in-jetpack-compose-cde014d0d5a3
+    // Manuel Vivo
+    // https://medium.com/@manuelvicnt
+
     // Collect searchQuery and filtered players from the PlayerViewModel
     val searchQuery by playerViewModel.searchQuery.collectAsState()
     val filteredPlayers by playerViewModel.filteredPlayers.collectAsState()
 
     // Collect teams from the TeamViewModel
     val teams by teamViewModel.teams.collectAsState()
+
+    // This was taken form the following website to use the LocalFocusManager function
+    // https://medium.com/google-developer-experts/focus-in-jetpack-compose-6584252257fe
+    // Jamie Sanson
+    // https://medium.com/@jamiesanson
 
     // Focus manager for clearing the focus when search is triggered
     val focusManager = LocalFocusManager.current
@@ -112,6 +123,11 @@ fun PlayersTab(
 
         Spacer(modifier = Modifier.height(4.dp))
 
+        // This was taken form the following website to use the LazyColumn function
+        // https://medium.com/@mal7othify/lists-using-lazycolumn-in-jetpack-compose-c70c39805fbc
+        // Maryam Alhuthayfi
+        // https://medium.com/@mal7othify
+        
         // Player List within LazyColumn for scrolling through players
         Box(modifier = Modifier.weight(1f)) {
             LazyColumn(

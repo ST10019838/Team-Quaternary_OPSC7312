@@ -14,7 +14,7 @@ fun EventsScreen() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(text = "Upcoming Events")
+        Text(text = "Under Construction - Upcoming Events")
         // You can add more UI elements or lists here as needed
     }
 }

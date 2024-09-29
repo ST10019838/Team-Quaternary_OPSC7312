@@ -2,6 +2,7 @@ package com.example.bot_lobby.ui.composables
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,11 +25,12 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun ScreenLayout(tabNavigator: TabNavigator) {
     Scaffold(
-        // Top app bar with the title of the current tab
+        // Top app bar without a title
         topBar = {
             TopAppBar(
                 title = {
-                    Text(tabNavigator.current.options.title) // Display the title of the current tab
+                    // Removed the title text by leaving this composable empty
+                    Spacer(modifier = Modifier) // Placeholder to keep the layout consistent
                 }
             )
         },
@@ -47,7 +49,7 @@ fun ScreenLayout(tabNavigator: TabNavigator) {
             Box(
                 modifier = Modifier
                     .padding(it) // Handle system window insets (e.g., status bar, navigation bar)
-                    .padding(horizontal = 25.dp, vertical = 15.dp) // Add custom padding for layout
+                    .padding(horizontal = 16.dp, vertical = 0.dp) // Add custom padding for layout
             ) {
                 CurrentTab() // Show content of the currently selected tab
             }

@@ -42,6 +42,11 @@ fun TeamProfileScreen(
             isPublic = true
         )
 
+    // This was taken form the following website to use the mutualstateof function
+    // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+    // Ahmad Shubita
+    // https://medium.com/@ah.shubita
+
     // State for the team description
     var description by remember { mutableStateOf("Description of the team") }
 
@@ -278,48 +283,4 @@ fun TeamProfileScreen(
     }
 }
 
-@Composable
-fun PlayerItem(member: Member, onProfileClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Player Icon
-        Image(
-            painter = painterResource(id = R.drawable.ic_player_tag),
-            contentDescription = "Player Icon",
-            modifier = Modifier.size(48.dp)
-        )
 
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Player Tag
-        Text(
-            text = member.playertag,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
-
-        // Role Button
-        Button(
-            onClick = { /* Handle role click */ },
-
-        ) {
-        Text(text = member.role.uppercase(), fontSize = 12.sp)
-    }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Profile view icon
-        IconButton(onClick = onProfileClick) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_eye_profile),
-                contentDescription = "View Profile",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}

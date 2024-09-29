@@ -45,6 +45,14 @@ fun PlayerProfileTab(
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
 
+    // This was taken form the following website to use the mutualstateof function
+    // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+    // Ahmad Shubita
+    // https://medium.com/@ah.shubita
+
+    // State to track if the user is logged in
+    var isLoggedIn by remember { mutableStateOf(auth.currentUser != null) }
+
     // Get the player based on the playerTag, fallback to default values if not found
     val player = playerViewModel.players.collectAsState().value.find { it.playertag == playerTag }
         ?: Player(
@@ -59,6 +67,10 @@ fun PlayerProfileTab(
 
     // State to manage the description field, initialized from the player's teams
     var description by remember { mutableStateOf(player.teams.joinToString(", ") { it }) }
+
+    // This was taken form the following website to use the rememberScrollState function
+    // https://developer.android.com/reference/kotlin/androidx/compose/foundation/ScrollState
+    // Android Developers
 
     // Main scrollable container
     Column(
@@ -229,7 +241,11 @@ fun PlayerProfileTab(
         Button(
             onClick = {
                 auth.signOut()  // Sign out the current user
+                isLoggedIn = false  // Update the login state
                 Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT).show()  // Show a confirmation toast
+
+                // Call the onExitClick function or navigate to another screen
+                onExitClick()
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(

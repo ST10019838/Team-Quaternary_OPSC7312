@@ -15,6 +15,11 @@ fun ScoutingScreen(navController: NavController) {
     // Define the available tabs: "Players" and "Teams"
     val tabs = listOf("Players", "Teams")
 
+    // This was taken form the following website to use the mutualstateof function
+    // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+    // Ahmad Shubita
+    // https://medium.com/@ah.shubita
+
     // State to track which tab is currently selected
     var selectedTabIndex by remember { mutableStateOf(0) }
 

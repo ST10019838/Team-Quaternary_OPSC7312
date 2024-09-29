@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerProfileScreen(
@@ -46,6 +47,11 @@ fun PlayerProfileScreen(
     val context = LocalContext.current
     val navigator = LocalNavigator.currentOrThrow
 
+    // This was taken form the following website to use the collectAsState function
+    // https://medium.com/androiddevelopers/consuming-flows-safely-in-jetpack-compose-cde014d0d5a3
+    // Manuel Vivo
+    // https://medium.com/@manuelvicnt
+    //
     // Get the player based on the playerTag, fallback to default if not found
     val player = playerViewModel.players.collectAsState().value.find { it.playertag == playerTag }
         ?: Player(
@@ -58,6 +64,11 @@ fun PlayerProfileScreen(
     // Retrieve the list of teams from the TeamViewModel
     val teams = teamViewModel.teams.collectAsState().value
 
+    // This was taken form the following website to use the mutualstateof function
+    // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+    // Ahmad Shubita
+    // https://medium.com/@ah.shubita
+    //
     // State to manage the description field, initialized from the player's teams
     var description by remember { mutableStateOf(player.teams.joinToString(", ") { it }) }
 

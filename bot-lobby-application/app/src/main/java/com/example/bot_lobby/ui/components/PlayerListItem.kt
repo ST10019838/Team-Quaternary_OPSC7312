@@ -32,6 +32,10 @@ import com.example.bot_lobby.models.Team
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// This was taken form the following website to use the mutualstateof function
+// https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+// Ahmad Shubita
+// https://medium.com/@ah.shubita
 fun PlayerListItem(player: Player, teams: List<Team>, navController: NavController) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }

@@ -70,6 +70,11 @@ fun ScoutTeamsTab(navController: NavController, teamViewModel: TeamViewModel = v
 
         Spacer(modifier = Modifier.height(16.dp))  // Add space between search bar and team list
 
+        // This was taken form the following website to use the LazyColumn function
+        // https://medium.com/@mal7othify/lists-using-lazycolumn-in-jetpack-compose-c70c39805fbc
+        // Maryam Alhuthayfi
+        // https://medium.com/@mal7othify
+
         // List of scout teams
         LazyColumn(
             modifier = Modifier.fillMaxSize()  // Fill the available space

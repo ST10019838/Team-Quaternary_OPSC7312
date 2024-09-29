@@ -23,6 +23,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape // Import shape for 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsTab() {
+    // This was taken form the following website to use the mutualstateof function
+    // https://medium.com/@ah.shubita/jetpack-compose-remember-mutablestateof-derivedstateof-and-remembersaveable-explained-b6ede7fed673
+    // Ahmad Shubita
+    // https://medium.com/@ah.shubita
+
     // Variables for toggles and dropdown
     var isPushNotificationsEnabled by remember { mutableStateOf(false) }
     var isDarkModeEnabled by remember { mutableStateOf(false) }
@@ -33,6 +38,10 @@ fun SettingsTab() {
 
     // State to control dropdown expansion
     var expanded by remember { mutableStateOf(false) }
+
+    // This was taken form the following website to use the rememberScrollState function
+    // https://developer.android.com/reference/kotlin/androidx/compose/foundation/ScrollState
+    // Android Developers
 
     // Scrollable Column for the settings content
     Column(
@@ -166,6 +175,10 @@ fun SettingsTab() {
                         )
                     }
                 }
+
+                // This was taken form the following website to use the DropdownMenu function
+                // https://foso.github.io/Jetpack-Compose-Playground/material/dropdownmenu/
+                // Jetpack Compose Playground
 
                 // Dropdown menu for language options
                 DropdownMenu(
