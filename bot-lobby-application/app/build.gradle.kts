@@ -2,15 +2,16 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("plugin.serialization") version "1.7.20"  // Use the Kotlin serialization plugin
+    //id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
 }
-
+//do not delete : C:\Users\Christiaan\AppData\Local\Android\Sdk
 android {
     namespace = "com.example.bot_lobby"
     compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.bot_lobby"
-        minSdk = 24
+        minSdk = 34
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -67,9 +68,14 @@ dependencies {
 //
 //    implementation("com.squareup.retrofit2:retrofit:2.9.0")
 //    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.cio)
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    //implementation("io.ktor:ktor-client-okhttp:2.3.12")
+    implementation("io.ktor:ktor-client-cio:2.0.0") // Replace with the latest version
+    //implementation "io.ktor:ktor-serialization-kotlinx-json:2.0.0") // Replace with the latest version
+    implementation("io.ktor:ktor-client-json:2.3.12")
+    implementation("io.ktor:ktor-client-serialization:2.3.12")
+    implementation("io.ktor:ktor-client-logging:2.3.12")
+    implementation("io.ktor:ktor-client-logging-jvm:2.3.12") // If you're using logging
 
 // Ktor Content Negotiation and JSON serialization
     implementation(libs.ktor.client.content.negotiation)
@@ -128,6 +134,31 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx.v285)
 
+//    //Google Auth Credential manager
+//    implementation("androidx.credentials:credentials:1.2.2")
+//    implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+//
+//    // optional - needed for credentials support from play services, for devices running
+//    // Android 13 and below.
+//    implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
+//
+//    // Google Play Services Auth
+//    implementation("com.google.android.gms:play-services-auth:20.5.0")
+    //implementation(libs.supabase.kt.android.debug)
+    implementation("io.github.jan-tennert.supabase:supabase-kt-android:3.0.0-rc-1")
+    //implementation(libs.supabase.postgrest.kt)
+    //implementation(libs.gotrue.kt)
+    //implementation(libs.realtime.kt)
+    //Google Auth Credential manager
+    //implementation(libs.androidx.credentials.v122)
+    //implementation (libs.googleid)
+    implementation(libs.androidx.credentials.v122)
+    implementation(libs.googleid.v111)
 
-
+    // optional - needed for credentials support from play services, for devices running
+    // Android 13 and below.
+    //implementation(libs.androidx.credentials.play.services.auth.v122)
+    implementation(libs.androidx.credentials.play.services.auth.v122)
+    // Google Play Services Auth
+    implementation(libs.play.services.auth)
 }

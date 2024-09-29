@@ -18,6 +18,7 @@ object RetrofitInstance {
             .build()
             .create(AuthApi::class.java)
     }
+    //User Api for user functions
     val UserApi by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
