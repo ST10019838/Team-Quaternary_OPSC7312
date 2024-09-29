@@ -35,18 +35,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.ui.composables.PlayerListItem
-import com.example.bot_lobby.ui.viewmodels.PlayerViewModel
-import com.example.bot_lobby.ui.viewmodels.TeamViewModel
+import com.example.bot_lobby.view_models.TeamViewModel
+import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScoutingPlayersScreen(
-    playerViewModel: PlayerViewModel = viewModel(), // Initialize PlayerViewModel
+    userViewModel: UserViewModel = viewModel(), // Initialize PlayerViewModel
     teamViewModel: TeamViewModel = viewModel() // Initialize TeamViewModel
 ) {
     // Collect searchQuery and filtered players from the PlayerViewModel
-    val searchQuery by playerViewModel.searchQuery.collectAsState()
-    val filteredPlayers by playerViewModel.filteredPlayers.collectAsState()
+    val searchQuery by userViewModel.searchQuery.collectAsState()
+    val filteredPlayers by userViewModel.filteredPlayers.collectAsState()
 
     // Collect teams from the TeamViewModel
     val teams by teamViewModel.teams.collectAsState()
@@ -80,7 +80,7 @@ fun ScoutingPlayersScreen(
             // Search TextField for searching players by tag
             TextField(
                 value = searchQuery, // Binds the searchQuery state
-                onValueChange = { playerViewModel.updateSearchQuery(it) }, // Updates searchQuery state
+                onValueChange = { userViewModel.updateSearchQuery(it) }, // Updates searchQuery state
                 placeholder = { Text("Search a Player's Tag") }, // Placeholder text for search field
                 modifier = Modifier
                     .weight(1f) // Expands the search field to take full available width
@@ -113,8 +113,8 @@ fun ScoutingPlayersScreen(
 
             // Refresh IconButton to clear search and reload the data
             IconButton(onClick = {
-                playerViewModel.updateSearchQuery("") // Clears the search query
-                playerViewModel.reloadData() // Triggers data reload from PlayerViewModel
+                userViewModel.updateSearchQuery("") // Clears the search query
+                userViewModel.reloadData() // Triggers data reload from PlayerViewModel
             }) {
                 Icon(
                     imageVector = Icons.Default.Refresh,

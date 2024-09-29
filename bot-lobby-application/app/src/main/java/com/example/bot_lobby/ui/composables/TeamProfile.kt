@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.ui.viewmodels.TeamViewModel
+import com.example.bot_lobby.view_models.TeamViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

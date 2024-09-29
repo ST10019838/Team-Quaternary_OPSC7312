@@ -32,7 +32,7 @@ import com.example.bot_lobby.ui.composables.ScoutTeamListItem
 import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
 import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
-import com.example.bot_lobby.ui.viewmodels.TeamViewModel
+import com.example.bot_lobby.view_models.TeamViewModel
 
 @Composable
 fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {

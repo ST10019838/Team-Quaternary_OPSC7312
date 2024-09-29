@@ -2,8 +2,9 @@ package com.example.bot_lobby.models
 
 // Team data class
 data class Team(
-    val teamtag: String,
-    val teamname: String,
+    var id: Int,
+    val tag: String,
+    val name: String,
     val members: List<Member>,
     val isPublic: Boolean
 )
@@ -12,5 +13,10 @@ data class Team(
 data class Member(
     val playertag: String,
     val role: String
+)
+
+data class TeamInsert(
+    var name: String,
+    var tag: String
 )
 

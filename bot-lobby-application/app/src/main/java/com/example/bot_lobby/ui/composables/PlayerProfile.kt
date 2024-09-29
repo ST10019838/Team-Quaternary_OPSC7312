@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,41 +45,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.R
-import com.example.bot_lobby.models.Player
+import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.screens.LoginScreen
-import com.example.bot_lobby.ui.viewmodels.PlayerViewModel
-import com.example.bot_lobby.ui.viewmodels.TeamViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerProfile(
-    playerViewModel: PlayerViewModel? = null,
-    teamViewModel: TeamViewModel? = null,
-    playerTag: String? = null,
-//    onExitClick: (() -> Unit)? =
+    user: User,
+    onDetailsSave: () -> Unit = {},
+    onExitClick: () -> Unit = {}
 ) {
     // Firebase Auth instance for managing user sessions
     val context = LocalContext.current
-    val navigator = LocalNavigator.currentOrThrow
-
-    // Get the player based on the playerTag, fallback to default if not found
-    val player =
-        playerViewModel?.players?.collectAsState()?.value?.find { it.playertag == playerTag }
-            ?: Player(
-                player = "user1@demo.com",  // Default email if player not found
-                playertag = "Player Tag: Default",  // Default player tag
-                teams = emptyList(),  // No teams assigned
-                description = "Default description"  // Default description
-            )
-
-    // Retrieve the list of teams from the TeamViewModel
-    val teams = teamViewModel?.teams?.collectAsState()?.value
 
     // State to manage the description field, initialized from the player's teams
-    var description by remember { mutableStateOf(player.teams.joinToString(", ") { it }) }
+    var user_bio by remember { mutableStateOf(user.user_bio) }
 
     Column(
         modifier = Modifier

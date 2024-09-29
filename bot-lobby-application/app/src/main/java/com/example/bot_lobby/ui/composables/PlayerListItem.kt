@@ -201,9 +201,9 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                         ) {
                             teams.forEach { team ->
                                 DropdownMenuItem(
-                                    text = { Text(text = team.teamtag, fontSize = 14.sp) },
+                                    text = { Text(text = team.tag, fontSize = 14.sp) },
                                     onClick = {
-                                        selectedTeam = team.teamtag
+                                        selectedTeam = team.tag
                                         expanded = false
                                     }
                                 )
