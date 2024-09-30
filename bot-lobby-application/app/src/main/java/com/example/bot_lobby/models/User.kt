@@ -10,4 +10,6 @@ data class User(
     val password: String? = null,       // Password of the user (may want to consider encryption later)
     val biometrics: String? = null,     // Nullable in case biometrics are not provided
     val teamIds: List<Int>? = null,
+    var isPublic: Boolean = true,
+    var isLFT: Boolean = true
 )
