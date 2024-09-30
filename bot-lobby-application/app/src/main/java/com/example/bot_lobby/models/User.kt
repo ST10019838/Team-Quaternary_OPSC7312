@@ -10,7 +10,7 @@ data class User(
     val username: String,               // Username of the user
     val password: String? = null,       // Password of the user (may want to consider encryption later)
     val biometrics: String? = null,     // Nullable in case biometrics are not provided
-    var teamIds: MutableList<UUID> = mutableListOf(),
+    var teamIds: List<UUID>? = null,
     var isPublic: Boolean = true,
     var isLFT: Boolean = true
 )

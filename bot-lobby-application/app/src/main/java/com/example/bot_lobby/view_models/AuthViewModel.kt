@@ -181,8 +181,6 @@ object AuthViewModel : ViewModel() {
 
         val userCopy = _userLoggedIn.value
 
-        userCopy?.teamIds?.add(newTeam.id!!)
-
         _userLoggedIn.value = userCopy
         Log.i("VALS", _userLoggedIn.value.toString())
 

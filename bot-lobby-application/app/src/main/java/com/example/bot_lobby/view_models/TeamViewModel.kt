@@ -69,10 +69,10 @@ class TeamViewModel : ViewModel() {
                 // Create a query string that will be used to search for all teams based on their ids
                 var queryString = "in.("
 
-                user.teamIds.forEach { id ->
+                user.teamIds?.forEach { id ->
                     queryString += "$id"
 
-                    queryString += if (user.teamIds.indexOf(id) == (user.teamIds.size - 1)) ")" else ","
+                    queryString += if (user.teamIds!!.indexOf(id) == (user.teamIds!!.size - 1)) ")" else ","
                 }
 
                 // Fetch data
@@ -96,7 +96,7 @@ class TeamViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.TeamApi.createTeam(RetrofitInstance.apiKey, newTeam)
-                
+
                 val body = response.body()
                 Log.i("RES!", response.toString())
                 if (body != null) {

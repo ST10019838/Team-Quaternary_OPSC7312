@@ -339,7 +339,7 @@ fun PlayerProfile(
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    text = "${if (user.teamIds.isNullOrEmpty()) 0 else user.teamIds.size} / 10",  // Assuming a max of 10 members
+                    text = "${if (user.teamIds.isNullOrEmpty()) 0 else user.teamIds!!.size} / 10",  // Assuming a max of 10 members
                     color = Color.Black,
                     style = MaterialTheme.typography.titleLarge
                 )
