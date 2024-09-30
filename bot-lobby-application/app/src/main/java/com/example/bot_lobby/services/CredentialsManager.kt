@@ -1,4 +1,4 @@
-package com.example.bot_lobby
+package com.example.bot_lobby.services
 
 /**
  * Object to manage user credentials. Stores email and password pairs.
@@ -15,7 +15,7 @@ object CredentialsManager {
     fun updateCredentials(email: String, password: String): Boolean {
         // Normalize email to lower case and trim spaces
         val normalizedEmail = email.trim().lowercase()
-        if(credentials.containsKey(normalizedEmail)){
+        if (credentials.containsKey(normalizedEmail)) {
             credentials[normalizedEmail] = password
             return true
         }

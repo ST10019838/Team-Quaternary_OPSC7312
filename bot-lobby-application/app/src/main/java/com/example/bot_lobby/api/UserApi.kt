@@ -1,7 +1,6 @@
 package com.example.bot_lobby.api
 
 import com.example.bot_lobby.models.User
-import com.example.bot_lobby.models.UserInsert
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -12,12 +11,24 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface UserApi {
-
-    @GET("users")  // Shouldn't have "rest/v1" here since it's part of the base URL
+    @GET("users")
     suspend fun getUsers(
         @Header("apikey") key: String,
         @Query("id") id: String? = null
     ): Response<List<User>>
+
+    @GET("users")
+    suspend fun login(
+        @Header("apiKey") apiKey: String,
+        @Query("username") username: String,
+        @Query("password") password: String
+    ): Response<List<User>>
+
+    @POST("users")
+    suspend fun register(
+        @Header("apiKey") apiKey: String,
+        @Body user: User
+    ): Response<User>
 
     @GET("users")
     suspend fun getUsersByName(
@@ -26,7 +37,7 @@ interface UserApi {
     ): Response<List<User>>
 
     @POST("users")
-    suspend fun createUser(@Header("apikey") key: String, @Body user: UserInsert): Response<User>
+    suspend fun createUser(@Header("apikey") key: String, @Body user: User): Response<User>
 
     @PATCH("users")
     suspend fun updateUser(

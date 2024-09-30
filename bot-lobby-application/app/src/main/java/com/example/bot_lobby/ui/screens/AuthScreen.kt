@@ -23,8 +23,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.bot_lobby.LoginService
-import com.example.bot_lobby.RegisterService
+import com.example.bot_lobby.services.LoginService
+import com.example.bot_lobby.services.RegisterService
 import kotlinx.coroutines.launch
 
 @Composable
@@ -91,18 +91,18 @@ fun AuthScreen(
             )
         }
 
-        Button(onClick = {
-            coroutineScope.launch {
-                result = if (isLoginMode) {
-                    loginService.login(username, password)
-                } else {
-                    val ageInt = age.toIntOrNull() ?: 0
-                    registerService.register(username, password, firstName, lastName, ageInt)
-                }
-            }
-        }) {
-            Text(text = if (isLoginMode) "Login" else "Register")
-        }
+//        Button(onClick = {
+//            coroutineScope.launch {
+//                result = if (isLoginMode) {
+//                    loginService.login(username, password)
+//                } else {
+//                    val ageInt = age.toIntOrNull() ?: 0
+//                    registerService.register(username, password, firstName, lastName, ageInt)
+//                }
+//            }
+//        }) {
+//            Text(text = if (isLoginMode) "Login" else "Register")
+//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

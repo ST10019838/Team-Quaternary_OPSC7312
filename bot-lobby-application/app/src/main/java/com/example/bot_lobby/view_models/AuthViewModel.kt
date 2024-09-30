@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
+import com.example.bot_lobby.api.RetrofitInstance.UserApi
 import com.example.bot_lobby.models.AuthRequest
 import com.example.bot_lobby.models.AuthResponse
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
-import com.example.bot_lobby.models.UserInsert
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,13 +18,14 @@ import java.io.IOException
 
 object AuthViewModel : ViewModel() {
     private val _userLoggedIn = MutableStateFlow<User?>(
-        User(
-            id = 1,
-            password = "123",
-            teamIds = listOf(1, 2),
-            username = "DJDare",
-            bio = "This is me DJDare"
-        )
+//        User(
+//            id = 1,
+//            password = "123",
+//            teamIds = listOf(1, 2),
+//            username = "DJDare",
+//            bio = "This is me DJDare"
+//        )
+        null
     )
     val userLoggedIn: StateFlow<User?> = _userLoggedIn.asStateFlow()
 
@@ -73,17 +74,11 @@ object AuthViewModel : ViewModel() {
 
     // Function to register
     fun registerUser(
-        email: String,
-        password: String,
-        username: String,
-        typeId: Int,
-        firstname: String,
-        lastname: String,
-        age: Int
+        user: User
     ) {
         viewModelScope.launch {
             try {
-                val request = AuthRequest(email, password)
+                val request = AuthRequest(user.username, user.password.toString())
                 val response = RetrofitInstance.AuthApi.register(RetrofitInstance.apiKey, request)
 
                 if (response.isSuccessful) {
@@ -93,7 +88,7 @@ object AuthViewModel : ViewModel() {
 
                     // Step to save user data in the users table
                     // No need to fetch userId, as it is auto-incremented
-                    saveUserDataInTable(typeId, username, password, firstname, lastname, age)
+                    saveUserDataInTable(user)
                 } else {
                     _errorState.value = response.errorBody()?.string()  // Update error state
                     Log.e("ERROR", "Registration failed: ${response.errorBody()?.string()}")
@@ -108,19 +103,14 @@ object AuthViewModel : ViewModel() {
         }
     }
 
+
     private fun saveUserDataInTable(
-        typeId: Int,
-        username: String,
-        password: String,
-        firstname: String,
-        lastname: String,
-        age: Int
+        user: User
     ) {
-        val userInsert = UserInsert(typeId, username, password, null, firstname, lastname, age)
         viewModelScope.launch {
             try {
                 val response =
-                    RetrofitInstance.UserApi.createUser(RetrofitInstance.apiKey, userInsert)
+                    UserApi.createUser(RetrofitInstance.apiKey, user)
                 if (response.isSuccessful) {
                     Log.i("SUCCESS", "User data saved successfully: ${response.body()}")
                 } else {
@@ -131,6 +121,31 @@ object AuthViewModel : ViewModel() {
             }
         }
     }
+
+//    // Login user
+//    fun loginUser(username: String, password: String) {
+//        viewModelScope.launch {
+//            val response = LoginService(UserApi).login(username, password)
+//            if (response.isSuccessful && response.body() != null) {
+//                Log.d("UserViewModel", "Login successful: ${response.body()}")
+//            } else {
+//                Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")
+//            }
+//        }
+//    }
+//
+//    // Register user
+//    fun registerUser(newUser: User) {
+//        viewModelScope.launch {
+//            val response = RegisterService(UserApi).register(newUser)
+//            if (response.isSuccessful && response.body() != null) {
+//                Log.d("UserViewModel", "Registration successful: ${response.body()}")
+//            } else {
+//                Log.e("UserViewModel", "Registration failed: ${response.errorBody()?.string()}")
+//            }
+//        }
+//    }
+
 
     // To clear the auth state after successful login/registration
     fun clearAuthState() {

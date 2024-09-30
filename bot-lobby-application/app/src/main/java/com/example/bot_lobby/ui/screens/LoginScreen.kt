@@ -1,8 +1,10 @@
 package com.example.bot_lobby.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,12 +31,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -45,18 +51,28 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.bot_lobby.services.GoogleSignInButton
+import com.example.bot_lobby.MainActivity
 import com.example.bot_lobby.R
 import com.example.bot_lobby.forms.LoginForm
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
+import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.UserViewModel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class LoginScreen : Screen {
+
+
     @Composable
     override fun Content() {
+        val userViewModel = UserViewModel()
         val navigator = LocalNavigator.currentOrThrow
         val form = LoginForm() // Form that manages the login state
         val context = LocalContext.current
 
+        val userLoggedIn by AuthViewModel.userLoggedIn.collectAsState()
         // Initialize areCredentialsValid state
         var areCredentialsValid by remember { mutableStateOf(true) }
 
@@ -103,7 +119,7 @@ class LoginScreen : Screen {
 
                     // App Name Text: "BotLobby"
                     Text(
-                        text = "BotLobby",
+                        text = "Bot Lobby",
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onBackground, // Color of the text
                         textAlign = TextAlign.Center,
@@ -113,6 +129,48 @@ class LoginScreen : Screen {
 
                 // Spacer to center email and password fields between "BotLobby" and the buttons
                 Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth(),
+
+                    ) {
+                    GoogleSignInButton(
+                        registerService = MainActivity.registerService,
+                        loginService = MainActivity.loginService,
+                        isReg = false // Registration
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(100))
+                            .fillMaxWidth()
+                            .weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        "or",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(100))
+                            .fillMaxWidth()
+                            .weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // Email and Password fields
                 Column(
@@ -217,6 +275,29 @@ class LoginScreen : Screen {
                             form.validate(true) // Validate form inputs
 
                             if (form.isValid) {
+//                                AuthViewModel.loginUser(
+//                                    email = form.email.state.value!!,
+//                                    password = form.password.state.value!!
+//                                )
+
+                                runBlocking {
+                                    launch {
+                                        val user = userViewModel.loginUser(
+                                            username = "eq.${form.email.state.value!!}",
+                                            password = "eq.${form.password.state.value!!}"
+                                        )
+
+                                        Log.i("USER", user.toString())
+                                    }
+                                }
+
+                                if (userLoggedIn != null) {
+                                    navigator.push(LandingScreen())
+                                }
+
+                                Log.i("USER", userLoggedIn.toString())
+
+
                                 // Firebase sign in attempt
 //                                auth.signInWithEmailAndPassword(
 //                                    form.email.state.value!!,
@@ -241,6 +322,8 @@ class LoginScreen : Screen {
 //                                        ).show()
 //                                    }
 //                                }
+
+
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),

@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -68,7 +67,7 @@ enum class Mode {
 data class AccountScreen(
     val mode: Mode // Determines whether it's SignUp or ForgotPassword mode
 ) : Screen {
-    
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
@@ -110,13 +109,13 @@ data class AccountScreen(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Title text
-                    Text(
-                        text = if (mode == Mode.SignUp) "Create Your Account" else "Reset Your Password",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center
-                    )
+//                    Text(
+//                        text = if (mode == Mode.SignUp) "Create Your Account" else "Reset Your Password",
+//                        fontSize = 26.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = MaterialTheme.colorScheme.onBackground,
+//                        textAlign = TextAlign.Center
+//                    )
 
                     // App logo
                     Image(
@@ -129,11 +128,12 @@ data class AccountScreen(
 
                     // App name text
                     Text(
-                        text = "BotLobby",
+                        text = "Bot Lobby",
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center
                     )
+
 
                     // Email Input Field
                     OutlinedTextField(

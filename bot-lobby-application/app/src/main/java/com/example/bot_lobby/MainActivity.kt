@@ -20,66 +20,75 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
-import com.example.bot_lobby.api.ApiClient
+import cafe.adriel.voyager.transitions.SlideTransition
+import com.example.bot_lobby.api.RetrofitInstance
+import com.example.bot_lobby.api.UserApi
+import com.example.bot_lobby.services.LoginService
+import com.example.bot_lobby.services.RegisterService
+
 import com.example.bot_lobby.ui.pages.EventsTab
 import com.example.bot_lobby.ui.pages.HomeTab
 import com.example.bot_lobby.ui.pages.ProfileTab
 import com.example.bot_lobby.ui.pages.ScoutingTab
 import com.example.bot_lobby.ui.pages.TeamsTab
+import com.example.bot_lobby.ui.screens.LoginScreen
 import com.example.bot_lobby.ui.theme.BotLobbyTheme
 
 class MainActivity : ComponentActivity() {
-    private val client = ApiClient.client
-    private val loginService = LoginService(client)
-    private val registerService = RegisterService(client)
+    companion object {
+        val userApi: UserApi = RetrofitInstance.UserApi
+        val loginService = LoginService(userApi)
+        val registerService = RegisterService(userApi)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BotLobbyTheme {
-//                Navigator(
-////                    if (auth.currentUser != null)
-////                        LandingScreen()
-////                    else
-//                    LoginScreen()
-//                ) {
-//                    SlideTransition(it)
-//                }
-
-                TabNavigator(HomeTab) {
-                    Scaffold(
-                        content = { innerPadding ->
-//                            AuthScreen(
-//                                modifier = Modifier.padding(innerPadding),
-//                                loginService = loginService,
-//                                registerService = registerService
-//                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .padding(innerPadding)
-                                    .padding(horizontal = 25.dp, vertical = 15.dp)
-                            ) {
-                                CurrentTab()
-                            }
-
-                        },
-                        bottomBar = {
-                            NavigationBar {
-                                TabNavigationItem(EventsTab)
-                                TabNavigationItem(TeamsTab)
-                                TabNavigationItem(HomeTab)
-                                TabNavigationItem(ProfileTab)
-                                TabNavigationItem(ScoutingTab)
-                            }
-                        }
-                    )
+                Navigator(
+//                    if (auth.currentUser != null)
+//                        LandingScreen()
+//                    else
+                    LoginScreen()
+                ) {
+                    SlideTransition(it)
                 }
+
+//                TabNavigator(HomeTab) {
+//                    Scaffold(
+//                        content = { innerPadding ->
+////                            AuthScreen(
+////                                modifier = Modifier.padding(innerPadding),
+////                                loginService = loginService,
+////                                registerService = registerService
+////                            )
+//
+//                            Box(
+//                                modifier = Modifier
+//                                    .padding(innerPadding)
+//                                    .padding(horizontal = 25.dp, vertical = 15.dp)
+//                            ) {
+//                                CurrentTab()
+//                            }
+//
+//                        },
+//                        bottomBar = {
+//                            NavigationBar {
+//                                TabNavigationItem(EventsTab)
+//                                TabNavigationItem(TeamsTab)
+//                                TabNavigationItem(HomeTab)
+//                                TabNavigationItem(ProfileTab)
+//                                TabNavigationItem(ScoutingTab)
+//                            }
+//                        }
+//                    )
+//                }
             }
         }
     }

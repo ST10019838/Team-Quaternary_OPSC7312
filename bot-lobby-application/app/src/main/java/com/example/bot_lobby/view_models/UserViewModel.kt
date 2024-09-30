@@ -5,13 +5,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
+import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.models.FetchResponse
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
+import com.example.bot_lobby.services.LoginService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.example.bot_lobby.api.RetrofitInstance.UserApi
+import kotlinx.coroutines.runBlocking
 
 class UserViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
@@ -23,10 +27,11 @@ class UserViewModel : ViewModel() {
     private val _searchError: MutableStateFlow<String?> = MutableStateFlow(null)
     val searchError: StateFlow<String?> = _searchError.asStateFlow()
 
-
     private val _searchedUsers: MutableStateFlow<List<User>?> = MutableStateFlow(null)
     val searchedUsers: StateFlow<List<User>?> = _searchedUsers.asStateFlow()
 
+    private val _userData: MutableStateFlow<List<User>> = MutableStateFlow(listOf())
+    val userData: StateFlow<List<User>> = _userData
 
     // Function to fetch users from API
 //    fun getAllUsers() {
@@ -68,7 +73,7 @@ class UserViewModel : ViewModel() {
 
 
             val response =
-                RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, queryString)
+                UserApi.getUsers(RetrofitInstance.apiKey, queryString)
 
             if (response.isSuccessful) {
                 val body = response.body()
@@ -95,7 +100,7 @@ class UserViewModel : ViewModel() {
     fun updateUser(updatedUser: User) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.UserApi.updateUser(
+                val response = UserApi.updateUser(
                     RetrofitInstance.apiKey,
                     "eq.${updatedUser.id}",
                     updatedUser
@@ -116,7 +121,7 @@ class UserViewModel : ViewModel() {
     fun deleteUser(userId: Int) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.UserApi.deleteUser(
+                val response = UserApi.deleteUser(
                     RetrofitInstance.apiKey,
                     "eq.${userId}"
                 )
@@ -158,7 +163,7 @@ class UserViewModel : ViewModel() {
 
                 // Fetch data
                 val response =
-                    RetrofitInstance.UserApi.getUsersByName(
+                    UserApi.getUsersByName(
                         RetrofitInstance.apiKey,
                         queryString
                     )
@@ -180,6 +185,62 @@ class UserViewModel : ViewModel() {
 
         }
 
+    }
+
+    // Create a new user
+    fun createUser(newUser: User) {
+        viewModelScope.launch {
+            try {
+                val response = UserApi.createUser(RetrofitInstance.apiKey, newUser)
+                if (response.isSuccessful) {
+                    Log.d("UserViewModel", "User registered successfully: $newUser")
+                    getUserData() // Refresh user list after creation
+                } else {
+                    Log.e("ERROR", "User creation failed: ${response.errorBody()?.string()}")
+                }
+            } catch (exception: Exception) {
+                Log.e("ERROR!", exception.message.toString())
+            }
+        }
+    }
+
+    // Login user
+    fun loginUser(username: String, password: String): User? {
+        var user: User? = null
+
+        viewModelScope.launch {
+            val response = LoginService(UserApi).login(username, password)
+            if (response.isSuccessful && response.body() != null) {
+                user = response.body()!!
+                AuthViewModel.updateUsersDetails(response.body()!!)
+                Log.d("UserViewModel", "Login successful: ${response.body()}")
+            } else {
+                Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")
+            }
+        }
+
+
+
+        return user
+    }
+
+    // Fetch all users
+    fun getUserData() {
+        viewModelScope.launch {
+            try {
+                val response = UserApi.getUsers(RetrofitInstance.apiKey)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _userData.value = it
+                        Log.d("UserViewModel", "Fetched users: $it")
+                    } ?: Log.e("ERROR!", "Response body is null")
+                } else {
+                    Log.e("ERROR", "Failed to fetch users: ${response.errorBody()?.string()}")
+                }
+            } catch (exception: Exception) {
+                Log.e("ERROR!", exception.message.toString())
+            }
+        }
     }
 }
 
