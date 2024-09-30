@@ -16,7 +16,7 @@ class LoginForm : Form() {
     }
 
     @FormField
-    val email = FieldState(
+    val username = FieldState(
         state = mutableStateOf<String?>(""),
         validators = mutableListOf(
             IsRequiredValidator(),

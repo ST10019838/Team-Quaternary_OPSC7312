@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -180,29 +181,29 @@ class LoginScreen : Screen {
                 ) {
                     // Email Input Field with Email icon
                     OutlinedTextField(
-                        value = form.email.state.value
+                        value = form.username.state.value
                             ?: "", // Retrieve the current value of email from the form
                         onValueChange = { value -> // Handle text change and update the form
                             onFormValueChange(
                                 value = value,
                                 form = form,
-                                fieldState = form.email
+                                fieldState = form.username
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Email") }, // Placeholder text inside the input
-                        isError = form.email.hasError(), // Show error if there is one in the form
+                        placeholder = { Text("Username") }, // Placeholder text inside the input
+                        isError = form.username.hasError(), // Show error if there is one in the form
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Email, // Display email icon inside the input field
-                                contentDescription = "Email Icon"
+                                imageVector = Icons.Default.Person, // Display email icon inside the input field
+                                contentDescription = "Username Icon"
                             )
                         },
                         singleLine = true, // Ensure the input stays a single line
                         visualTransformation = VisualTransformation.None, // No transformation (plain text)
                         trailingIcon = {
                             // Show error icon if there's an error
-                            if (form.email.hasError()) {
+                            if (form.username.hasError()) {
                                 Icon(
                                     imageVector = Icons.Default.Error,
                                     contentDescription = "Error Icon",
@@ -282,20 +283,48 @@ class LoginScreen : Screen {
 
                                 runBlocking {
                                     launch {
-                                        val user = userViewModel.loginUser(
-                                            username = "eq.${form.email.state.value!!}",
+                                        userViewModel.loginUser(
+                                            username = "eq.${form.username.state.value!!}",
                                             password = "eq.${form.password.state.value!!}"
-                                        )
+                                        ) { user -> // Provide the callback here
+                                            Log.i("USER", user.toString())
 
-                                        Log.i("USER", user.toString())
+                                            // Handle successful user login
+                                            if (user != null) {
+                                                // Navigate to LandingScreen if login is successful
+                                                navigator.push(LandingScreen())
+                                            } else {
+                                                Log.i("USER", "Login failed or user is null")
+                                            }
+                                        }
                                     }
                                 }
 
-                                if (userLoggedIn != null) {
-                                    navigator.push(LandingScreen())
-                                }
 
-                                Log.i("USER", userLoggedIn.toString())
+//                                if (userLoggedIn != null) {
+//                                    navigator.push(LandingScreen())
+//                                }
+//
+//                                Log.i("USER", userLoggedIn.toString())
+//
+//                                userViewModel.loginUser(
+//                                    username = "eq.${form.email.state.value!!}",
+//                                    password = "eq.${form.password.state.value!!}"
+//                                )
+//
+//                                runBlocking {
+//                                    launch {
+//
+//                                    }
+//
+//
+//                                }
+//
+//                                if (userLoggedIn != null) {
+//                                    navigator.push(LandingScreen())
+//                                }
+//
+//                                Log.i("USER", userLoggedIn.toString())
 
 
                                 // Firebase sign in attempt

@@ -155,6 +155,9 @@ object AuthViewModel : ViewModel() {
 
     fun updateUsersDetails(updatedUser: User) {
         _userLoggedIn.value = updatedUser
+        Log.d("Auth", "${updatedUser}")
+        Log.d("Auth", "${_userLoggedIn.value}")
+
     }
 
     fun updateUsersTeam(team: Team) {

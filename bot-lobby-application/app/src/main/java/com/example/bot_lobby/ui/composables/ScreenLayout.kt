@@ -24,14 +24,6 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun ScreenLayout(tabNavigator: TabNavigator) {
     Scaffold(
-        // Top app bar with the title of the current tab
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(tabNavigator.current.options.title) // Display the title of the current tab
-                }
-            )
-        },
         // Bottom navigation bar with tab items
         bottomBar = {
             NavigationBar {

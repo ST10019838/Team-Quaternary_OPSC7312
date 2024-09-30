@@ -205,23 +205,19 @@ class UserViewModel : ViewModel() {
     }
 
     // Login user
-    fun loginUser(username: String, password: String): User? {
-        var user: User? = null
-
+    fun loginUser(username: String, password: String, callback: (User?) -> Unit) {
         viewModelScope.launch {
             val response = LoginService(UserApi).login(username, password)
             if (response.isSuccessful && response.body() != null) {
-                user = response.body()!!
-                AuthViewModel.updateUsersDetails(response.body()!!)
-                Log.d("UserViewModel", "Login successful: ${response.body()}")
+                val user = response.body()!!
+                AuthViewModel.updateUsersDetails(user)
+                Log.d("UserViewModel", "Login successful: $user")
+                callback(user) // Return the user via the callback
             } else {
                 Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")
+                callback(null) // Return null in case of failure
             }
         }
-
-
-
-        return user
     }
 
     // Fetch all users
