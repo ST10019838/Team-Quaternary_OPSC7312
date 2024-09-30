@@ -64,10 +64,11 @@ enum class Mode {
 }
 
 // Main AccountScreen class with screen mode
+
 data class AccountScreen(
     val mode: Mode // Determines whether it's SignUp or ForgotPassword mode
 ) : Screen {
-
+    
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {

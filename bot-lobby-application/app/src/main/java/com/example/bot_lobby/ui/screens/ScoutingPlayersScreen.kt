@@ -1,6 +1,8 @@
 package com.example.bot_lobby.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -21,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -34,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,7 +51,7 @@ import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ScoutingPlayersScreen(
     userViewModel: UserViewModel = viewModel(), // Initialize PlayerViewModel
@@ -82,6 +88,7 @@ fun ScoutingPlayersScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Search TextField for searching players by tag
+
             TextField(
                 value = searchQuery, // Binds the searchQuery state
                 onValueChange = { userViewModel.updateSearchQuery(it) }, // Updates searchQuery state
@@ -96,11 +103,15 @@ fun ScoutingPlayersScreen(
                 ),
                 singleLine = true, // Restrict search bar to one line
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.LightGray,
-                    unfocusedContainerColor = Color.LightGray,
-                    cursorColor = Color.Black,
-                    focusedIndicatorColor = Color.Transparent, // Remove default focus underline
-                    unfocusedIndicatorColor = Color.Transparent // Remove default unfocused underline
+                    focusedContainerColor = MaterialTheme.colorScheme.primary,  // Custom theme colors
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White
                 )
             )
 
@@ -158,11 +169,12 @@ fun ScoutingPlayersScreen(
 
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(searchedUsers!!) { user ->
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, teams = teams, onView = {
+                        PlayerListItem(user = user, teams = teams, canView = true, onView = {
                             isDialogOpen = true
                             userToView = user
                         })

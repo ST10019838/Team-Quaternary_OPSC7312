@@ -42,6 +42,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BotLobbyTheme {
+//                Navigator(
+////                    if (auth.currentUser != null)
+////                        LandingScreen()
+////                    else
+//                    LoginScreen()
+//                ) {
+//                    SlideTransition(it)
+//                }
+
                 TabNavigator(HomeTab) {
                     Scaffold(
                         content = { innerPadding ->

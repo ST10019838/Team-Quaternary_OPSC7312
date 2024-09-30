@@ -46,7 +46,10 @@ fun ScoutTeamListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(BorderStroke(1.dp, Color.Gray)) // Border for each box
+            .border(
+                BorderStroke(1.dp, Color.Gray),
+                shape = RoundedCornerShape(8.dp)
+            ) // Border for each box
             .padding(8.dp) // Padding inside the box
     ) {
         Column(
@@ -111,94 +114,77 @@ fun ScoutTeamListItem(
 
                 // View Profile Button with icon
                 // This should call the TeamProfile.kt
-                IconButton(
-                    onClick = {
-                        // Check if team.teamtag is empty, and assign a default value if so
-                        val teamTagToNavigate = if (team.tag.isNullOrEmpty()) {
-                            "Default Team Tag" // Provide a default team tag if team.tag is null or empty
-                        } else {
-                            team.tag
-                        }
-
-                        onView()
-
-                        // Ensure the navigation graph has been set before navigating
-                        try {
-//                            navController.navigate("team_profile/$teamTagToNavigate")
-                        } catch (e: IllegalArgumentException) {
-                            // Handle the case where the navigation graph is not properly set
-                            println("Navigation graph is not properly set: ${e.message}")
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Visibility,
-                        contentDescription = "View Team Profile",
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+//                IconButton(
+//                    onClick = onView
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Visibility,
+//                        contentDescription = "View Team Profile",
+//                        modifier = Modifier.size(32.dp)
+//                    )
+//                }
 
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+//            Spacer(modifier = Modifier.height(8.dp))
 
             // Second Row: Open and Join Buttons
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Open Button
-                Button(
-                    onClick = {
-                        // Handle open action
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .height(36.dp)
-                        .weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_open_book),
-                        contentDescription = "Open",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Open")
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Join Button
-                Button(
-                    onClick = {
-                        // Handle join action
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .height(36.dp)
-                        .weight(2f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_square_plus),
-                        contentDescription = "Join",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Join")
-                }
-            }
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                // Open Button
+//                Button(
+//                    onClick = {
+//                        // Handle open action
+//                    },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.White,
+//                        contentColor = Color.Black
+//                    ),
+//                    border = BorderStroke(1.dp, Color.Gray),
+//                    shape = RoundedCornerShape(8.dp),
+//                    modifier = Modifier
+//                        .height(36.dp)
+//                        .weight(1f)
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.ic_open_book),
+//                        contentDescription = "Open",
+//                        modifier = Modifier.size(20.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(text = "Open")
+//                }
+//
+//                Spacer(modifier = Modifier.width(8.dp))
+//
+//                // Join Button
+//                Button(
+//                    onClick = {
+//                        // Handle join action
+//                    },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.White,
+//                        contentColor = Color.Black
+//                    ),
+//                    border = BorderStroke(1.dp, Color.Gray),
+//                    shape = RoundedCornerShape(8.dp),
+//                    modifier = Modifier
+//                        .height(36.dp)
+//                        .weight(2f)
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.ic_square_plus),
+//                        contentDescription = "Join",
+//                        modifier = Modifier.size(20.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text(text = "Join")
+//                }
+//            }
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
+//    Spacer(modifier = Modifier.height(16.dp))
 }

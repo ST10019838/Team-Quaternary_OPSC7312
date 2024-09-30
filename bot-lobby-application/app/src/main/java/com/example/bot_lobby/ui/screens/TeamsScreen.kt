@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,7 +36,7 @@ import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 import java.util.UUID
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun TeamsScreen() {
     // Get the TeamViewModel instance
@@ -89,35 +90,38 @@ fun TeamsScreen() {
         }
 
         // Floating button in the bottom-right corner with a plus sign
-        FloatingActionButton(
-            onClick = {
-                // Handle the button click event here
-                val user = AuthViewModel.userLoggedIn.value
+        if (teams.value.size < 10) {
+            FloatingActionButton(
+                onClick = {
+                    // Handle the button click event here
+                    val user = AuthViewModel.userLoggedIn.value
 
-                val newTeam = Team(
-                    id = UUID.randomUUID(),
-                    tag = "EDIT",
-                    name = "${user?.username}'s Team ${teams.value.size + 1}",
-                    userIdsAndRoles = listOf(IdAndRole(user?.id!!, "Owner")),//List<IdAndRole>
-                    isPublic = true,
-                    maxNumberOfUsers = 10
+                    val newTeam = Team(
+                        id = UUID.randomUUID(),
+                        tag = "EDIT",
+                        name = "${user?.username}'s Team ${teams.value.size + 1}",
+                        userIdsAndRoles = listOf(IdAndRole(user?.id!!, "Owner")),//List<IdAndRole>
+                        isPublic = true,
+                        maxNumberOfUsers = 10
+                    )
+
+                    teamViewModel.createTeam(newTeam)
+
+                    AuthViewModel.addTeamToUser(newTeam)
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd) // Align to bottom-right corner
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary, // Set the background color to white
+                contentColor = Color.White  // Set the plus sign color to black
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add New Team"
                 )
-
-                teamViewModel.createTeam(newTeam)
-
-                AuthViewModel.addTeamToUser(newTeam)
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd) // Align to bottom-right corner
-                .padding(16.dp),
-            containerColor = Color.White, // Set the background color to white
-            contentColor = Color.Black // Set the plus sign color to black
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add New Team"
-            )
+            }
         }
+
     }
 
     if (isDialogOpen) {

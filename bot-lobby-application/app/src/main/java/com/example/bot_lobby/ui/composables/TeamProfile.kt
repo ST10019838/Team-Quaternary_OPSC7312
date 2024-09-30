@@ -372,7 +372,7 @@ fun TeamProfile(
                     items(users!!) { user ->
 
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user)
+                        PlayerListItem(user = user, canView = false)
                     }
                 }
             }

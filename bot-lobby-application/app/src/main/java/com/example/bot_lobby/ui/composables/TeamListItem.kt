@@ -3,6 +3,7 @@ package com.example.bot_lobby.ui.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,14 +16,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FilterChip
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PeopleOutline
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,7 +46,7 @@ import java.util.Locale
 
 //used by Navigationtab/Teams
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun TeamListItem(
     team: Team,
@@ -52,11 +58,11 @@ fun TeamListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .border(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(8.dp)
             ) // Add a grey border with rounded corners
+            .clickable { onView() }
     ) {
         Column(
             modifier = Modifier
@@ -71,7 +77,7 @@ fun TeamListItem(
                 Image(
                     painter = painterResource(id = R.drawable.ic_player_tag),
                     contentDescription = "Player Tag Icon",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(40.dp)
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -96,89 +102,74 @@ fun TeamListItem(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                Button(
-                    onClick = {
-                        // Handle teams button action here
+                AssistChip(
+                    onClick = onView,
+                    trailingIcon = {
+                        Icon(Icons.Default.PeopleOutline, null)
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp),
+                    label = {
+                        Text(
+                            text = "${team.userIdsAndRoles.size} / 10", // Example for team count
+                            fontSize = 14.sp
+                        )
+                    },
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.White,
+//                        contentColor = Color.Black
+//                    ),
+//                    border = BorderStroke(1.dp, Color.Gray),
+//                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
-                        .height(36.dp)
-                        .width(90.dp)
-                ) {
-                    Text(
-                        text = "${team.userIdsAndRoles.size} / 10", // Example for team count
-                        fontSize = 14.sp
-                    )
-                }
+//                        .height(36.dp)
+//                        .width(90.dp)
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // View Profile Button with icon
                 // This should call the TeamProfile.kt
-                IconButton(
-                    onClick = {
-                        // Check if team.teamtag is empty, and assign a default value if so
-                        val teamTagToNavigate = if (team.tag.isNullOrEmpty()) {
-                            "Default Team Tag" // Provide a default team tag if team.tag is null or empty
-                        } else {
-                            team.tag
-                        }
-
-                        // Ensure the navigation graph has been set before navigating
-                        try {
-                            //navController.navigate("team_profile/$teamTagToNavigate")
-                        } catch (e: IllegalArgumentException) {
-                            // Handle the case where the navigation graph is not properly set
-                            println("Navigation graph is not properly set: ${e.message}")
-                        }
-
-                        onView()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Visibility,
-                        contentDescription = "View Team Profile",
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+//                IconButton(
+//                    onClick = onView
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Visibility,
+//                        contentDescription = "View Team Profile",
+//                        modifier = Modifier.size(32.dp)
+//                    )
+//                }
             }
 
             // Add a horizontal divider
-            Divider(
-                color = Color.Gray,
-                thickness = 1.dp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            // Second Row: "Next Event:" text and today's date
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Text for "Next Event:"
-                Text(
-                    text = "Next Event:",
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    modifier = Modifier.weight(1f) // This will take up the available space on the left
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Today's date aligned to the right
-                Text(
-                    text = currentDate,
-                    color = Color.Black,
-                    fontSize = 14.sp
-
-                )
-            }
+//            Divider(
+//                color = Color.Gray,
+//                thickness = 1.dp,
+//                modifier = Modifier.padding(vertical = 8.dp)
+//            )
+//
+//            // Second Row: "Next Event:" text and today's date
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                // Text for "Next Event:"
+//                Text(
+//                    text = "Next Event:",
+//                    color = Color.Black,
+//                    fontSize = 14.sp,
+//                    modifier = Modifier.weight(1f) // This will take up the available space on the left
+//                )
+//
+//                Spacer(modifier = Modifier.width(8.dp))
+//
+//                // Today's date aligned to the right
+//                Text(
+//                    text = currentDate,
+//                    color = Color.Black,
+//                    fontSize = 14.sp
+//
+//                )
+//            }
         }
     }
-    Spacer(modifier = Modifier.height(16.dp))
+//    Spacer(modifier = Modifier.height(16.dp))
 }

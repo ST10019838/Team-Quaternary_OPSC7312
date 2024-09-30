@@ -37,6 +37,7 @@ import com.example.bot_lobby.models.IdAndRole
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.ScoutTeamListItem
+import com.example.bot_lobby.ui.composables.TeamListItem
 import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
@@ -62,7 +63,9 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
     ) {
         // Search bar for scouting teams
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 0.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically // Ensure correct alignment
         ) {
             // Search TextField for scouting team search
@@ -75,11 +78,15 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
                     .padding(end = 4.dp),  // Right padding
                 shape = RoundedCornerShape(16.dp),  // Rounded shape
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = FocusedContainerGray,  // Custom theme colors
-                    unfocusedContainerColor = UnfocusedContainerGray,
-                    cursorColor = BlackCursor,
+                    focusedContainerColor = MaterialTheme.colorScheme.primary,  // Custom theme colors
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = Color.White,
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)  // Action when search is pressed
             )
@@ -142,7 +149,7 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
                 ) {
                     items(searchedTeams!!) { team ->
                         // Pass navController to PlayerListItem to enable navigation
-                        ScoutTeamListItem(
+                        TeamListItem(
                             team = team,
                             onView = {
                                 isDialogOpen = true
