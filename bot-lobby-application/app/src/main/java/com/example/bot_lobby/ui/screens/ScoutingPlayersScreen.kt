@@ -47,6 +47,7 @@ import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.PlayerListItem
 import com.example.bot_lobby.ui.composables.PlayerProfile
+import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
@@ -103,8 +104,8 @@ fun ScoutingPlayersScreen(
                 ),
                 singleLine = true, // Restrict search bar to one line
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.primary,  // Custom theme colors
-                    unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                    focusedContainerColor = BlueStandard,  // Custom theme colors
+                    unfocusedContainerColor = BlueStandard,
                     cursorColor = Color.White,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -130,14 +131,14 @@ fun ScoutingPlayersScreen(
             }
 
             // Refresh IconButton to clear search and reload the data
-            IconButton(onClick = {
-                userViewModel.clearSearchQuery() // Clears the search query
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh Icon" // Describes the refresh button
-                )
-            }
+//            IconButton(onClick = {
+//                userViewModel.clearSearchQuery() // Clears the search query
+//            }) {
+//                Icon(
+//                    imageVector = Icons.Default.Refresh,
+//                    contentDescription = "Refresh Icon" // Describes the refresh button
+//                )
+//            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))

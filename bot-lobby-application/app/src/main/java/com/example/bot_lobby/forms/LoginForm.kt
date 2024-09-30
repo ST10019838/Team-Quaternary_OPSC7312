@@ -21,7 +21,6 @@ class LoginForm : Form() {
         validators = mutableListOf(
             IsRequiredValidator(),
             MaxLengthValidator(100),
-            EmailValidator()
         )
     )
 

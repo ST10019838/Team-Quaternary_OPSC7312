@@ -25,7 +25,10 @@ fun ProfileScreen(
 
     LazyColumn {
         item {
-            PlayerProfile(userLoggedIn.value!!, isPersonalProfile = true)
+            if (userLoggedIn.value != null) {
+                PlayerProfile(userLoggedIn.value!!, isPersonalProfile = true)
+            }
+
         }
 
         item {

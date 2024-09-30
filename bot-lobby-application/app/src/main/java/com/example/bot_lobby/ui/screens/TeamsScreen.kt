@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.models.IdAndRole
@@ -31,9 +33,11 @@ import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.TeamListItem
 import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.composables.TeamsHeader
+import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
+import com.google.android.gms.auth.api.Auth
 import java.util.UUID
 
 
@@ -42,10 +46,11 @@ fun TeamsScreen() {
     // Get the TeamViewModel instance
     val teamViewModel: TeamViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
-
+    val context = LocalContext.current
 
     // Collect the list of filtered teams from the view model
     val teams = AuthViewModel.usersTeams.collectAsState()
+    val userLoggedIn by AuthViewModel.userLoggedIn.collectAsState()
 
     // Get the total number of teams
     val totalTeams = teams.value.size
@@ -105,14 +110,25 @@ fun TeamsScreen() {
                         maxNumberOfUsers = 10
                     )
 
-                    teamViewModel.createTeam(newTeam)
+                    AuthViewModel.addTeamToUser(newTeam) {
+                        if (it != null) {
+                            userViewModel.updateUser(it)
+                        }
+                    }
 
-                    AuthViewModel.addTeamToUser(newTeam)
+
+                    teamViewModel.createTeam(newTeam) {
+
+                    }
+
+
+                    Toast.makeText(context, "Successfully Created a Team", Toast.LENGTH_SHORT)
+                        .show()  // Show a confirmation toast
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd) // Align to bottom-right corner
                     .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary, // Set the background color to white
+                containerColor = BlueStandard, // Set the background color to white
                 contentColor = Color.White  // Set the plus sign color to black
             ) {
                 Icon(

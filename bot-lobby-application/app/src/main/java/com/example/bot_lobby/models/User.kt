@@ -1,5 +1,7 @@
 package com.example.bot_lobby.models
 
+import java.util.UUID
+
 
 data class User(
     val id: Int? = null,           // Assuming the ID is auto-generated
@@ -8,7 +10,7 @@ data class User(
     val username: String,               // Username of the user
     val password: String? = null,       // Password of the user (may want to consider encryption later)
     val biometrics: String? = null,     // Nullable in case biometrics are not provided
-    val teamIds: List<Int>? = null,
+    var teamIds: MutableList<UUID> = mutableListOf(),
     var isPublic: Boolean = true,
     var isLFT: Boolean = true
 )

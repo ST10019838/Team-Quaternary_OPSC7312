@@ -1,6 +1,7 @@
 package com.example.bot_lobby.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -293,6 +294,13 @@ class LoginScreen : Screen {
                                             if (user != null) {
                                                 // Navigate to LandingScreen if login is successful
                                                 navigator.push(LandingScreen())
+
+                                                Toast.makeText(
+                                                    context,
+                                                    "Successfully Logged In",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()  // Show a confirmation toast
                                             } else {
                                                 Log.i("USER", "Login failed or user is null")
                                             }

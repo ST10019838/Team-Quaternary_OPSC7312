@@ -73,7 +73,7 @@ fun GoogleSignInButton(
                     username = userEmail,
                     password = null,
                     biometrics = null,
-                    teamIds = null,
+                    teamIds = mutableListOf(),
                     isPublic = true,
                     isLFT = true
                 )

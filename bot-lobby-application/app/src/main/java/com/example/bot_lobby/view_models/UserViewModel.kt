@@ -192,9 +192,9 @@ class UserViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = UserApi.createUser(RetrofitInstance.apiKey, newUser)
-                if (response.isSuccessful) {
+
+                if (response.isSuccessful && response.body() != null) {
                     Log.d("UserViewModel", "User registered successfully: $newUser")
-                    getUserData() // Refresh user list after creation
                 } else {
                     Log.e("ERROR", "User creation failed: ${response.errorBody()?.string()}")
                 }
@@ -211,7 +211,7 @@ class UserViewModel : ViewModel() {
             if (response.isSuccessful && response.body() != null) {
                 val user = response.body()!!
                 AuthViewModel.updateUsersDetails(user)
-                Log.d("UserViewModel", "Login successful: $user")
+                Log.d("tag", AuthViewModel.userLoggedIn.toString())
                 callback(user) // Return the user via the callback
             } else {
                 Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")

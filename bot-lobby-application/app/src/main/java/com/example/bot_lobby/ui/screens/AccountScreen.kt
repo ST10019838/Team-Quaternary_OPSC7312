@@ -54,8 +54,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.R
 import com.example.bot_lobby.forms.SignUpForm
+import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
+import com.example.bot_lobby.view_models.UserViewModel
 
 // Enum to handle screen mode
 enum class Mode {
@@ -74,6 +76,7 @@ data class AccountScreen(
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
+        val userViewModel = UserViewModel()
 //        val auth = remember { FirebaseAuth.getInstance() }
 
         // Scaffold to provide the layout
@@ -137,27 +140,27 @@ data class AccountScreen(
 
                     // Email Input Field
                     OutlinedTextField(
-                        value = form.email.state.value ?: "",
+                        value = form.username.state.value ?: "",
                         onValueChange = { value ->
                             onFormValueChange(
                                 value = value,
                                 form = form,
-                                fieldState = form.email
+                                fieldState = form.username
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Email") },
-                        isError = form.email.hasError(),
+                        placeholder = { Text("User Name") },
+                        isError = form.username.hasError(),
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = "Email Icon"
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Username Icon"
                             )
                         },
                         singleLine = true,
                         visualTransformation = VisualTransformation.None,
                         trailingIcon = {
-                            if (form.email.hasError()) {
+                            if (form.username.hasError()) {
                                 Icon(
                                     imageVector = Icons.Default.Error,
                                     contentDescription = "Error Icon",
@@ -166,53 +169,6 @@ data class AccountScreen(
                             }
                         }
                     )
-
-                    // Show the First Name and Last Name fields only in SignUp mode
-                    if (mode == Mode.SignUp) {
-                        // First Name Input Field
-                        OutlinedTextField(
-                            value = form.firstName.state.value ?: "",
-                            onValueChange = { value ->
-                                onFormValueChange(
-                                    value = value,
-                                    form = form,
-                                    fieldState = form.firstName
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("First Name") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "First Name Icon"
-                                )
-                            },
-                            singleLine = true,
-                            isError = form.firstName.hasError()
-                        )
-
-                        // Last Name Input Field
-                        OutlinedTextField(
-                            value = form.lastName.state.value ?: "",
-                            onValueChange = { value ->
-                                onFormValueChange(
-                                    value = value,
-                                    form = form,
-                                    fieldState = form.lastName
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("Last Name") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Last Name Icon"
-                                )
-                            },
-                            singleLine = true,
-                            isError = form.lastName.hasError()
-                        )
-                    }
 
                     // Password Input Field with visibility toggle
                     var passwordVisible by remember { mutableStateOf(false) }
@@ -315,6 +271,22 @@ data class AccountScreen(
 ////                                            auth = auth,
 //                                            context = context
 //                                        )
+
+                                        userViewModel.createUser(
+                                            User(
+                                                username = form.username.state.value!!,
+                                                password = form.password.state.value!!
+                                            )
+                                        )
+
+                                        userViewModel.loginUser(
+                                            username = "eq.${form.username.state.value!!}",
+                                            password = "eq.${form.password.state.value!!}"
+                                        ) {
+                                            navigator.push(LandingScreen())
+                                        }
+
+
                                     } else {
                                         // Handle forgot password
                                         Toast.makeText(

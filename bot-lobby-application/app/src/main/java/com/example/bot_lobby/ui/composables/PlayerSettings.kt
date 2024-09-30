@@ -42,14 +42,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerSettings() {
+    val userViewModel = UserViewModel()
+
     // Variables for toggles and dropdown
     var isPushNotificationsEnabled by remember { mutableStateOf(false) }
     var isDarkModeEnabled by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
+
+    val navigator = LocalNavigator.currentOrThrow
 
     val context = LocalContext.current
 
@@ -223,10 +232,14 @@ fun PlayerSettings() {
             Button(
                 onClick = {
 //                auth.signOut()  // Sign out the current user
-                    Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT)
+                    navigator.popUntilRoot()  // Navigate back to the root screen
+                    AuthViewModel.signOut()
+
+                    Toast.makeText(context, "Successfully Signed Out", Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
-//                navigator.popUntilRoot()  // Navigate back to the root screen
+
 //                navigator.push(LoginScreen())  // Push the LoginScreen back onto the stack
+
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -242,7 +255,12 @@ fun PlayerSettings() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(
-                onClick = { /* Handle Delete Account */ },
+                onClick = {
+                    navigator.popUntilRoot()  // Navigate back to the root screen
+                    userViewModel.deleteUser(AuthViewModel.userLoggedIn.value?.id!!)
+                    Toast.makeText(context, "Successfully Deleted Account", Toast.LENGTH_SHORT)
+                        .show()  // Show a confirmation toast
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
                     contentColor = Color.White

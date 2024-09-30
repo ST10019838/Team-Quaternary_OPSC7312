@@ -146,6 +146,9 @@ object AuthViewModel : ViewModel() {
 //        }
 //    }
 
+    fun signOut() {
+        _userLoggedIn.value = null
+    }
 
     // To clear the auth state after successful login/registration
     fun clearAuthState() {
@@ -173,8 +176,17 @@ object AuthViewModel : ViewModel() {
         }
     }
 
-    fun addTeamToUser(newTeam: Team) {
+    fun addTeamToUser(newTeam: Team, callback: (User?) -> Unit) {
         _usersTeams.value += newTeam
+
+        val userCopy = _userLoggedIn.value
+
+        userCopy?.teamIds?.add(newTeam.id!!)
+
+        _userLoggedIn.value = userCopy
+        Log.i("VALS", _userLoggedIn.value.toString())
+
+        callback(userCopy)
 
 //        _usersTeamsUsers.value[newTeam.id!!] = listOf()
     }

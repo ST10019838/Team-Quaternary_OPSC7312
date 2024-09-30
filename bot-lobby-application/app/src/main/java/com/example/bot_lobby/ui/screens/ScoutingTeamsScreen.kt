@@ -40,6 +40,7 @@ import com.example.bot_lobby.ui.composables.ScoutTeamListItem
 import com.example.bot_lobby.ui.composables.TeamListItem
 import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.theme.BlackCursor
+import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
 import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
 import com.example.bot_lobby.view_models.TeamViewModel
@@ -78,8 +79,8 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
                     .padding(end = 4.dp),  // Right padding
                 shape = RoundedCornerShape(16.dp),  // Rounded shape
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.primary,  // Custom theme colors
-                    unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+                    focusedContainerColor = BlueStandard,  // Custom theme colors
+                    unfocusedContainerColor = BlueStandard,
                     cursorColor = Color.White,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -102,23 +103,23 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             }
 
             // Refresh Icon to clear the scouting team search
-            IconButton(onClick = {
-                teamViewModel.clearSearchQuery()
-
-                teamViewModel.createTeam(
-                    Team(
-                        name = "NEW TEAM",
-                        tag = "NT",
-                        userIdsAndRoles = listOf(IdAndRole(id = 1, role = "ADMIN"))
-                    )
-                )
-
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Clear Scout Team Search Icon"
-                )
-            }
+//            IconButton(onClick = {
+//                teamViewModel.clearSearchQuery()
+//
+////                teamViewModel.createTeam(
+////                    Team(
+////                        name = "NEW TEAM",
+////                        tag = "NT",
+////                        userIdsAndRoles = listOf(IdAndRole(id = 1, role = "ADMIN"))
+////                    )
+////                )
+//
+//            }) {
+//                Icon(
+//                    imageVector = Icons.Default.Refresh,
+//                    contentDescription = "Clear Scout Team Search Icon"
+//                )
+//            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))

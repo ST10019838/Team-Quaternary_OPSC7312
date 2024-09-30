@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 
 // Define the dark theme color scheme
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = BlueStandard,
     secondary = PurpleGrey80,
     tertiary = Pink80,
     background = DarkBackground,
@@ -25,7 +25,7 @@ private val DarkColorScheme = darkColorScheme(
 
 // Define the light theme color scheme
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = BlueStandard,
     secondary = PurpleGrey40,
     tertiary = Pink40,
     background = LightBackground,
@@ -49,6 +49,7 @@ fun BotLobbyTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

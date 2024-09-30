@@ -16,34 +16,13 @@ class SignUpForm : Form() {
         return this
     }
 
-    // First Name Field
-    @FormField
-    val firstName = FieldState(
-        state = mutableStateOf<String?>(""),
-        validators = mutableListOf(
-            IsRequiredValidator(),
-            MaxLengthValidator(50)  // Max length for first name
-        )
-    )
-
-    // Last Name Field
-    @FormField
-    val lastName = FieldState(
-        state = mutableStateOf<String?>(""),
-        validators = mutableListOf(
-            IsRequiredValidator(),
-            MaxLengthValidator(50)  // Max length for last name
-        )
-    )
-
     // Email Field
     @FormField
-    val email = FieldState(
+    val username = FieldState(
         state = mutableStateOf<String?>(""),
         validators = mutableListOf(
             IsRequiredValidator(),
             MaxLengthValidator(100),
-            EmailValidator()
         )
     )
 

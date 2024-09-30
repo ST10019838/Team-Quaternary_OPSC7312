@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.composables
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.PublicOff
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -175,13 +177,15 @@ fun PlayerProfile(
                                 Icon(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = "Is LFT",
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Is Not LFT",
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
 
@@ -207,13 +211,15 @@ fun PlayerProfile(
                                 Icon(
                                     imageVector = Icons.Default.Public,
                                     contentDescription = "User is Public",
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.PublicOff,
                                     contentDescription = "User is Private",
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         },
@@ -297,11 +303,14 @@ fun PlayerProfile(
                     AuthViewModel.updateUsersDetails(updatedUser)
 
                     userViewModel.updateUser(updatedUser)
+
+                    Toast.makeText(context, "Successfully Saved Details", Toast.LENGTH_SHORT)
+                        .show()  // Show a confirmation toast
                 },
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = Color.Red,
-//                contentColor = Color.White
-//            ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(imageVector = Icons.Default.SaveAlt, contentDescription = "Save Changes")
