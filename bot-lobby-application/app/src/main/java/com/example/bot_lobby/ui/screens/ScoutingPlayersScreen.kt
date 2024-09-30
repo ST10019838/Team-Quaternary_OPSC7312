@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.ui.composables.PlayerListItem
+import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -46,22 +47,17 @@ fun ScoutingPlayersScreen(
 ) {
     // Collect searchQuery and filtered players from the PlayerViewModel
     val searchQuery by userViewModel.searchQuery.collectAsState()
-    val filteredPlayers by userViewModel.filteredPlayers.collectAsState()
+
+    val isSearching by userViewModel.isSearching.collectAsState()
+    val searchedUsers by userViewModel.searchedUsers.collectAsState()
+    val searchError by userViewModel.searchError.collectAsState()
 
     // Collect teams from the TeamViewModel
-    val teams by teamViewModel.teams.collectAsState()
+    val teams by AuthViewModel.usersTeams.collectAsState()
 
     // Focus manager for clearing the focus when search is triggered
     val focusManager = LocalFocusManager.current
 
-    // Debugging logs to track the filtered players
-    Log.d("PlayersTab", "Number of filtered players: ${filteredPlayers.size}")
-    filteredPlayers.forEach {
-        Log.d(
-            "PlayersTab",
-            "Player: ${it.player}, Tag: ${it.playertag}, Teams: ${it.teams}"
-        )
-    }
 
     // Main Column layout to structure the screen
     Column(
@@ -104,7 +100,10 @@ fun ScoutingPlayersScreen(
             IconButton(onClick = {
                 focusManager.clearFocus() // Clears focus when search button is clicked
                 Log.d("PlayersTab", "Search triggered")
-            }) {
+
+
+                userViewModel.searchForUsers()
+            }, enabled = searchQuery.isNotEmpty()) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search Icon" // Describes the search button
@@ -114,7 +113,6 @@ fun ScoutingPlayersScreen(
             // Refresh IconButton to clear search and reload the data
             IconButton(onClick = {
                 userViewModel.updateSearchQuery("") // Clears the search query
-                userViewModel.reloadData() // Triggers data reload from PlayerViewModel
             }) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
@@ -126,26 +124,43 @@ fun ScoutingPlayersScreen(
         Spacer(modifier = Modifier.height(4.dp))
 
         // Display the number of players found after filtering
-        Text("Players found: ${filteredPlayers.size}", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            "Players found: ${if (searchedUsers.isNullOrEmpty()) 0 else searchedUsers?.size}",
+            style = MaterialTheme.typography.bodyMedium
+        )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
 
         // Player List within LazyColumn for scrolling through players
-        Box(modifier = Modifier.weight(1f)) {
-            LazyColumn(
+        if (searchedUsers == null) {
+            Text("Enter a Player's Name to Search.")
+        } else if (!searchError.isNullOrEmpty()) {
+            searchError?.let { Text(it) }
+        } else if (isSearching) {
+            Text("Searching...")
+
+        } else if (searchedUsers!!.isEmpty()) {
+            Text("No Players Found")
+        } else {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
             ) {
-                items(filteredPlayers) { player ->
-                    // Pass navController to PlayerListItem to enable navigation
-                    PlayerListItem(player = player, teams = teams)
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    items(searchedUsers!!) { user ->
+
+                        // Pass navController to PlayerListItem to enable navigation
+                        PlayerListItem(user = user, teams = teams)
+                    }
                 }
             }
         }
 
-        // Display message if no players are found
-        if (filteredPlayers.isEmpty()) {
-            Text("No players found")
-        }
+
     }
 }

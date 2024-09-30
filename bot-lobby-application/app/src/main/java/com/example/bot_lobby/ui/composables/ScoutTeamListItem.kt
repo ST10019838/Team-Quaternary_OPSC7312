@@ -71,14 +71,14 @@ fun ScoutTeamListItem(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = team.teamtag,
+                        text = team.tag,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         ),
                     )
                     Text(
-                        text = team.teamname,
+                        text = team.name,
                         fontSize = 11.sp,
                         color = Color.Black
                     )
@@ -101,7 +101,7 @@ fun ScoutTeamListItem(
                         .width(120.dp)
                 ) {
                     Text(
-                        text = "${team.members.size} / 10", // Example for team count
+                        text = "${if (team.userIdsAndRoles.isEmpty()) 0 else team.userIdsAndRoles.size} / 10", // Example for team count
                         fontSize = 14.sp
                     )
                 }
@@ -113,10 +113,10 @@ fun ScoutTeamListItem(
                 IconButton(
                     onClick = {
                         // Check if team.teamtag is empty, and assign a default value if so
-                        val teamTagToNavigate = if (team.teamtag.isNullOrEmpty()) {
+                        val teamTagToNavigate = if (team.tag.isNullOrEmpty()) {
                             "Default Team Tag" // Provide a default team tag if team.tag is null or empty
                         } else {
-                            team.teamtag
+                            team.tag
                         }
 
                         // Ensure the navigation graph has been set before navigating

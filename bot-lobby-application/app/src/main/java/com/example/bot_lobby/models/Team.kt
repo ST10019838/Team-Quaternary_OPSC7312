@@ -1,17 +1,19 @@
 package com.example.bot_lobby.models
 
+import java.util.UUID
+
 // Team data class
 data class Team(
-    var id: Int,
+    var id: UUID? = null,
     val tag: String,
     val name: String,
-    val members: List<Member>,
-    val isPublic: Boolean
+    val userIdsAndRoles: List<IdAndRole>,// Map<Int, String>, //List<Pair<Int, String>>
+    val isPublic: Boolean = true,
+    val maxNumberOfUsers: Int = 10
 )
 
-// Member data class
-data class Member(
-    val playertag: String,
+data class IdAndRole(
+    val id: Int,
     val role: String
 )
 

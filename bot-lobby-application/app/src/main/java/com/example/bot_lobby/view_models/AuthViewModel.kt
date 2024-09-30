@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.models.AuthRequest
 import com.example.bot_lobby.models.AuthResponse
+import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.models.User
 import com.example.bot_lobby.models.UserInsert
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +16,20 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
-class AuthViewModel : ViewModel() {
+object AuthViewModel : ViewModel() {
+    private val _userLoggedIn = MutableStateFlow<User?>(
+        User(
+            id = 1,
+            password = "123",
+            teamIds = listOf(1, 2),
+            username = "DJDare",
+            bio = "This is me DJDare"
+        )
+    )
+    val userLoggedIn: StateFlow<User?> = _userLoggedIn.asStateFlow()
+
+    private val _usersTeams: MutableStateFlow<List<Team>> = MutableStateFlow(listOf())
+    val usersTeams: StateFlow<List<Team>> = _usersTeams.asStateFlow()
 
     // StateFlow to observe the login/registration response
     private val _authState = MutableStateFlow<AuthResponse?>(null)
@@ -117,5 +132,17 @@ class AuthViewModel : ViewModel() {
     fun clearAuthState() {
         _authState.value = null
         _errorState.value = null
+    }
+
+    fun updateUsersDetails(updatedUser: User) {
+        _userLoggedIn.value = updatedUser
+    }
+
+    fun addTeamToUser(newTeam: Team) {
+        _usersTeams.value += newTeam
+    }
+
+    fun removeTeamFromUser(team: Team) {
+        _usersTeams.value -= team
     }
 }

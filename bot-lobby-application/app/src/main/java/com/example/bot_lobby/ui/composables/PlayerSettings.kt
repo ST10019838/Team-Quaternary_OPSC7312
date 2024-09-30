@@ -1,5 +1,7 @@
 package com.example.bot_lobby.ui.composables
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,10 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +51,8 @@ fun PlayerSettings() {
     var isDarkModeEnabled by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
 
+    val context = LocalContext.current
+
     // List of supported languages
     val languages = listOf("English", "Afrikaans")
 
@@ -60,7 +64,6 @@ fun PlayerSettings() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .verticalScroll(rememberScrollState()) // Enable scrolling for long content
     ) {
         // Centered Heading for Settings
         Text(
@@ -216,6 +219,28 @@ fun PlayerSettings() {
                 color = Color.Black // Black text color
             )
             Spacer(modifier = Modifier.height(4.dp))
+
+            Button(
+                onClick = {
+//                auth.signOut()  // Sign out the current user
+                    Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT)
+                        .show()  // Show a confirmation toast
+//                navigator.popUntilRoot()  // Navigate back to the root screen
+//                navigator.push(LoginScreen())  // Push the LoginScreen back onto the stack
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
+                border = BorderStroke(1.dp, Color.Gray),
+            ) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Delete")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Sign Out", fontSize = 16.sp)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+
             Button(
                 onClick = { /* Handle Delete Account */ },
                 colors = ButtonDefaults.buttonColors(

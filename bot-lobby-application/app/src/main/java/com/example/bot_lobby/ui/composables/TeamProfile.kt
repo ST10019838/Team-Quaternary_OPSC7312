@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,26 +41,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.view_models.TeamViewModel
+import com.example.bot_lobby.utils.fetchData
+import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamProfile(
-    teamTag: String,
-    teamViewModel: TeamViewModel,
+    team: Team,
     onExitClick: () -> Unit
 ) {
-    // Retrieve the team using the provided teamTag
-    val team = teamViewModel.teams.collectAsState().value.find { it.teamtag == teamTag }
-        ?: Team(
-            teamtag = "Default Team Tag",
-            teamname = "Default Team Name",
-            members = emptyList(),
-            isPublic = true
-        )
-
     // State for the team description
     var description by remember { mutableStateOf("Description of the team") }
+
+
+    // Retrieve the teams players
+    val usersViewModel = UserViewModel()
+    val (isLoading, data, isError, error) = fetchData {
+        usersViewModel.getTeamsUsers(team)
+    }
 
     Column(
         modifier = Modifier
@@ -71,7 +68,7 @@ fun TeamProfile(
     ) {
         // 1. Heading: Team Tag
         Text(
-            text = team.teamtag,
+            text = team.tag,
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -112,7 +109,7 @@ fun TeamProfile(
             ) {
                 // 4a. Team Name
                 Text(
-                    text = team.teamname,
+                    text = team.name,
                     fontSize = 14.sp,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
@@ -131,7 +128,7 @@ fun TeamProfile(
                         color = Color.Black
                     )
                     Text(
-                        text = "${team.members.size} / 10",  // Assuming a max of 10 members
+                        text = "${team.userIdsAndRoles.size} / 10",  // Assuming a max of 10 members
                         fontSize = 12.sp,
                         color = Color.Black
                     )
@@ -266,8 +263,8 @@ fun TeamProfile(
 
         // 7. List of Players in the Team
         Spacer(modifier = Modifier.height(8.dp))
-        team.members.forEach { member ->
-            PlayerItem(member = member, onProfileClick = {
+        data.value?.forEach { user ->
+            PlayerItem(user = user, role = user.role.toString(), onProfileClick = {
                 // Handle profile click
             })
             Spacer(modifier = Modifier.height(8.dp))

@@ -4,35 +4,104 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
+import com.example.bot_lobby.models.FetchResponse
 import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.models.TeamInsert
+import com.example.bot_lobby.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class TeamViewModel : ViewModel() {
-    private val _teamData: MutableStateFlow<List<Team>> = MutableStateFlow(listOf())
-    val teamData: StateFlow<List<Team>> = _teamData.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
 
-    fun getTeamData() {
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching
+
+    private val _searchError: MutableStateFlow<String?> = MutableStateFlow(null)
+    val searchError: StateFlow<String?> = _searchError.asStateFlow()
+
+    private val _searchedTeams: MutableStateFlow<List<Team>?> = MutableStateFlow(null)
+    val searchedTeams: StateFlow<List<Team>?> = _searchedTeams.asStateFlow()
+
+//    fun getAllTeams() {
+//        viewModelScope.launch {
+//            try {
+//                val response = RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey)
+//                val body = response.body()
+//                if (body != null) {
+//                    _teamData.value = response.body()!!
+//                }
+//            } catch (exception: Exception) {
+//                Log.i("ERROR!", exception.message.toString())
+//            }
+//        }
+//    }
+
+    fun getTeam(teamId: Int): FetchResponse<Team?> {
+        var team: Team? = null
+        var errorMessage: String? = null
+
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey)
+                val response =
+                    RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey, id = "eq.$teamId")
                 val body = response.body()
                 if (body != null) {
-                    _teamData.value = response.body()!!
+                    team = response.body()!!.first()
                 }
             } catch (exception: Exception) {
+                errorMessage = exception.message.toString()
                 Log.i("ERROR!", exception.message.toString())
             }
         }
+
+        return FetchResponse(team, errorMessage)
     }
 
-    fun createTeam(newTeam: TeamInsert) {
+    fun getUsersTeams(user: User): FetchResponse<List<Team>> {
+        var teams: List<Team> = listOf()
+        var errorMessage: String? = null
+
         viewModelScope.launch {
             try {
-                RetrofitInstance.TeamApi.createTeam(RetrofitInstance.apiKey, newTeam)
+                // Create a query string that will be used to search for all teams based on their ids
+                var queryString = "in.("
+
+                user.teamIds?.forEach { id ->
+                    queryString += "$id"
+
+                    queryString += if (user.teamIds.indexOf(id) == (user.teamIds.size - 1)) ")" else ","
+                }
+
+                // Fetch data
+                val response =
+                    RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey, queryString)
+                val body = response.body()
+                if (body != null) {
+                    teams = body
+                }
+            } catch (exception: Exception) {
+                errorMessage = exception.message.toString()
+                Log.i("ERROR!", exception.message.toString())
+            }
+        }
+
+        return FetchResponse(teams, errorMessage)
+    }
+
+
+    fun createTeam(newTeam: Team) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.TeamApi.createTeam(RetrofitInstance.apiKey, newTeam)
+                val body = response.body()
+                Log.i("RES!", response.toString())
+                if (body != null) {
+                    Log.i("DATA!", body.toString())
+                }
+
             } catch (exception: Exception) {
                 Log.i("ERROR!", exception.message.toString())
             }
@@ -64,6 +133,56 @@ class TeamViewModel : ViewModel() {
                 Log.i("ERROR FOR!", exception.message.toString())
             }
         }
+    }
+
+
+    fun clearSearchQuery() {
+        _searchQuery.value = ""
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun searchForTeams() {
+        _isSearching.value = true
+
+
+        if (searchQuery.value.isEmpty()) {
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                // The following query was adapted from stackoverflow.com
+                // Author: bgs (https://stackoverflow.com/users/2298058/bgs)
+                // Link: https://stackoverflow.com/questions/17322228/check-if-a-column-contains-text-using-sql
+                // Create a query string that will be used to search for all teams based on their ids
+                val queryString = "like.*${searchQuery.value}*"
+
+
+                // Fetch data
+                val response =
+                    RetrofitInstance.TeamApi.getTeamsByName(
+                        RetrofitInstance.apiKey,
+                        queryString
+                    )
+                val body = response.body()
+
+                Log.i("RESPONSE", response.toString())
+                if (body != null) {
+                    _searchedTeams.value = body
+
+                    Log.i("DATA", body.toString())
+                }
+            } catch (exception: Exception) {
+                _searchError.value = exception.message.toString()
+                Log.i("ERROR!", exception.message.toString())
+            }
+        }
+
+        _isSearching.value = false
+
     }
 }
 

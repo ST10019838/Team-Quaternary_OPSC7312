@@ -1,9 +1,6 @@
 package com.example.bot_lobby.ui.composables
 
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,16 +15,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.PublicOff
+import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,27 +39,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
+import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
-import com.example.bot_lobby.ui.screens.LoginScreen
+import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.TeamViewModel
+import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerProfile(
     user: User,
-    onDetailsSave: () -> Unit = {},
+    onSave: () -> Unit = {},
     onExitClick: () -> Unit = {}
 ) {
-    // Firebase Auth instance for managing user sessions
+    val userViewModel = UserViewModel()
+
     val context = LocalContext.current
 
+    val teamsViewModel = TeamViewModel()
+
     // State to manage the description field, initialized from the player's teams
-    var user_bio by remember { mutableStateOf(user.user_bio) }
+    var userTag by remember { mutableStateOf(user.username) }
+    var userBio by remember { mutableStateOf(user.bio) }
+    var userIsLFT by remember { mutableStateOf(user.isLFT) }
+    var userIsPublic by remember { mutableStateOf(user.isPublic) }
+
+    var usersTeams by remember { mutableStateOf<List<Team>>(listOf()) }
+
 
     Column(
         modifier = Modifier
@@ -81,8 +90,8 @@ fun PlayerProfile(
                 painter = painterResource(id = R.drawable.ic_team_tag),  // Sample image resource
                 contentDescription = "Player Image",
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(150.dp)
+                    .width(130.dp)
+                    .height(130.dp)
                     .clip(RoundedCornerShape(16.dp))  // Rounded corners for the image
                     .border(
                         1.dp,
@@ -103,145 +112,177 @@ fun PlayerProfile(
             ) {
                 // Row with player tag and edit button
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Display player's tag
-                    Text(
-                        text = player.playertag,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+//                    OutlinedTextField(
+//                        value = userTag,
+//                        onValueChange = { userTag = it },
+//                        label = { Text("Tag") },
+//                        fontWeight = FontWeight.Bold,
+//                        style = MaterialTheme.typography.titleLarge
+//                    )
+
+                    OutlinedTextField(
+                        value = userTag,
+                        onValueChange = { userTag = it },
+                        label = { Text("User Tag") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true
                     )
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    // Edit button to edit player information
-                    Button(
-                        onClick = { /* Handle Edit Click */ },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = Color.Black  // Icon color
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, Color.Transparent)  // Transparent border
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_edit),  // Edit icon
-                            contentDescription = "Edit",
-                            modifier = Modifier.size(24.dp)  // Icon size
-                        )
-                    }
                 }
 
                 // Row with LFT (Looking for Team) and Public buttons
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // LFT Button
-                    Button(
-                        onClick = { /* Handle LFT button click */ },
-                        modifier = Modifier.width(110.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black
-                        ),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("LFT", fontSize = 12.sp)
-                    }
+                    AssistChip(
+                        onClick = { userIsLFT = !userIsLFT },
+                        label = { Text("LFT") },
+                        leadingIcon = {
+                            if (userIsLFT) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Is LFT",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Cancel,
+                                    contentDescription = "Is Not LFT",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+//                        modifier = Modifier.width(110.dp)
+//                        colors = ButtonDefaults.buttonColors(
+//                            containerColor = Color.White,
+//                            contentColor = Color.Black
+//                        ),
+//                        border = BorderStroke(1.dp, Color.Gray),
+//                        shape = RoundedCornerShape(8.dp)
+                    )
 
                     // Public Button
-                    Button(
-                        onClick = { /* Handle Public button click */ },
-                        modifier = Modifier.width(110.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black
-                        ),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Public,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Public", fontSize = 12.sp)
-                    }
+                    AssistChip(
+                        onClick = { userIsPublic = !userIsPublic },
+                        label = { Text("Public", fontSize = 12.sp) },
+                        leadingIcon = {
+                            if (userIsPublic) {
+                                Icon(
+                                    imageVector = Icons.Default.Public,
+                                    contentDescription = "User is Public",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.PublicOff,
+                                    contentDescription = "User is Private",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+//                        modifier = Modifier.width(110.dp),
+//                        colors = ButtonDefaults.buttonColors(
+//                            containerColor = Color.White,
+//                            contentColor = Color.Black
+//                        ),
+//                        border = BorderStroke(1.dp, Color.Gray),
+//                        shape = RoundedCornerShape(8.dp)
+                    )
                 }
 
                 // Invite Button for sending team invites
-                Button(
-                    onClick = { /* Handle Invite button click */ },
-                    modifier = Modifier.width(250.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    ),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Invite", fontSize = 12.sp)
-                }
+//                Button(
+//                    onClick = { /* Handle Invite button click */ },
+//                    modifier = Modifier.width(250.dp),
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = Color.White,
+//                        contentColor = Color.Black
+//                    ),
+//                    border = BorderStroke(1.dp, Color.Gray),
+//                    shape = RoundedCornerShape(8.dp)
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Email,
+//                        contentDescription = null,
+//                        modifier = Modifier.size(16.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(4.dp))
+//                    Text("Invite", fontSize = 12.sp)
+//                }
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // TextField for player description input
-        TextField(
-            value = description,
-            onValueChange = { newDesc -> description = newDesc },  // Update description state
+        OutlinedTextField(
+            label = { Text("User Bio") },
+            value = userBio!!,
+            onValueChange = { newDesc -> userBio = newDesc },  // Update description state
             placeholder = { Text("Enter player description") },  // Placeholder text
             modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Border styling
-                .background(Color.White),
+                .fillMaxWidth(),
+//                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Border styling
+//                .background(Color.White),
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),  // Keyboard options
             singleLine = false,
-            shape = RoundedCornerShape(8.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                cursorColor = Color.Black,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
+            maxLines = 3,
+//            shape = RoundedCornerShape(8.dp),
+//            colors = TextFieldDefaults.colors(
+//                focusedContainerColor = Color.White,
+//                unfocusedContainerColor = Color.White,
+//                cursorColor = Color.Black,
+//                focusedIndicatorColor = Color.Transparent,
+//                unfocusedIndicatorColor = Color.Transparent,
+//                disabledIndicatorColor = Color.Transparent
+//            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display heading for the teams section with the number of teams
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Button(
+            onClick = {
+                val updatedUser = User(
+                    id = user.id,
+                    role = user.role,
+                    bio = userBio,
+                    username = userTag,
+                    password = user.password,
+                    biometrics = user.biometrics,
+                    teamIds = user.teamIds,
+                    isPublic = userIsPublic,
+                    isLFT = userIsLFT
+                )
+
+                AuthViewModel.updateUsersDetails(updatedUser)
+
+                userViewModel.updateUser(updatedUser)
+            },
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.Red,
+//                contentColor = Color.White
+//            ),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Teams", style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold))
-            Text(
-                "${teams?.size}/10",
-                style = TextStyle(fontSize = 16.sp)
-            )  // Display the current team count
+            Icon(imageVector = Icons.Default.SaveAlt, contentDescription = "Save Changes")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Save Changes", style = MaterialTheme.typography.bodyLarge)
         }
+
+        // TODO: NEED TO ADD TEAMS!
+        // TODO: NEED TO ADD INVITE BUTTON BACK
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Iterate through teams and display each team using TeamItem composable
-        teams?.forEach { team ->
-            TeamItem(team = team)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
 
         Spacer(modifier = Modifier.weight(1f))  // Space to push buttons to the bottom
 
@@ -267,26 +308,8 @@ fun PlayerProfile(
 //            }
 //        }
 
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Logoff Button to sign out the user
-        Button(
-            onClick = {
-//                auth.signOut()  // Sign out the current user
-                Toast.makeText(context, "Successfully logged off", Toast.LENGTH_SHORT)
-                    .show()  // Show a confirmation toast
-                navigator.popUntilRoot()  // Navigate back to the root screen
-                navigator.push(LoginScreen())  // Push the LoginScreen back onto the stack
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            ),
-            border = BorderStroke(1.dp, Color.Gray),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Log Off", fontSize = 12.sp)
-        }
+
     }
 }

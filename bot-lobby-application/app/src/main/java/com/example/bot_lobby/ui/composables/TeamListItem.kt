@@ -43,7 +43,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamListItem(
-    team: Team
+    team: Team,
+    onView: () -> Unit
 ) {
     // Get the current date in xx/xx/xxxx format
     val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
@@ -80,14 +81,14 @@ fun TeamListItem(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = team.teamtag,
+                        text = team.tag,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         ),
                     )
                     Text(
-                        text = team.teamname,
+                        text = team.name,
                         fontSize = 11.sp,
                         color = Color.Black
                     )
@@ -110,7 +111,7 @@ fun TeamListItem(
                         .width(90.dp)
                 ) {
                     Text(
-                        text = "${team.members.size} / 10", // Example for team count
+                        text = "${team.userIdsAndRoles.size} / 10", // Example for team count
                         fontSize = 14.sp
                     )
                 }
@@ -122,10 +123,10 @@ fun TeamListItem(
                 IconButton(
                     onClick = {
                         // Check if team.teamtag is empty, and assign a default value if so
-                        val teamTagToNavigate = if (team.teamtag.isNullOrEmpty()) {
+                        val teamTagToNavigate = if (team.tag.isNullOrEmpty()) {
                             "Default Team Tag" // Provide a default team tag if team.tag is null or empty
                         } else {
-                            team.teamtag
+                            team.tag
                         }
 
                         // Ensure the navigation graph has been set before navigating
@@ -135,6 +136,8 @@ fun TeamListItem(
                             // Handle the case where the navigation graph is not properly set
                             println("Navigation graph is not properly set: ${e.message}")
                         }
+
+                        onView()
                     }
                 ) {
                     Icon(

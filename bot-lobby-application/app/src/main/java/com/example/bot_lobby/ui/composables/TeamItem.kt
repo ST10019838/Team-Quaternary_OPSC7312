@@ -47,7 +47,7 @@ fun TeamItem(team: Team) {
 
         // Team tag
         Text(
-            text = team.teamtag,
+            text = team.tag,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
@@ -69,7 +69,8 @@ fun TeamItem(team: Team) {
                 .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Grey border
                 .size(80.dp, 40.dp)  // Square button with rounded edges
         ) {
-            Text(text = "${team.members.size}/${team.members.size}")  // XX/XX format
+
+            Text(text = "${team.userIdsAndRoles.size}/${team.maxNumberOfUsers}")  // XX/XX format
         }
     }
 }

@@ -52,12 +52,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
-import com.example.bot_lobby.models.Player
 import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.models.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerListItem(player: Player, teams: List<Team>) {
+fun PlayerListItem(user: User, teams: List<Team>) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
     var selectedTeam by remember { mutableStateOf("") }
@@ -87,7 +87,7 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = player.playertag,
+                    text = user.username,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.weight(1f)
                 )
@@ -95,22 +95,24 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // LFT Button
-                LFTButton(
-                    inTeam = player.teams.isNotEmpty(),
-                    onClick = {
-                        // Handle LFT action
-                    }
-                )
+                user.teamIds?.isNotEmpty()?.let {
+                    LFTButton(
+                        inTeam = it,
+                        onClick = {
+                            // Handle LFT action
+                        }
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // View Profile Button
                 IconButton(onClick = {
                     // Check if player.playertag is empty, and assign "Player Tag 1" if so
-                    val playertagToNavigate = if (player.playertag.isNullOrEmpty()) {
+                    val playertagToNavigate = if (user.username.isNullOrEmpty()) {
                         "Player Tag 1"
                     } else {
-                        player.playertag
+                        user.username
                     }
 
                     // Ensure the navigation graph has been set before navigating
@@ -141,15 +143,16 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                     ExposedDropdownMenuBox(
                         expanded = expanded,
                         onExpandedChange = {
-                            if (player.teams.isEmpty()) {
+                            if (user.teamIds?.isEmpty() == true) {
                                 expanded = !expanded
                             }
                         }
                     ) {
-                        val textColor = if (player.teams.isEmpty()) Color.Black else Color.LightGray
+                        val textColor =
+                            if (user.teamIds?.isEmpty() == true) Color.Black else Color.LightGray
 
                         TextField(
-                            value = if (player.teams.isNotEmpty()) player.teams.first() else selectedTeam,
+                            value = "", //if (user.teamIds.isNotEmpty()) user.teamIds.first() else selectedTeam
                             onValueChange = {},
                             placeholder = {
                                 Text(
@@ -163,9 +166,9 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                                 .height(48.dp)
                                 .border(1.dp, Gray, RoundedCornerShape(8.dp))
                                 .focusRequester(focusRequester)
-//                                .menuAnchor(type, enabled)
-                                .clickable(enabled = player.teams.isEmpty()) {
-                                    if (player.teams.isEmpty()) {
+                                //                                .menuAnchor(type, enabled)
+                                .clickable(enabled = true) {
+                                    if (user.teamIds?.isEmpty() == true) {
                                         expanded = !expanded
                                         focusRequester.requestFocus()
                                     }
@@ -185,7 +188,7 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                                     imageVector = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
                                     contentDescription = "Dropdown",
                                     modifier = Modifier.graphicsLayer {
-                                        alpha = if (player.teams.isEmpty()) 1f else 0.3f
+                                        alpha = if (user.teamIds?.isEmpty() == true) 1f else 0.3f
                                     }
                                 )
                             }
@@ -215,15 +218,17 @@ fun PlayerListItem(player: Player, teams: List<Team>) {
                 Spacer(modifier = Modifier.width(18.dp))
 
                 // Invite Button
-                InviteButton(
-                    enabled = player.teams.isEmpty(),
-                    onClick = {
-                        if (player.teams.isEmpty()) {
-                            // Handle invite action
-                        }
-                    },
-                    modifier = Modifier.width(150.dp)
-                )
+                user.teamIds?.isEmpty()?.let {
+                    InviteButton(
+                        enabled = it,
+                        onClick = {
+                            if (user.teamIds.isEmpty()) {
+                                // Handle invite action
+                            }
+                        },
+                        modifier = Modifier.width(150.dp)
+                    )
+                }
             }
         }
     }

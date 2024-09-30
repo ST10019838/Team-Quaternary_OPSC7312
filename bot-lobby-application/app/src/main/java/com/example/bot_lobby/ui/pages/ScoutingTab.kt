@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +34,7 @@ object ScoutingTab : Tab {
         @Composable
         get() {
             val title = "Scouting"
-            val icon = rememberVectorPainter(Icons.Default.Visibility)
+            val icon = rememberVectorPainter(Icons.Default.Search)
 
             return remember {
                 TabOptions(

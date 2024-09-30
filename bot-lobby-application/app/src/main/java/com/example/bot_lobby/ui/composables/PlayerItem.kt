@@ -24,12 +24,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
-import com.example.bot_lobby.models.Member
+import com.example.bot_lobby.models.User
 
 // Handles role access (Teamsprofile)
 
 @Composable
-fun PlayerItem(member: Member, onProfileClick: () -> Unit) {
+fun PlayerItem(user: User, role: String? = null, onProfileClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,7 +49,7 @@ fun PlayerItem(member: Member, onProfileClick: () -> Unit) {
 
         // Player tag
         Text(
-            text = member.playertag,
+            text = user.username,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -67,7 +67,7 @@ fun PlayerItem(member: Member, onProfileClick: () -> Unit) {
             border = BorderStroke(1.dp, Color.Gray),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text(text = member.role.uppercase(), fontSize = 12.sp)
+            Text(text = role!!.uppercase(), fontSize = 12.sp)
         }
 
         Spacer(modifier = Modifier.width(8.dp))

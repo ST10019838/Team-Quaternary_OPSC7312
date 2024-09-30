@@ -1,14 +1,36 @@
 package com.example.bot_lobby.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +49,6 @@ import com.example.bot_lobby.R
 import com.example.bot_lobby.forms.LoginForm
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
-import com.google.firebase.auth.FirebaseAuth
 
 class LoginScreen : Screen {
 
@@ -36,7 +57,6 @@ class LoginScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val form = LoginForm() // Form that manages the login state
         val context = LocalContext.current
-        val auth = FirebaseAuth.getInstance() // FirebaseAuth instance
 
         // Initialize areCredentialsValid state
         var areCredentialsValid by remember { mutableStateOf(true) }
@@ -103,7 +123,8 @@ class LoginScreen : Screen {
                 ) {
                     // Email Input Field with Email icon
                     OutlinedTextField(
-                        value = form.email.state.value ?: "", // Retrieve the current value of email from the form
+                        value = form.email.state.value
+                            ?: "", // Retrieve the current value of email from the form
                         onValueChange = { value -> // Handle text change and update the form
                             onFormValueChange(
                                 value = value,
@@ -137,7 +158,8 @@ class LoginScreen : Screen {
                     // Password Input Field with visibility toggle and lock icon
                     var passwordVisible by remember { mutableStateOf(false) } // Manage password visibility
                     OutlinedTextField(
-                        value = form.password.state.value ?: "", // Retrieve the current value of password from the form
+                        value = form.password.state.value
+                            ?: "", // Retrieve the current value of password from the form
                         onValueChange = { value -> // Handle password text change
                             onFormValueChange(
                                 value = value,
@@ -160,10 +182,14 @@ class LoginScreen : Screen {
                             else
                                 Icons.Filled.VisibilityOff
 
-                            val description = if (passwordVisible) "Hide password" else "Show password"
+                            val description =
+                                if (passwordVisible) "Hide password" else "Show password"
 
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, contentDescription = description) // Password visibility toggle
+                                Icon(
+                                    imageVector = image,
+                                    contentDescription = description
+                                ) // Password visibility toggle
                             }
                         },
                         singleLine = true, // Single-line input
@@ -193,29 +219,29 @@ class LoginScreen : Screen {
 
                             if (form.isValid) {
                                 // Firebase sign in attempt
-                                auth.signInWithEmailAndPassword(
-                                    form.email.state.value!!,
-                                    form.password.state.value!!
-                                ).addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        // Display success message
-                                        Toast.makeText(
-                                            context,
-                                            "Log In Successful",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        // Navigate to landing screen
-                                        navigator.push(LandingScreen())
-                                    } else {
-                                        // Sign in failed: Display error message
-                                        areCredentialsValid = false
-                                        Toast.makeText(
-                                            context,
-                                            "Log In Failed: ${task.exception?.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
+//                                auth.signInWithEmailAndPassword(
+//                                    form.email.state.value!!,
+//                                    form.password.state.value!!
+//                                ).addOnCompleteListener { task ->
+//                                    if (task.isSuccessful) {
+//                                        // Display success message
+//                                        Toast.makeText(
+//                                            context,
+//                                            "Log In Successful",
+//                                            Toast.LENGTH_SHORT
+//                                        ).show()
+//                                        // Navigate to landing screen
+//                                        navigator.push(LandingScreen())
+//                                    } else {
+//                                        // Sign in failed: Display error message
+//                                        areCredentialsValid = false
+//                                        Toast.makeText(
+//                                            context,
+//                                            "Log In Failed: ${task.exception?.message}",
+//                                            Toast.LENGTH_SHORT
+//                                        ).show()
+//                                    }
+//                                }
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),

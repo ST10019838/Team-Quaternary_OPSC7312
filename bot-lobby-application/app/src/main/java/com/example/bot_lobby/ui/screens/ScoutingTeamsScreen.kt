@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -28,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.models.IdAndRole
+import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.ScoutTeamListItem
 import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
@@ -38,7 +42,9 @@ import com.example.bot_lobby.view_models.TeamViewModel
 fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
     // State variables observed from the TeamViewModel
     val searchQuery by teamViewModel.searchQuery.collectAsState()
-    val filteredTeams by teamViewModel.filteredTeams.collectAsState()
+    val isSearching by teamViewModel.isSearching.collectAsState()
+    val searchedTeams by teamViewModel.searchedTeams.collectAsState()
+    val searchError by teamViewModel.searchError.collectAsState()
 
     Column(
         modifier = Modifier
@@ -71,7 +77,9 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             )
 
             // Search Icon
-            IconButton(onClick = { teamViewModel.updateSearchQuery(searchQuery) }) {
+            IconButton(onClick = {
+                teamViewModel.searchForTeams()
+            }, enabled = searchQuery.isNotEmpty()) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search Scout Team Icon"
@@ -79,7 +87,18 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             }
 
             // Refresh Icon to clear the scouting team search
-            IconButton(onClick = { teamViewModel.updateSearchQuery("") }) {
+            IconButton(onClick = {
+                teamViewModel.clearSearchQuery()
+
+                teamViewModel.createTeam(
+                    Team(
+                        name = "NEW TEAM",
+                        tag = "NT",
+                        userIdsAndRoles = listOf(IdAndRole(id = 1, role = "ADMIN"))
+                    )
+                )
+
+            }) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = "Clear Scout Team Search Icon"
@@ -87,22 +106,40 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             }
         }
 
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Display the number of players found after filtering
+        Text(
+            "Teams found: ${if (searchedTeams.isNullOrEmpty()) 0 else searchedTeams?.size}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
         Spacer(modifier = Modifier.height(16.dp))  // Add space between search bar and team list
 
-        // List of scout teams
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()  // Fill the available space
-        ) {
-            items(filteredTeams) { team ->  // Dynamically populate the list
-                ScoutTeamListItem(
-                    team = team
-                )  // Pass the navController to each item
-            }
-        }
 
-        // Display a message when no teams are found
-        if (filteredTeams.isEmpty()) {  // Check if no teams are available
-            Text(text = "No scout teams found", modifier = Modifier.padding(16.dp))
+        // Player List within LazyColumn for scrolling through players
+        if (searchQuery.isEmpty()) {
+            Text("Enter a Team's Name to Search.")
+        } else if (!searchError.isNullOrEmpty()) {
+            searchError?.let { Text(it) }
+        } else if (isSearching) {
+            Text("Searching...")
+        } else if (searchedTeams?.isEmpty() == true) {
+            Text("No Teams Found")
+        } else if (searchedTeams?.isNotEmpty() == true) {
+            Box(modifier = Modifier.weight(1f)) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    items(searchedTeams!!) { team ->
+                        // Pass navController to PlayerListItem to enable navigation
+                        ScoutTeamListItem(
+                            team = team
+                        )  // Pass the navController to each item
+                    }
+                }
+            }
         }
     }
 }

@@ -14,7 +14,16 @@ import retrofit2.http.Query
 interface UserApi {
 
     @GET("users")  // Shouldn't have "rest/v1" here since it's part of the base URL
-    suspend fun getUsers(@Header("apikey") key: String): Response<List<User>>
+    suspend fun getUsers(
+        @Header("apikey") key: String,
+        @Query("id") id: String? = null
+    ): Response<List<User>>
+
+    @GET("users")
+    suspend fun getUsersByName(
+        @Header("apiKey") key: String,
+        @Query("username") id: String? = null
+    ): Response<List<User>>
 
     @POST("users")
     suspend fun createUser(@Header("apikey") key: String, @Body user: UserInsert): Response<User>

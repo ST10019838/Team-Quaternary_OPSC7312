@@ -7,9 +7,9 @@ object RetrofitInstance {
     const val apiKey =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluc250cGdwdW5vYmF3YWpuYm93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQ1MjAyNjAsImV4cCI6MjA0MDA5NjI2MH0.LpyqZLqJp8bgSOXd3Tuw9Nntq60WJ4-GtAGK9bbJko8"
 
-    private const val BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/rest/v1"
+    private const val BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/rest/v1/"
 
-    private const val AUTH_BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/auth/v1"
+    private const val AUTH_BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/auth/v1/"
 
     // AuthApi for login and registration
     val AuthApi by lazy {
