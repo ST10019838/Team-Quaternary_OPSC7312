@@ -27,6 +27,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +37,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.models.User
+import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.PlayerListItem
+import com.example.bot_lobby.ui.composables.PlayerProfile
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
@@ -57,6 +63,8 @@ fun ScoutingPlayersScreen(
 
     // Focus manager for clearing the focus when search is triggered
     val focusManager = LocalFocusManager.current
+    var isDialogOpen by remember { mutableStateOf(false) }
+    var userToView by remember { mutableStateOf<User?>(null) }
 
 
     // Main Column layout to structure the screen
@@ -112,7 +120,7 @@ fun ScoutingPlayersScreen(
 
             // Refresh IconButton to clear search and reload the data
             IconButton(onClick = {
-                userViewModel.updateSearchQuery("") // Clears the search query
+                userViewModel.clearSearchQuery() // Clears the search query
             }) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
@@ -153,14 +161,24 @@ fun ScoutingPlayersScreen(
                         .fillMaxWidth()
                 ) {
                     items(searchedUsers!!) { user ->
-
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, teams = teams)
+                        PlayerListItem(user = user, teams = teams, onView = {
+                            isDialogOpen = true
+                            userToView = user
+                        })
                     }
                 }
             }
         }
+    }
 
 
+    if (isDialogOpen) {
+        FullScreenModal(onClose = {
+            isDialogOpen = false
+            userToView = null
+        }) {
+            PlayerProfile(user = userToView!!)
+        }
     }
 }

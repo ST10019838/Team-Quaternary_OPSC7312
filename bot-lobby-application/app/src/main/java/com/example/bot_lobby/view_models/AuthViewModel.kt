@@ -31,6 +31,10 @@ object AuthViewModel : ViewModel() {
     private val _usersTeams: MutableStateFlow<List<Team>> = MutableStateFlow(listOf())
     val usersTeams: StateFlow<List<Team>> = _usersTeams.asStateFlow()
 
+//    private val _usersTeamsUsers: MutableStateFlow<MutableMap<UUID, List<User>>> =
+//        MutableStateFlow(mutableMapOf())
+//    val usersTeamsUsers: StateFlow<Map<UUID, List<User>>> = _usersTeamsUsers.asStateFlow()
+
     // StateFlow to observe the login/registration response
     private val _authState = MutableStateFlow<AuthResponse?>(null)
     val authState: StateFlow<AuthResponse?> = _authState.asStateFlow()
@@ -138,11 +142,32 @@ object AuthViewModel : ViewModel() {
         _userLoggedIn.value = updatedUser
     }
 
+    fun updateUsersTeam(team: Team) {
+        // the following code was adapted from baeldung.com
+        // Author: Albert Ache (https://www.baeldung.com/kotlin/author/albertache)
+        // Link: https://www.baeldung.com/kotlin/list-mutable-change-element#:~:text=Using%20the%20map()%20Method,value%20we%20wish%20to%20update.
+        _usersTeams.value = _usersTeams.value.map {
+            if (it.id == team.id) {
+                team
+            } else {
+                it
+            }
+        }
+    }
+
     fun addTeamToUser(newTeam: Team) {
         _usersTeams.value += newTeam
+
+//        _usersTeamsUsers.value[newTeam.id!!] = listOf()
     }
+
+//    fun updateTeamsUsers(teamId: UUID, teamsUsers: List<User>) {
+//        _usersTeamsUsers.value[teamId] = teamsUsers
+//    }
 
     fun removeTeamFromUser(team: Team) {
         _usersTeams.value -= team
+
+//        _usersTeamsUsers.value.remove(team.id)
     }
 }

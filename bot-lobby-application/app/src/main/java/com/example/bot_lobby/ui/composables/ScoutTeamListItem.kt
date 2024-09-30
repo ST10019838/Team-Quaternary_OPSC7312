@@ -39,7 +39,8 @@ import com.example.bot_lobby.models.Team
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScoutTeamListItem(
-    team: Team
+    team: Team,
+    onView: () -> Unit = {}
 ) {
     // Main Box for each team
     Box(
@@ -118,6 +119,8 @@ fun ScoutTeamListItem(
                         } else {
                             team.tag
                         }
+
+                        onView()
 
                         // Ensure the navigation graph has been set before navigating
                         try {

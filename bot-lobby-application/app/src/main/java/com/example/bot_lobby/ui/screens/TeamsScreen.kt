@@ -32,6 +32,7 @@ import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.composables.TeamsHeader
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
+import com.example.bot_lobby.view_models.UserViewModel
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +40,8 @@ import java.util.UUID
 fun TeamsScreen() {
     // Get the TeamViewModel instance
     val teamViewModel: TeamViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
+
 
     // Collect the list of filtered teams from the view model
     val teams = AuthViewModel.usersTeams.collectAsState()
@@ -118,8 +121,12 @@ fun TeamsScreen() {
     }
 
     if (isDialogOpen) {
-        FullScreenModal {
-            TeamProfile(team = teamToView!!, {})
+        FullScreenModal(onClose = {
+            isDialogOpen = false
+            teamToView = null
+        }) {
+            // TODO: change ability to edit team details when more members join
+            TeamProfile(team = teamToView!!, canEdit = true)
         }
     }
 }

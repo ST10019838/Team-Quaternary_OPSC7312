@@ -3,6 +3,7 @@ package com.example.bot_lobby.ui.composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,22 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.PublicOff
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
@@ -53,14 +57,19 @@ import com.example.bot_lobby.view_models.UserViewModel
 @Composable
 fun PlayerProfile(
     user: User,
-    onSave: () -> Unit = {},
-    onExitClick: () -> Unit = {}
+    isPersonalProfile: Boolean = false,
 ) {
     val userViewModel = UserViewModel()
+    val teamViewModel = TeamViewModel()
 
     val context = LocalContext.current
 
-    val teamsViewModel = TeamViewModel()
+    var teams by remember { mutableStateOf<List<Team>?>(null) }
+    var error: String? by remember { mutableStateOf(null) }
+
+//    var teamsUsers by remember { mutableStateOf<FetchResponse<List<User>>?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
 
     // State to manage the description field, initialized from the player's teams
     var userTag by remember { mutableStateOf(user.username) }
@@ -68,7 +77,21 @@ fun PlayerProfile(
     var userIsLFT by remember { mutableStateOf(user.isLFT) }
     var userIsPublic by remember { mutableStateOf(user.isPublic) }
 
-    var usersTeams by remember { mutableStateOf<List<Team>>(listOf()) }
+    if (!isPersonalProfile) {
+        LaunchedEffect(true) {
+            isLoading = true
+
+            val response = teamViewModel.getUsersTeams(user)
+
+            if (response.errors.isNullOrEmpty()) {
+                teams = response.data
+            } else {
+                error = response.errors
+            }
+
+            isLoading = false
+        }
+    }
 
 
     Column(
@@ -78,6 +101,11 @@ fun PlayerProfile(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
+        if (!isPersonalProfile) {
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+
         // Row for player image, tag, and action buttons
         Row(
             modifier = Modifier
@@ -127,6 +155,7 @@ fun PlayerProfile(
 
                     OutlinedTextField(
                         value = userTag,
+                        readOnly = !isPersonalProfile,
                         onValueChange = { userTag = it },
                         label = { Text("User Tag") },
                         modifier = Modifier.weight(1f),
@@ -139,20 +168,20 @@ fun PlayerProfile(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // LFT Button
                     AssistChip(
-                        onClick = { userIsLFT = !userIsLFT },
-                        label = { Text("LFT") },
-                        leadingIcon = {
+                        onClick = { if (isPersonalProfile) userIsLFT = !userIsLFT },
+                        label = { if (userIsLFT) Text(text = "LFT") else Text(text = "Not LFT") },
+                        trailingIcon = {
                             if (userIsLFT) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = "Is LFT",
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             } else {
                                 Icon(
-                                    imageVector = Icons.Default.Cancel,
+                                    imageVector = Icons.Default.Close,
                                     contentDescription = "Is Not LFT",
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
 
@@ -171,20 +200,20 @@ fun PlayerProfile(
 
                     // Public Button
                     AssistChip(
-                        onClick = { userIsPublic = !userIsPublic },
-                        label = { Text("Public", fontSize = 12.sp) },
-                        leadingIcon = {
+                        onClick = { if (isPersonalProfile) userIsPublic = !userIsPublic },
+                        label = { if (userIsPublic) Text(text = "Public") else Text(text = "Private") },
+                        trailingIcon = {
                             if (userIsPublic) {
                                 Icon(
                                     imageVector = Icons.Default.Public,
                                     contentDescription = "User is Public",
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.PublicOff,
                                     contentDescription = "User is Private",
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         },
@@ -226,7 +255,8 @@ fun PlayerProfile(
         // TextField for player description input
         OutlinedTextField(
             label = { Text("User Bio") },
-            value = userBio!!,
+            readOnly = !isPersonalProfile,
+            value = if (userBio.isNullOrEmpty()) "" else userBio!!,
             onValueChange = { newDesc -> userBio = newDesc },  // Update description state
             placeholder = { Text("Enter player description") },  // Placeholder text
             modifier = Modifier
@@ -249,34 +279,37 @@ fun PlayerProfile(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                val updatedUser = User(
-                    id = user.id,
-                    role = user.role,
-                    bio = userBio,
-                    username = userTag,
-                    password = user.password,
-                    biometrics = user.biometrics,
-                    teamIds = user.teamIds,
-                    isPublic = userIsPublic,
-                    isLFT = userIsLFT
-                )
+        if (isPersonalProfile) {
+            Button(
+                onClick = {
+                    val updatedUser = User(
+                        id = user.id,
+                        role = user.role,
+                        bio = userBio,
+                        username = userTag,
+                        password = user.password,
+                        biometrics = user.biometrics,
+                        teamIds = user.teamIds,
+                        isPublic = userIsPublic,
+                        isLFT = userIsLFT
+                    )
 
-                AuthViewModel.updateUsersDetails(updatedUser)
+                    AuthViewModel.updateUsersDetails(updatedUser)
 
-                userViewModel.updateUser(updatedUser)
-            },
+                    userViewModel.updateUser(updatedUser)
+                },
 //            colors = ButtonDefaults.buttonColors(
 //                containerColor = Color.Red,
 //                contentColor = Color.White
 //            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(imageVector = Icons.Default.SaveAlt, contentDescription = "Save Changes")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Save Changes", style = MaterialTheme.typography.bodyLarge)
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.SaveAlt, contentDescription = "Save Changes")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Save Changes", style = MaterialTheme.typography.bodyLarge)
+            }
         }
+
 
         // TODO: NEED TO ADD TEAMS!
         // TODO: NEED TO ADD INVITE BUTTON BACK
@@ -284,32 +317,52 @@ fun PlayerProfile(
         Spacer(modifier = Modifier.height(8.dp))
 
 
-        Spacer(modifier = Modifier.weight(1f))  // Space to push buttons to the bottom
+        if (!isPersonalProfile) {
+            Spacer(Modifier.height(25.dp))
 
-        // Exit Button to exit the profile screen
-//        if (onExitClick != null) {
-//            Button(
-//                onClick = onExitClick,  // Triggered when the exit button is clicked
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .align(Alignment.CenterHorizontally),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = Color.White,
-//                    contentColor = Color.Black
-//                ),
-//                border = BorderStroke(1.dp, Color.Gray),
-//                shape = RoundedCornerShape(8.dp)
-//            ) {
-//                Text(
-//                    text = "X",
-//                    fontSize = 16.sp,
-//                    fontWeight = FontWeight.Bold
-//                )
-//            }
-//        }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Teams",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = "${if (user.teamIds.isNullOrEmpty()) 0 else user.teamIds.size} / 10",  // Assuming a max of 10 members
+                    color = Color.Black,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
 
+            Spacer(Modifier.height(8.dp))
+            HorizontalDivider(color = Color.Gray, thickness = 1.dp)
+            Spacer(Modifier.height(16.dp))
 
-        // Logoff Button to sign out the user
+            if (isLoading) {
+                Text("Loading...")
+            } else if (!error.isNullOrEmpty()) {
+                error?.let { Text(it) }
+            } else if (teams.isNullOrEmpty()) {
+                Text("No Teams Found")
+            } else {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        items(teams!!) { team ->
+                            TeamItem(team = team)
+                        }
+                    }
+                }
+            }
+        }
 
     }
 }

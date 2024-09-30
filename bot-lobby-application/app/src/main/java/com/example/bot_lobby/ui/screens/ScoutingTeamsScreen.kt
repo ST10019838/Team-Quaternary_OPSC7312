@@ -24,6 +24,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.models.IdAndRole
 import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.ScoutTeamListItem
+import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
 import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
@@ -45,6 +50,9 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
     val isSearching by teamViewModel.isSearching.collectAsState()
     val searchedTeams by teamViewModel.searchedTeams.collectAsState()
     val searchError by teamViewModel.searchError.collectAsState()
+
+    var isDialogOpen by remember { mutableStateOf(false) }
+    var teamToView by remember { mutableStateOf<Team?>(null) }
 
     Column(
         modifier = Modifier
@@ -135,11 +143,24 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
                     items(searchedTeams!!) { team ->
                         // Pass navController to PlayerListItem to enable navigation
                         ScoutTeamListItem(
-                            team = team
+                            team = team,
+                            onView = {
+                                isDialogOpen = true
+                                teamToView = team
+                            }
                         )  // Pass the navController to each item
                     }
                 }
             }
+        }
+    }
+
+    if (isDialogOpen) {
+        FullScreenModal(onClose = {
+            isDialogOpen = false
+            teamToView = null
+        }) {
+            TeamProfile(team = teamToView!!)
         }
     }
 }

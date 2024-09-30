@@ -50,40 +50,43 @@ class UserViewModel : ViewModel() {
 //    }
 
 
-    fun getTeamsUsers(team: Team): FetchResponse<List<User>> {
+    suspend fun getTeamsUsers(team: Team): FetchResponse<List<User>> {
         var users: List<User> = listOf()
         var errorMessage: String? = null
 
-        viewModelScope.launch {
-            try {
-                // Create a query string that will be used to search for all users based on their ids
-                var queryString = "in.("
+//        viewModelScope.launch {
+        try {
+            // Create a query string that will be used to search for all users based on their ids
+            var queryString = "in.("
 
-                team.userIdsAndRoles.forEach { item ->
-                    // The first item in the pair is the user id
-                    queryString += "${item.id}"
+            team.userIdsAndRoles.forEach { item ->
+                // The first item in the pair is the user id
+                queryString += "${item.id}"
 
-                    queryString += if (team.userIdsAndRoles.indexOf(item) == (team.userIdsAndRoles.size - 1)) ")" else ","
-                }
-
-
-                val response =
-                    RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, queryString)
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        users = body
-                    } else {
-                        Log.e("ERROR!", "Response body is null")
-                    }
-                } else {
-                    Log.e("ERROR", "Failed to fetch users: ${response.errorBody()?.string()}")
-                }
-            } catch (exception: Exception) {
-                errorMessage = exception.message.toString()
-                Log.e("ERROR!", exception.message.toString())
+                queryString += if (team.userIdsAndRoles.indexOf(item) == (team.userIdsAndRoles.size - 1)) ")" else ","
             }
+
+
+            val response =
+                RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, queryString)
+
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    users = body
+
+                    Log.i("DATA!", body.toString())
+                } else {
+                    Log.e("ERROR!", "Response body is null")
+                }
+            } else {
+                Log.e("ERROR", "Failed to fetch users: ${response.errorBody()?.string()}")
+            }
+        } catch (exception: Exception) {
+            errorMessage = exception.message.toString()
+            Log.e("ERROR!", exception.message.toString())
         }
+//        }
 
         return FetchResponse(users, errorMessage)
     }
@@ -130,6 +133,7 @@ class UserViewModel : ViewModel() {
 
     fun clearSearchQuery() {
         _searchQuery.value = ""
+        _searchedUsers.value = null
     }
 
     fun updateSearchQuery(query: String) {

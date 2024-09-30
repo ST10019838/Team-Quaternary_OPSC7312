@@ -11,15 +11,7 @@ data class User(
     val teamIds: List<Int>?,
     var isPublic: Boolean = true,
     var isLFT: Boolean = true
-) {
-    fun toggleIsLFT() {
-        this.isLFT = !this.isLFT
-    }
-
-    fun toggleIsPublic() {
-        this.isPublic = !this.isPublic
-    }
-}
+)
 
 data class UserInsert(
     val type_id: Int,           // This will be set to default to 1 for normal users or another value if specified

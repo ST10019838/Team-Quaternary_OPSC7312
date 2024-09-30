@@ -57,7 +57,7 @@ import com.example.bot_lobby.models.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerListItem(user: User, teams: List<Team>) {
+fun PlayerListItem(user: User, teams: List<Team>? = null, onView: () -> Unit = {}) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
     var selectedTeam by remember { mutableStateOf("") }
@@ -114,6 +114,8 @@ fun PlayerListItem(user: User, teams: List<Team>) {
                     } else {
                         user.username
                     }
+
+                    onView()
 
                     // Ensure the navigation graph has been set before navigating
                     try {
@@ -194,24 +196,27 @@ fun PlayerListItem(user: User, teams: List<Team>) {
                             }
                         )
 
-                        // Dropdown menu for selecting team
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier
-                                .background(Color.White)
-                                .border(1.dp, Gray, RoundedCornerShape(8.dp))
-                        ) {
-                            teams.forEach { team ->
-                                DropdownMenuItem(
-                                    text = { Text(text = team.tag, fontSize = 14.sp) },
-                                    onClick = {
-                                        selectedTeam = team.tag
-                                        expanded = false
-                                    }
-                                )
+                        if (!teams.isNullOrEmpty()) {
+                            // Dropdown menu for selecting team
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .border(1.dp, Gray, RoundedCornerShape(8.dp))
+                            ) {
+                                teams.forEach { team ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = team.tag, fontSize = 14.sp) },
+                                        onClick = {
+                                            selectedTeam = team.tag
+                                            expanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
+
                     }
                 }
 

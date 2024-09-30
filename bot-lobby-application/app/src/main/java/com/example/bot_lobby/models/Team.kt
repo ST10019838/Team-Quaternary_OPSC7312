@@ -9,7 +9,10 @@ data class Team(
     val name: String,
     val userIdsAndRoles: List<IdAndRole>,// Map<Int, String>, //List<Pair<Int, String>>
     val isPublic: Boolean = true,
-    val maxNumberOfUsers: Int = 10
+    val isOpen: Boolean = true,
+    val isLFM: Boolean = true,
+    val maxNumberOfUsers: Int = 10,
+    val bio: String? = null
 )
 
 data class IdAndRole(

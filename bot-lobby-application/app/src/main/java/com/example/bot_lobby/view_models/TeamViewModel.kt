@@ -138,6 +138,7 @@ class TeamViewModel : ViewModel() {
 
     fun clearSearchQuery() {
         _searchQuery.value = ""
+        _searchedTeams.value = null
     }
 
     fun updateSearchQuery(query: String) {
