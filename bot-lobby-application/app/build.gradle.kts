@@ -131,4 +131,6 @@ dependencies {
     // Google Identity and Credentials
     implementation("androidx.credentials:credentials:1.2.2")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("com.google.android.gms:play-services-auth:20.5.0") // Check for latest version
+
 }
