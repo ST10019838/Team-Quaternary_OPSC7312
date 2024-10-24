@@ -1,10 +1,12 @@
 package com.example.bot_lobby.services
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -19,9 +21,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.tasks.Task
 import org.json.JSONObject
 
 @Composable
@@ -30,33 +35,50 @@ fun GoogleSignInButton(
     loginService: LoginService,
     viewModel: SupabaseAuthViewModel = viewModel(),
     userModel: UserViewModel = viewModel(),
-    isReg: Boolean // This boolean parameter determines if it's a registration or login
+    isReg: Boolean // Determines if it's a registration or login
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     // Configure Google Sign-In
     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken("812262640049-f75l5h36lguq8d2009g3ca2u3hkhmps7.apps.googleusercontent.com") // Use your actual client ID
+        .requestIdToken("812262640049-f75l5h36lguq8d2009g3ca2u3hkhmps7.apps.googleusercontent.com") // Your client ID
         .requestEmail()
         .build()
 
     val googleSignInClient: GoogleSignInClient = GoogleSignIn.getClient(context, gso)
 
+    // Define the Activity Result Launcher
+    val signInLauncher: ActivityResultLauncher<Intent> = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        when (result.resultCode) {
+            Activity.RESULT_OK -> {
+                result.data?.let { data ->
+                    handleSignInResult(data, registerService, loginService, isReg, coroutineScope, context)
+                } ?: Log.e("GoogleSignInButton", "Sign-in canceled or failed: No data returned.")
+            }
+            Activity.RESULT_CANCELED -> {
+                Log.e("GoogleSignInButton", "User canceled the sign-in.")
+            }
+            else -> {
+                Log.e("GoogleSignInButton", "Sign-in failed with unexpected result code: ${result.resultCode}")
+            }
+        }
+    }
+
     // Define the button's click logic
     val onClick: () -> Unit = {
         // Launch Google Sign-In Intent
         val signInIntent = googleSignInClient.signInIntent
-        coroutineScope.launch {
-            try {
-                // Launch the sign-in intent and handle the result
-                val accountTask = GoogleSignIn.getSignedInAccountFromIntent(signInIntent)
-                handleSignInResult(accountTask, registerService, loginService, isReg, context)
-            } catch (e: Exception) {
-                Log.e("GoogleSignInButton", "Sign-in failed: ${e.message}")
-            }
-        }
+        Log.d("GoogleSignInButton", "Launching Google Sign-In Intent")
+
+        // Provide feedback to the user
+        Toast.makeText(context, "Starting Google Sign-In...", Toast.LENGTH_SHORT).show() // Toast message to indicate the process
+
+        signInLauncher.launch(signInIntent) // Launch the sign-in intent using the launcher
     }
+
 
     // UI for the button
     Column {
@@ -66,18 +88,23 @@ fun GoogleSignInButton(
     }
 }
 
-// Handle the sign-in result
-private suspend fun handleSignInResult(
-    task: Task<GoogleSignInAccount>,
+private fun handleSignInResult(
+    data: Intent,
     registerService: RegisterService,
     loginService: LoginService,
     isReg: Boolean,
-    context: Context // Added context parameter for redirect
+    coroutineScope: CoroutineScope,
+    context: Context
 ) {
+    // Get the signed-in account from the Intent data
+    val accountTask: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
     try {
-        val account = task.getResult(ApiException::class.java)
-        val userEmail = account.email ?: return
+        // Retrieve the signed-in account
+        val account = accountTask.getResult(ApiException::class.java)
+        Log.d("GoogleSignInButton", "Account retrieved successfully.")
 
+        // Extract the email
+        val userEmail = account.email ?: throw Exception("Email not found")
         Log.d("GoogleSignInButton", "User Email: $userEmail")
 
         // Create the new User object
@@ -86,37 +113,35 @@ private suspend fun handleSignInResult(
             role = 1,
             bio = null,
             username = userEmail,
-            password = null, // No password, since it's an OAuth login
+            password = null,
             biometrics = null,
             teamIds = mutableListOf(),
             isPublic = true,
             isLFT = true
         )
+        Log.d("GoogleSignInButton", "New User Object Created: $newUser")
 
         // Check if the user is registering or logging in
-        if (isReg) {
-            // Register the user using the provided email
-            val registrationResult = registerService.register(newUser) // This is a suspend function
-            Log.d("GoogleSignInButton", "Registration Result: $registrationResult")
-        } else {
-            // Login the user using their email
-            val loginResult = loginService.login(newUser.username, "") // This is a suspend function
-            Log.d("GoogleSignInButton", "Login Result: $loginResult")
+        coroutineScope.launch {
+            if (isReg) {
+                val registrationResult = registerService.register(newUser)
+                Log.d("GoogleSignInButton", "Registration Result: $registrationResult")
+            } else {
+                val loginResult = loginService.login(newUser.username, "")
+                Log.d("GoogleSignInButton", "Login Result: $loginResult")
+            }
         }
     } catch (e: ApiException) {
-        Log.e("GoogleSignInButton", "Sign-in failed: ${e.statusCode}")
-
-        // Optionally redirect to Google signup if sign-in fails
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://accounts.google.com/signup"))
-        context.startActivity(intent)
+        Log.e("GoogleSignInButton", "Sign-in failed: ${e.statusCode}, Message: ${e.message}")
+    } catch (e: Exception) {
+        Log.e("GoogleSignInButton", "Error: ${e.message}")
     }
 }
 
-
-
-// Function to decode the Google ID Token
+// Function to decode the Google ID Token (if needed)
 fun parseIdToken(idToken: String): JSONObject {
     val parts = idToken.split(".")
+    if (parts.size != 3) throw IllegalArgumentException("Invalid ID token format.")
     val payload = parts[1] // The payload is the second part of the token
     val decodedBytes = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP)
     val json = String(decodedBytes)
