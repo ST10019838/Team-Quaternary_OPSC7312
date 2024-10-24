@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.composables
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -363,7 +364,8 @@ fun PlayerProfile(
 
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(teams!!) { team ->
                             TeamItem(team = team)

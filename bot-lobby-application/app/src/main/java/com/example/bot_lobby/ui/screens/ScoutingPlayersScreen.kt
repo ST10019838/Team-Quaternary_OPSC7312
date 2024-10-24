@@ -60,7 +60,6 @@ fun ScoutingPlayersScreen(
 ) {
     // Collect searchQuery and filtered players from the PlayerViewModel
     val searchQuery by userViewModel.searchQuery.collectAsState()
-
     val isSearching by userViewModel.isSearching.collectAsState()
     val searchedUsers by userViewModel.searchedUsers.collectAsState()
     val searchError by userViewModel.searchError.collectAsState()
