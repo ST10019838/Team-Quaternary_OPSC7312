@@ -19,14 +19,14 @@ interface UserApi {
 
     @GET("users")
     suspend fun login(
-        @Header("apiKey") apiKey: String,
+        @Header("apikey") apiKey: String,
         @Query("username") username: String,
         @Query("password") password: String
     ): Response<List<User>>
 
     @POST("users")
     suspend fun register(
-        @Header("apiKey") apiKey: String,
+        @Header("apikey") apiKey: String,
         @Body user: User
     ): Response<User>
 
