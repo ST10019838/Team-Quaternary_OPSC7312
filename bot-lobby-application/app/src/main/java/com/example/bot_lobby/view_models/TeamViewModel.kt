@@ -190,6 +190,17 @@ class TeamViewModel : ViewModel() {
         _isSearching.value = false
 
     }
+
+
+    fun clearData(){
+        _searchQuery.value = ""
+
+        _isSearching.value = false
+
+        _searchError.value = null
+
+        _searchedTeams.value = null
+    }
 }
 
 

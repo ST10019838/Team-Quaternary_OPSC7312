@@ -260,6 +260,18 @@ class UserViewModel : ViewModel() {
             }
         }
     }
+
+    fun clearData(){
+        _searchQuery.value = ""
+
+        _isSearching.value = false
+
+       _searchError.value = null
+
+        _searchedUsers.value = null
+
+        _userData.value = emptyList()
+    }
 }
 
 

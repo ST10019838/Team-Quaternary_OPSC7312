@@ -149,6 +149,13 @@ object AuthViewModel : ViewModel() {
 
     fun signOut() {
         _userLoggedIn.value = null
+        _usersTeams.value = emptyList()
+
+        val userViewModel = UserViewModel()
+        userViewModel.clearData()
+
+        val teamViewModel = TeamViewModel()
+        teamViewModel.clearData()
     }
 
     // To clear the auth state after successful login/registration
