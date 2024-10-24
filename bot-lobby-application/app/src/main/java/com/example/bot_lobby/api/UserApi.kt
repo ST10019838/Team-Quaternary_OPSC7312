@@ -14,7 +14,8 @@ interface UserApi {
     @GET("users")
     suspend fun getUsers(
         @Header("apikey") key: String,
-        @Query("id") id: String? = null
+        @Query("id") id: String? = null,
+        @Query("email") email: String? = null
     ): Response<List<User>>
 
     @GET("users")
@@ -37,7 +38,7 @@ interface UserApi {
     ): Response<List<User>>
 
     @POST("users")
-    suspend fun createUser(@Header("apikey") key: String, @Body user: User): Response<User>
+    suspend fun createUser(@Header("apikey") key: String, @Body user: User): Response<Unit>
 
     @PATCH("users")
     suspend fun updateUser(

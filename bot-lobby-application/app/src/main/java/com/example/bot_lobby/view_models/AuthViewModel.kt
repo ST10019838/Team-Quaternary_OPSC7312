@@ -181,6 +181,10 @@ object AuthViewModel : ViewModel() {
         _usersTeams.value = teams
     }
 
+    fun setUser(user: User){
+        _userLoggedIn.value = user
+    }
+
     fun addTeamToUser(newTeam: Team, callback: (User?) -> Unit) {
         _usersTeams.value += newTeam
 

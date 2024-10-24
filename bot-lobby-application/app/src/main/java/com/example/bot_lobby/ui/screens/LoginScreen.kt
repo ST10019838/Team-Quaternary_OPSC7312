@@ -140,7 +140,8 @@ class LoginScreen : Screen {
                     GoogleSignInButton(
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
-                        isReg = false // Registration
+                        isReg = false, // Registration,
+                        navigator = navigator
                     )
                 }
 
@@ -285,8 +286,8 @@ class LoginScreen : Screen {
                                 runBlocking {
                                     launch {
                                         userViewModel.loginUser(
-                                            username = "eq.${form.username.state.value!!}",
-                                            password = "eq.${form.password.state.value!!}"
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!
                                         ) { user -> // Provide the callback here
                                             Log.i("USER", user.toString())
 
@@ -303,6 +304,13 @@ class LoginScreen : Screen {
                                                     .show()  // Show a confirmation toast
                                             } else {
                                                 Log.i("USER", "Login failed or user is null")
+
+                                                Toast.makeText(
+                                                    context,
+                                                    "Username or Password Incorrect",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()  // Show a confirmation toast
                                             }
                                         }
                                     }

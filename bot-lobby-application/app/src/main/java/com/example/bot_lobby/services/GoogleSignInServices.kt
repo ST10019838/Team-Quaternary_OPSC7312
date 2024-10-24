@@ -26,6 +26,12 @@ import kotlinx.coroutines.launch
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cafe.adriel.voyager.navigator.Navigator
+import com.example.bot_lobby.api.RetrofitInstance
+import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.ui.screens.LandingScreen
+import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.TeamViewModel
 import com.google.android.gms.tasks.Task
 import org.json.JSONObject
 
@@ -35,7 +41,8 @@ fun GoogleSignInButton(
     loginService: LoginService,
     viewModel: SupabaseAuthViewModel = viewModel(),
     userModel: UserViewModel = viewModel(),
-    isReg: Boolean // Determines if it's a registration or login
+    isReg: Boolean, // Determines if it's a registration or login,
+    navigator: Navigator
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -55,7 +62,7 @@ fun GoogleSignInButton(
         when (result.resultCode) {
             Activity.RESULT_OK -> {
                 result.data?.let { data ->
-                    handleSignInResult(data, registerService, loginService, isReg, coroutineScope, context)
+                    handleSignInResult(data, registerService, loginService, isReg, coroutineScope, context, navigator)
                 } ?: Log.e("GoogleSignInButton", "Sign-in canceled or failed: No data returned.")
             }
             Activity.RESULT_CANCELED -> {
@@ -94,7 +101,8 @@ private fun handleSignInResult(
     loginService: LoginService,
     isReg: Boolean,
     coroutineScope: CoroutineScope,
-    context: Context
+    context: Context,
+    navigator: Navigator
 ) {
     // Get the signed-in account from the Intent data
     val accountTask: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -113,23 +121,66 @@ private fun handleSignInResult(
             role = 1,
             bio = null,
             username = userEmail,
-            password = null,
+            password = "password",
             biometrics = null,
-            teamIds = mutableListOf(),
+            teamIds = listOf(),
             isPublic = true,
-            isLFT = true
+            isLFT = true,
+            email = userEmail,
         )
         Log.d("GoogleSignInButton", "New User Object Created: $newUser")
 
         // Check if the user is registering or logging in
         coroutineScope.launch {
-            if (isReg) {
-                val registrationResult = registerService.register(newUser)
-                Log.d("GoogleSignInButton", "Registration Result: $registrationResult")
-            } else {
+            // check if user exists. if they dont, register them, otherwise log them in
+            val queryString = "eq.$userEmail"
+
+            val res = RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, email = queryString)
+
+            if(res.isSuccessful){
+                // Register if nothing is found
+                if(res.body().isNullOrEmpty()){
+                    val registrationResult = registerService.register(newUser)
+                    Log.d("GoogleSignInButton", "Registration Result: $registrationResult")
+                }
+
                 val loginResult = loginService.login(newUser.username, "")
                 Log.d("GoogleSignInButton", "Login Result: $loginResult")
+
+                if(loginResult.isSuccessful){
+//                    Log.d("LoginService", "Login successful!")
+////
+//                    Log.d("LoginService 2", loginResult.body().toString())
+//////
+//////
+//////                    // save user to state
+//                    AuthViewModel.updateUsersDetails(loginResult.body()!![0] )
+//
+//                    // get and save users teams
+//                    val teamViewModel = TeamViewModel()
+//                    var usersTeams = emptyList<Team>()
+//                    val res = teamViewModel.getUsersTeams(loginResult.body()!![0] )
+//
+//                    if (res.errors.isNullOrEmpty()) {
+//                        usersTeams = res.data!!
+//                    }
+//
+//                    AuthViewModel.setUsersTeams(usersTeams)
+
+                    val userViewModel = UserViewModel()
+
+                    userViewModel.loginUser(newUser.username, "password"){ user ->
+                        Log.d("LoginService 2", user.toString())
+                    }
+
+                    navigator.push(LandingScreen())
+                }
             }
+//            if (isReg) {
+//
+//            } else {
+//
+//            }
         }
     } catch (e: ApiException) {
         Log.e("GoogleSignInButton", "Sign-in failed: ${e.statusCode}, Message: ${e.message}")

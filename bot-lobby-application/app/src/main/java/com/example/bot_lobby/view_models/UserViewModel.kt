@@ -2,6 +2,8 @@ package com.example.bot_lobby.view_models
 
 
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
@@ -188,13 +190,18 @@ class UserViewModel : ViewModel() {
     }
 
     // Create a new user
-    fun createUser(newUser: User) {
+    fun createUser(newUser: User, callback: (User?) -> Unit) {
+        Log.i("USER TO CREATE", newUser.toString())
         viewModelScope.launch {
             try {
                 val response = UserApi.createUser(RetrofitInstance.apiKey, newUser)
 
+
+
                 if (response.isSuccessful && response.body() != null) {
                     Log.d("UserViewModel", "User registered successfully: $newUser")
+
+                    callback(newUser)
                 } else {
                     Log.e("ERROR", "User creation failed: ${response.errorBody()?.string()}")
                 }

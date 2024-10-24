@@ -129,8 +129,36 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:compose-auth-ui:1.3.2")
     
     // Google Identity and Credentials
-    implementation("androidx.credentials:credentials:1.2.2")
+    implementation("androidx.credentials:credentials:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-    implementation("com.google.android.gms:play-services-auth:20.5.0") // Check for latest version
+    implementation("com.google.android.gms:play-services-auth:21.2.0") // Check for latest version
+//    implementation("com.google.android.gms:play-services-auth:16.0.0")
+
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:1.3.2")
+//    implementation("io.github.jan-tennert.supabase:auth-kt:1.3.2")
+//    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
+
+//    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
+    implementation(libs.supabase.gotrue.kt)
+
+
+
+//    implementation(libs.supabase.auth.kt)
+
+//    implementation(libs.auth.kt)
+
+//    implementation(platform("io.github.jan-tennert.supabase:bom:3.0"))
+//    implementation("io.github.jan-tennert.supabase:postgrest-kt:3.0")
+//    implementation("io.github.jan-tennert.supabase:auth-kt:3.0")
+//    implementation("io.github.jan-tennert.supabase:realtime-kt:3.0")
+
+//    implementation(platform("io.github.jan-tennert.supabase:bom:3.0"))
+//    implementation(libs.supabase.postgrest.kt)
+//    implementation(libs.auth.kt.v30)
+//    implementation(libs.realtime.kt)
+
+//    implementation("io.ktor:ktor-client-[engine]:KTOR_VERSION")
+//    implementation(libs.ktor.client.engine.z)
+
 
 }

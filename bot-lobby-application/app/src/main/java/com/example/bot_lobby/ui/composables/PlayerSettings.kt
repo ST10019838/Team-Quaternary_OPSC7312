@@ -258,6 +258,8 @@ fun PlayerSettings() {
                 onClick = {
                     navigator.popUntilRoot()  // Navigate back to the root screen
                     userViewModel.deleteUser(AuthViewModel.userLoggedIn.value?.id!!)
+
+                    AuthViewModel.signOut()
                     Toast.makeText(context, "Successfully Deleted Account", Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
                 },

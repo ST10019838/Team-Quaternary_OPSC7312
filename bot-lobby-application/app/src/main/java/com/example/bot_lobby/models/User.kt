@@ -12,5 +12,6 @@ data class User(
     val biometrics: String? = null,     // Nullable in case biometrics are not provided
     var teamIds: List<UUID>? = null,
     var isPublic: Boolean = true,
-    var isLFT: Boolean = true
+    var isLFT: Boolean = true,
+    var email: String? = null
 )

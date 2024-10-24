@@ -277,14 +277,22 @@ data class AccountScreen(
                                                 username = form.username.state.value!!,
                                                 password = form.password.state.value!!
                                             )
-                                        )
-
-                                        userViewModel.loginUser(
-                                            username = "eq.${form.username.state.value!!}",
-                                            password = "eq.${form.password.state.value!!}"
-                                        ) {
-                                            navigator.push(LandingScreen())
+                                        ){
+                                            userViewModel.loginUser(
+                                                username = form.username.state.value!!,
+                                                password = form.password.state.value!!
+                                            ) { user ->
+                                                if(user == null){
+                                                    Toast.makeText(context,
+                                                        "Username or Password doesn't exist",
+                                                        Toast.LENGTH_SHORT)
+                                                        .show() // Toast message to indicate the process
+                                                } else{
+                                                    navigator.push(LandingScreen())
+                                                }
+                                            }
                                         }
+
 
 
                                     } else {
