@@ -66,7 +66,7 @@ class TeamViewModel : ViewModel() {
         var errorMessage: String? = null
 
 //        viewModelScope.launch {
-            try {
+        try {
                 // Create a query string that will be used to search for all teams based on their ids
                 var queryString = "in.("
 
