@@ -208,8 +208,10 @@ class UserViewModel : ViewModel() {
     fun loginUser(username: String, password: String, callback: (User?) -> Unit) {
         viewModelScope.launch {
             val response = LoginService(UserApi).login(username, password)
-            if (response.isSuccessful && response.body() != null) {
-                val user = response.body()!!
+
+            if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+                val user = response.body()!![0] // Get the first user from the list
+              
                 // save user to state
                 AuthViewModel.updateUsersDetails(user)
 

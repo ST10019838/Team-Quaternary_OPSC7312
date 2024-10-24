@@ -1,5 +1,6 @@
 package com.example.bot_lobby.services
 
+import android.util.Log
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.models.User
@@ -8,19 +9,18 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 
 class LoginService(private val userApi: UserApi) {
-    suspend fun login(username: String, password: String): Response<User> {
+    suspend fun login(username: String, password: String): Response<List<User>> {
         val response = userApi.login(RetrofitInstance.apiKey, username, password)
-        return if (response.isSuccessful && response.body() != null && response.body()!!
-                .isNotEmpty()
-        ) {
-            // Return the first user found in the list
-            Response.success(response.body()!![0])
+
+        // Check if the response is successful
+        if (response.isSuccessful) {
+            Log.d("LoginService", "Login successful!")
+            // Handle the successful response here
+            return response
         } else {
-            // If no users found or an error occurred, return an error response
-            Response.error(
-                response.code(),
-                response.errorBody() ?: "User not found".toResponseBody(null)
-            )
+            // Handle the error response
+            Log.e("LoginService", "Error: ${response.errorBody()?.string()}")
+            throw IllegalArgumentException("Login failed with status code: ${response.code()}")
         }
     }
 }
