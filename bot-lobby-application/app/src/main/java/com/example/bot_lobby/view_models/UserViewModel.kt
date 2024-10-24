@@ -210,8 +210,21 @@ class UserViewModel : ViewModel() {
             val response = LoginService(UserApi).login(username, password)
             if (response.isSuccessful && response.body() != null) {
                 val user = response.body()!!
+                // save user to state
                 AuthViewModel.updateUsersDetails(user)
-                Log.d("tag", AuthViewModel.userLoggedIn.toString())
+
+                // get and save users teams
+                val teamViewModel = TeamViewModel()
+                var usersTeams = emptyList<Team>()
+                val response = teamViewModel.getUsersTeams(user)
+
+                if (response.errors.isNullOrEmpty()) {
+                    usersTeams = response.data!!
+                }
+
+                AuthViewModel.setUsersTeams(usersTeams)
+
+                Log.d("USER LOGGED IN AS", AuthViewModel.userLoggedIn.value.toString())
                 callback(user) // Return the user via the callback
             } else {
                 Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")

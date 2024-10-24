@@ -1,6 +1,7 @@
 package com.example.bot_lobby.view_models
 
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
@@ -60,11 +61,11 @@ class TeamViewModel : ViewModel() {
         return FetchResponse(team, errorMessage)
     }
 
-    fun getUsersTeams(user: User): FetchResponse<List<Team>> {
+    suspend fun getUsersTeams(user: User): FetchResponse<List<Team>> {
         var teams: List<Team> = listOf()
         var errorMessage: String? = null
 
-        viewModelScope.launch {
+//        viewModelScope.launch {
             try {
                 // Create a query string that will be used to search for all teams based on their ids
                 var queryString = "in.("
@@ -75,9 +76,10 @@ class TeamViewModel : ViewModel() {
                     queryString += if (user.teamIds!!.indexOf(id) == (user.teamIds!!.size - 1)) ")" else ","
                 }
 
+
                 // Fetch data
                 val response =
-                    RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey, queryString)
+                    RetrofitInstance.TeamApi.getTeams(key = RetrofitInstance.apiKey, id = queryString)
                 val body = response.body()
                 if (body != null) {
                     teams = body
@@ -86,7 +88,7 @@ class TeamViewModel : ViewModel() {
                 errorMessage = exception.message.toString()
                 Log.i("ERROR!", exception.message.toString())
             }
-        }
+//        }
 
         return FetchResponse(teams, errorMessage)
     }
@@ -100,7 +102,8 @@ class TeamViewModel : ViewModel() {
                 val body = response.body()
                 Log.i("RES!", response.toString())
                 if (body != null) {
-                    Log.i("DATA!", body.toString())
+                    Log.i("TEAM DATA!", body.toString())
+
                     callback()
                 }
 

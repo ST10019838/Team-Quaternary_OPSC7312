@@ -9,6 +9,7 @@ import com.example.bot_lobby.models.AuthRequest
 import com.example.bot_lobby.models.AuthResponse
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
+import io.ktor.client.plugins.convertLongTimeoutToIntWithInfiniteAsZero
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -174,6 +175,10 @@ object AuthViewModel : ViewModel() {
                 it
             }
         }
+    }
+
+    fun setUsersTeams(teams: List<Team>){
+        _usersTeams.value = teams
     }
 
     fun addTeamToUser(newTeam: Team, callback: (User?) -> Unit) {

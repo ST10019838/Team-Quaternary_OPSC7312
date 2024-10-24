@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,7 +74,7 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             TextField(
                 value = searchQuery,  // Bind the search query state to the input field
                 onValueChange = { teamViewModel.updateSearchQuery(it) },  // Update the search query
-                placeholder = { Text(text = "Search a Team's Tag") },  // Placeholder for the search bar
+                placeholder = { Text(text = "Search a Team's Name") },  // Placeholder for the search bar
                 modifier = Modifier
                     .weight(1f)  // Use available width
                     .padding(end = 4.dp),  // Right padding
@@ -146,7 +147,8 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             Box(modifier = Modifier.weight(1f)) {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(searchedTeams!!) { team ->
                         // Pass navController to PlayerListItem to enable navigation

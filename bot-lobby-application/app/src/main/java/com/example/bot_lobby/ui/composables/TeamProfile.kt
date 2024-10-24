@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.composables
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -59,6 +61,8 @@ fun TeamProfile(
     // Retrieve the teams players
     val userViewModel = UserViewModel()
     val teamViewModel = TeamViewModel()
+
+    val context = LocalContext.current
 
     var users by remember { mutableStateOf<List<User>?>(null) }
     var error: String? by remember { mutableStateOf(null) }
@@ -315,6 +319,13 @@ fun TeamProfile(
                     AuthViewModel.updateUsersTeam(updatedTeam)
 
                     teamViewModel.updateTeam(updatedTeam)
+
+                    Toast.makeText(
+                        context,
+                        "Successfully Updated Team",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()  // Show a confirmation toast
                 },
 //            colors = ButtonDefaults.buttonColors(
 //                containerColor = Color.Red,

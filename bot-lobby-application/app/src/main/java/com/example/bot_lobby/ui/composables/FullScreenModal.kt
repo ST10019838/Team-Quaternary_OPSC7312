@@ -46,8 +46,8 @@ fun FullScreenModal(
                         onClick = onClose,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.BottomEnd) // Align to bottom-right corner
-                            .padding(25.dp),
+                            .align(Alignment.BottomCenter) // Align to bottom-right corner
+                            .padding(bottom = 75.dp),
                     ) {
                         Icon(Icons.Default.Close, "Close Modal")
                         Spacer(Modifier.width(4.dp))

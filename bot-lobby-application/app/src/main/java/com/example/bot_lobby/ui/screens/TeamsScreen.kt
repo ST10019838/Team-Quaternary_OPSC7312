@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.models.IdAndRole
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.FullScreenModal
@@ -116,11 +118,23 @@ fun TeamsScreen() {
                         }
                     }
 
-
                     teamViewModel.createTeam(newTeam) {
 
                     }
 
+                    // Save the team to the users data
+                    val updatedUser = user
+                    var updatedTeamIds = user.teamIds?.toMutableList()
+
+                    if (updatedTeamIds == null) {
+                        updatedTeamIds = mutableListOf(newTeam.id!!)
+                    } else{
+                        updatedTeamIds += newTeam.id!!
+                    }
+
+                    updatedUser.teamIds = updatedTeamIds.toList()
+
+                    userViewModel.updateUser(updatedUser)
 
                     Toast.makeText(context, "Successfully Created a Team", Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
