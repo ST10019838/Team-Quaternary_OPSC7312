@@ -28,10 +28,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.bot_lobby.api.RetrofitInstance
-import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.screens.LandingScreen
-import com.example.bot_lobby.view_models.AuthViewModel
-import com.example.bot_lobby.view_models.TeamViewModel
 import com.google.android.gms.tasks.Task
 import org.json.JSONObject
 
@@ -117,8 +114,8 @@ private fun handleSignInResult(
 
         // Create the new User object
         val newUser = User(
-            id = null,
-            role = 1,
+            id = null.toString(),
+            role = 1.toString(),
             bio = null,
             username = userEmail,
             password = "password",
@@ -140,8 +137,12 @@ private fun handleSignInResult(
             if(res.isSuccessful){
                 // Register if nothing is found
                 if(res.body().isNullOrEmpty()){
+                    val registerBioMetrics = registerBiometricData(newUser)
+                    newUser.biometrics = registerBioMetrics.toString()
                     val registrationResult = registerService.register(newUser)
+
                     Log.d("GoogleSignInButton", "Registration Result: $registrationResult")
+                    Log.d("GoogleSignInButton", "Registration Result Biometrics: $registerBioMetrics")
                 }
 
                 val loginResult = loginService.login(newUser.username, "")
@@ -187,6 +188,13 @@ private fun handleSignInResult(
     } catch (e: Exception) {
         Log.e("GoogleSignInButton", "Error: ${e.message}")
     }
+}
+fun registerBiometricData(user: User): User {
+    // Example: Assigning a mock biometric data for demonstration purposes
+    user.biometrics = "sample_biometric_data"  // You would replace this with actual biometric data logic
+    Log.d("BiometricAuthHelper", "Biometric data registered for user: ${user.username}")
+
+    return user
 }
 
 // Function to decode the Google ID Token (if needed)

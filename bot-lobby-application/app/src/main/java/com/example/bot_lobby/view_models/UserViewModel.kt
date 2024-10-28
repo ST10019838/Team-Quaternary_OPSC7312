@@ -196,17 +196,16 @@ class UserViewModel : ViewModel() {
             try {
                 val response = UserApi.createUser(RetrofitInstance.apiKey, newUser)
 
-
-
                 if (response.isSuccessful && response.body() != null) {
                     Log.d("UserViewModel", "User registered successfully: $newUser")
-
                     callback(newUser)
                 } else {
                     Log.e("ERROR", "User creation failed: ${response.errorBody()?.string()}")
+                    callback(null)
                 }
             } catch (exception: Exception) {
                 Log.e("ERROR!", exception.message.toString())
+                callback(null)
             }
         }
     }
@@ -218,22 +217,8 @@ class UserViewModel : ViewModel() {
 
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 val user = response.body()!![0] // Get the first user from the list
-              
                 // save user to state
                 AuthViewModel.updateUsersDetails(user)
-
-                // get and save users teams
-                val teamViewModel = TeamViewModel()
-                var usersTeams = emptyList<Team>()
-                val response = teamViewModel.getUsersTeams(user)
-
-                if (response.errors.isNullOrEmpty()) {
-                    usersTeams = response.data!!
-                }
-
-                AuthViewModel.setUsersTeams(usersTeams)
-
-                Log.d("USER LOGGED IN AS", AuthViewModel.userLoggedIn.value.toString())
                 callback(user) // Return the user via the callback
             } else {
                 Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")
@@ -286,7 +271,6 @@ class UserViewModel : ViewModel() {
 //import kotlinx.coroutines.flow.stateIn
 //
 //class UserViewModel : ViewModel() {
-//
 //    // StateFlow for the search query
 //    private val _searchQuery = MutableStateFlow("")
 //    val searchQuery: StateFlow<String> = _searchQuery

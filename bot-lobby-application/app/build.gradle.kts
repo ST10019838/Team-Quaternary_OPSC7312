@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("plugin.serialization") version "1.7.20"
+    kotlin("kapt")
+    id("kotlin-kapt")
 }
 
 android {
@@ -10,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.bot_lobby"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -41,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
@@ -51,23 +53,15 @@ android {
 }
 
 dependencies {
-//    // Ktor Client and Engine (CIO or OkHttp)
-//    implementation("io.ktor:ktor-client-core:2.3.0")
-//    implementation("io.ktor:ktor-client-cio:2.3.0") // or ktor-client-okhttp if you prefer
-//
-//    // Ktor Content Negotiation
-//    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
-//    implementation("io.ktor:ktor-serialization-gson:2.3.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
 
     // Ktor Client and Engine (CIO or OkHttp)
     implementation("io.ktor:ktor-client-core:2.3.0")
-    implementation("io.ktor:ktor-client-cio:2.3.0") // or ktor-client-okhttp if you prefer
-
-    // Ktor Content Negotiation
+    implementation("io.ktor:ktor-client-cio:2.3.0")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
     implementation("io.ktor:ktor-serialization-gson:2.3.0")
 
-    // Other necessary dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -76,6 +70,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Updated Biometric API for backward compatibility
+    implementation("androidx.biometric:biometric-ktx:1.1.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -119,46 +117,25 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx.v285)
 
-
-    // Auth
+    // Auth and Google Identity
     implementation("androidx.media3:media3-common-ktx:1.5.0-alpha01")
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // Supabase
     implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
     implementation("io.github.jan-tennert.supabase:compose-auth:1.3.2")
     implementation("io.github.jan-tennert.supabase:compose-auth-ui:1.3.2")
-    
-    // Google Identity and Credentials
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-    implementation("com.google.android.gms:play-services-auth:21.2.0") // Check for latest version
-//    implementation("com.google.android.gms:play-services-auth:16.0.0")
-
     implementation("io.github.jan-tennert.supabase:postgrest-kt:1.3.2")
-//    implementation("io.github.jan-tennert.supabase:auth-kt:1.3.2")
-//    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
 
-//    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
-    implementation(libs.supabase.gotrue.kt)
+    // Room for database
+    implementation(libs.room.ktx)
+    kapt("androidx.room:room-compiler:2.6.1")
 
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
+    implementation(libs.google.gson)
 
-
-//    implementation(libs.supabase.auth.kt)
-
-//    implementation(libs.auth.kt)
-
-//    implementation(platform("io.github.jan-tennert.supabase:bom:3.0"))
-//    implementation("io.github.jan-tennert.supabase:postgrest-kt:3.0")
-//    implementation("io.github.jan-tennert.supabase:auth-kt:3.0")
-//    implementation("io.github.jan-tennert.supabase:realtime-kt:3.0")
-
-//    implementation(platform("io.github.jan-tennert.supabase:bom:3.0"))
-//    implementation(libs.supabase.postgrest.kt)
-//    implementation(libs.auth.kt.v30)
-//    implementation(libs.realtime.kt)
-
-//    implementation("io.ktor:ktor-client-[engine]:KTOR_VERSION")
-//    implementation(libs.ktor.client.engine.z)
-
-
+    //Biometrics
+    implementation("androidx.biometric:biometric:1.1.0")
 }
