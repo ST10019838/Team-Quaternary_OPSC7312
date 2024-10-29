@@ -169,7 +169,7 @@ private fun handleSignInResult(
 
                     val userViewModel = UserViewModel()
 
-                    userViewModel.loginUser(newUser.username, "password"){ user ->
+                    userViewModel.loginUser(newUser.username, "password", context){ user ->
                         Log.d("LoginService 2", user.toString())
                     }
 

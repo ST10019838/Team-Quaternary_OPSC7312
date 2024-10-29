@@ -280,7 +280,8 @@ data class AccountScreen(
                                         ){
                                             userViewModel.loginUser(
                                                 username = form.username.state.value!!,
-                                                password = form.password.state.value!!
+                                                password = form.password.state.value!!,
+                                                context
                                             ) { user ->
                                                 if(user == null){
                                                     Toast.makeText(context,

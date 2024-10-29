@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class TeamViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
@@ -127,12 +128,12 @@ class TeamViewModel : ViewModel() {
         }
     }
 
-    fun deleteTeam(teamId: Int) {
+    fun deleteTeam(teamId: UUID) {
         viewModelScope.launch {
             try {
                 RetrofitInstance.TeamApi.deleteTeam(
                     RetrofitInstance.apiKey,
-                    "eq.${teamId}",
+                    "eq.$teamId",
                 )
             } catch (exception: Exception) {
                 Log.i("ERROR FOR!", exception.message.toString())

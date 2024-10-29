@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("plugin.serialization") version "1.7.20"
+
+    kotlin("kapt")
+
+    id("kotlin-kapt")
 }
 
 android {
@@ -10,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.bot_lobby"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -19,6 +23,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments += [
+//                    "option_name":"option_value",
+//                // other options...
+//                ]
+//            }
+//        }
     }
 
     buildTypes {
@@ -41,13 +54,15 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+
 }
 
 dependencies {
@@ -58,6 +73,9 @@ dependencies {
 //    // Ktor Content Negotiation
 //    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
 //    implementation("io.ktor:ktor-serialization-gson:2.3.0")
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.21")
 
     // Ktor Client and Engine (CIO or OkHttp)
     implementation("io.ktor:ktor-client-core:2.3.0")
@@ -110,6 +128,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
 
+
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
@@ -161,4 +180,17 @@ dependencies {
 //    implementation(libs.ktor.client.engine.z)
 
 
+    // Room
+//    kapt("androidx.room:room-compiler:2.6.1")
+////    implementation(libs.room.ktx)
+//        implementation("androidx.room:room-ktx:2.6.1")
+//
+//    implementation("androidx.room:room-runtime:2.6.1")
+//    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
+    implementation(libs.room.ktx)
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
+    implementation(libs.google.gson)
 }

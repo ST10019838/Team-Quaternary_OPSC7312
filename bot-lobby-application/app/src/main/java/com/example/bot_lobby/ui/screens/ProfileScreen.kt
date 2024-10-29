@@ -6,11 +6,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.bot_lobby.ui.composables.PlayerProfile
 import com.example.bot_lobby.ui.composables.PlayerSettings
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,13 +23,15 @@ fun ProfileScreen(
 //    playerTag: String,
 //    onExitClick: () -> Unit
 ) {
-    val userLoggedIn = AuthViewModel.userLoggedIn.collectAsState()
+    val sessionViewModel = SessionViewModel(LocalContext.current)
+
+    val session by sessionViewModel.session.collectAsState()
 
 
     LazyColumn {
         item {
-            if (userLoggedIn.value != null) {
-                PlayerProfile(userLoggedIn.value!!, isPersonalProfile = true)
+            if (session?.userLoggedIn != null) {
+                PlayerProfile(session?.userLoggedIn!!, isPersonalProfile = true)
             }
 
         }

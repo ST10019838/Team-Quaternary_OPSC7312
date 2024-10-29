@@ -53,6 +53,7 @@ import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -301,7 +302,8 @@ fun PlayerProfile(
                         isLFT = userIsLFT
                     )
 
-                    AuthViewModel.updateUsersDetails(updatedUser)
+                    val sessionViewModel = SessionViewModel(context)
+                    sessionViewModel.updateUsersDetails(updatedUser)
 
                     userViewModel.updateUser(updatedUser)
 

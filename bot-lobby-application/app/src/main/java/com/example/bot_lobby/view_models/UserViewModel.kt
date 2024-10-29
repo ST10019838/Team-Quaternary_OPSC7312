@@ -1,6 +1,7 @@
 package com.example.bot_lobby.view_models
 
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
@@ -17,6 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.bot_lobby.api.RetrofitInstance.UserApi
+import com.example.bot_lobby.models.Session
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 
 class UserViewModel : ViewModel() {
@@ -109,7 +115,7 @@ class UserViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     Log.i("SUCCESS", "User updated: ${response.body()}")
-                    AuthViewModel.updateUsersDetails(updatedUser)
+//                    AuthViewModel.updateUsersDetails(updatedUser)
                 } else {
                     Log.e("ERROR", "User update failed: ${response.errorBody()?.string()}")
                 }
@@ -212,15 +218,17 @@ class UserViewModel : ViewModel() {
     }
 
     // Login user
-    fun loginUser(username: String, password: String, callback: (User?) -> Unit) {
+    fun loginUser(username: String, password: String, context: Context, callback: (User?) -> Unit) {
         viewModelScope.launch {
             val response = LoginService(UserApi).login(username, password)
 
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 val user = response.body()!![0] // Get the first user from the list
-              
+
+                val sessionViewModel = SessionViewModel(context)
+
                 // save user to state
-                AuthViewModel.updateUsersDetails(user)
+//                AuthViewModel.updateUsersDetails(user)
 
                 // get and save users teams
                 val teamViewModel = TeamViewModel()
@@ -231,9 +239,16 @@ class UserViewModel : ViewModel() {
                     usersTeams = response.data!!
                 }
 
-                AuthViewModel.setUsersTeams(usersTeams)
+                val newSession = Session(
+                    userLoggedIn = user,
+                    usersTeams = usersTeams
+                )
 
-                Log.d("USER LOGGED IN AS", AuthViewModel.userLoggedIn.value.toString())
+                sessionViewModel.upsertSession(newSession)
+
+//                AuthViewModel.setUsersTeams(usersTeams)
+
+                Log.d("USER LOGGED IN AS", sessionViewModel.session.value?.userLoggedIn.toString())
                 callback(user) // Return the user via the callback
             } else {
                 Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")

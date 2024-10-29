@@ -50,6 +50,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -60,6 +62,7 @@ import com.example.bot_lobby.forms.LoginForm
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -69,12 +72,19 @@ class LoginScreen : Screen {
 
     @Composable
     override fun Content() {
-        val userViewModel = UserViewModel()
-        val navigator = LocalNavigator.currentOrThrow
-        val form = LoginForm() // Form that manages the login state
         val context = LocalContext.current
+        val sessionViewModel = viewModel { SessionViewModel(context) }
+        val session by sessionViewModel.session.collectAsStateWithLifecycle()
+        val navigator = LocalNavigator.currentOrThrow
 
-        val userLoggedIn by AuthViewModel.userLoggedIn.collectAsState()
+        if(session != null){
+            navigator.push(LandingScreen())
+        }
+
+        val userViewModel = UserViewModel()
+
+        val form = LoginForm() // Form that manages the login state
+
         // Initialize areCredentialsValid state
         var areCredentialsValid by remember { mutableStateOf(true) }
 
@@ -287,7 +297,8 @@ class LoginScreen : Screen {
                                     launch {
                                         userViewModel.loginUser(
                                             username = form.username.state.value!!,
-                                            password = form.password.state.value!!
+                                            password = form.password.state.value!!,
+                                            context
                                         ) { user -> // Provide the callback here
                                             Log.i("USER", user.toString())
 

@@ -46,6 +46,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -232,8 +233,11 @@ fun PlayerSettings() {
             Button(
                 onClick = {
 //                auth.signOut()  // Sign out the current user
+                    val sessionViewModel = SessionViewModel(context)
+                    sessionViewModel.signOut()
+
                     navigator.popUntilRoot()  // Navigate back to the root screen
-                    AuthViewModel.signOut()
+
 
                     Toast.makeText(context, "Successfully Signed Out", Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
@@ -256,10 +260,13 @@ fun PlayerSettings() {
 
             Button(
                 onClick = {
+                    val sessionViewModel = SessionViewModel(context)
                     navigator.popUntilRoot()  // Navigate back to the root screen
-                    userViewModel.deleteUser(AuthViewModel.userLoggedIn.value?.id!!)
+                    userViewModel.deleteUser(sessionViewModel.session.value?.userLoggedIn?.id!!)
 
-                    AuthViewModel.signOut()
+
+                    sessionViewModel.signOut()
+
                     Toast.makeText(context, "Successfully Deleted Account", Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
                 },
