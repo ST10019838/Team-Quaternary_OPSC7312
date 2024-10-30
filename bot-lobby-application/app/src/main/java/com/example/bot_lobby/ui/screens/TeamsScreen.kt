@@ -175,9 +175,13 @@ fun TeamsScreen() {
                 isDialogOpen = false
                 teamToView = null
             }, onDelete = {
-                sessionViewModel.removeTeamFromUser(team = teamToView!!, {
+                sessionViewModel.removeTeamFromUser(team = teamToView!!) {
+                    if (it != null) {
+                        userViewModel.updateUser(it)
+                    }
+
                     teamViewModel.deleteTeam(teamToView!!.id)
-                })
+                }
             })
         }
     }

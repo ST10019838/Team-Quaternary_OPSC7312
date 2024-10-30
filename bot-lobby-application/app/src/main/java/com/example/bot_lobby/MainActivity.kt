@@ -6,65 +6,30 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.room.Room
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.tab.CurrentTab
-import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
-import cafe.adriel.voyager.navigator.tab.Tab
-import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.services.LoginService
 import com.example.bot_lobby.services.RegisterService
 
-import com.example.bot_lobby.ui.pages.EventsTab
-import com.example.bot_lobby.ui.pages.HomeTab
-import com.example.bot_lobby.ui.pages.ProfileTab
-import com.example.bot_lobby.ui.pages.ScoutingTab
-import com.example.bot_lobby.ui.pages.TeamsTab
 import com.example.bot_lobby.ui.screens.LoginScreen
 import com.example.bot_lobby.ui.theme.BotLobbyTheme
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.bot_lobby.db.LocalDatabase
-import com.example.bot_lobby.models.IdAndRole
-import com.example.bot_lobby.models.Session
-import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.models.User
-import com.example.bot_lobby.ui.screens.LandingScreen
-import com.example.bot_lobby.view_models.SessionViewModel
-import com.example.bot_lobby.view_models.UserViewModel
-import kotlinx.coroutines.CoroutineScope
-import java.util.UUID
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
+import com.example.bot_lobby.observers.ConnectivityObserver
+import com.example.bot_lobby.observers.NetworkConnectivityObserver
 
 
 class MainActivity : ComponentActivity() {
@@ -72,13 +37,30 @@ class MainActivity : ComponentActivity() {
         val userApi: UserApi = RetrofitInstance.UserApi
         val loginService = LoginService(userApi)
         val registerService = RegisterService(userApi)
+        lateinit var connectivityObserver: ConnectivityObserver
     }
 
     @SuppressLint("StateFlowValueCalledInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        connectivityObserver = NetworkConnectivityObserver(applicationContext)
         enableEdgeToEdge()
         setContent {
+            val connectivity by connectivityObserver.observe().collectAsState(ConnectivityObserver.Status.Unavailable)
+            var dismissedOfflineDialog by remember { mutableStateOf(false) }
+
+//            val showOfflineDialog by remember {mutableStateOf(connectivity != ConnectivityObserver.Status.Available && !dismissedOfllineDialog)}
+
+            val showOfflineDialog = connectivity != ConnectivityObserver.Status.Available && !dismissedOfflineDialog
+
+            if(connectivity == ConnectivityObserver.Status.Available){
+                dismissedOfflineDialog = false
+            }
+
+            var showStudentNotice by remember { mutableStateOf(true) }
+
+
 //            val coroutineScope = rememberCoroutineScope()
 //
 //            val vm = TestViewModel(applicationContext)
@@ -105,6 +87,16 @@ class MainActivity : ComponentActivity() {
 
 //            val screenToDisplay = if(session != null)
 //                LandingScreen() else LoginScreen()
+
+//            val status by connectivityObserver.observe().collectAsState(
+//                initial = ConnectivityObserver.Status.Unavailable
+//            )
+//            Box(
+//                modifier = Modifier.fillMaxSize(),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text(text = "Network status: $status")
+//            }
 
             BotLobbyTheme {
                 Navigator(
@@ -247,40 +239,109 @@ class MainActivity : ComponentActivity() {
 //                    )
 //                }
 //            }
+
+            if (showOfflineDialog) {
+                AlertDialog(
+                    icon = {
+                        Icon(imageVector = Icons.Default.SignalWifiStatusbarConnectedNoInternet4,
+                            contentDescription = "Offline Mode")
+                    },
+                    title = {
+                        Text(text = "You are now in Offline Mode", textAlign = TextAlign.Center)
+                    },
+                    text = {
+                        Text("No internet connection detected. " +
+                                "Some features will be disabled until an internet connection is found." +
+                                "\n\nThese features include: \n" +
+                                "    - Logging In / Registering\n" +
+                                "    - Announcement Creation\n" +
+                                "    - Scouting\n" +
+                                "    - Account Deleting\n" +
+                                "    - Syncing to the Online Database\n \n"+
+                                "Ps: Don't forget to Sync when online :)"
+
+
+                        )
+                    },
+                    onDismissRequest = {
+                        dismissedOfflineDialog = true
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                dismissedOfflineDialog = true
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
+                )
+            }
+
+            if (showStudentNotice) {
+                AlertDialog(
+                    icon = {
+                        Icon(imageVector = Icons.Default.Warning,
+                            contentDescription = "Student Alert")
+                    },
+                    title = {
+                        Text(text = "Student Notice!", textAlign = TextAlign.Center)
+                    },
+                    text = {
+                        Text("This is a student application that was developed to complete a university course " +
+                                "and is not intended or optimized for consumption. \n \n" +
+                                "But who knows, one day the application might gain popularity resulting in a better more optimized version ;)",
+                            textAlign = TextAlign.Justify
+                        )
+                    },
+                    onDismissRequest = {
+                        showStudentNotice = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showStudentNotice = false
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
+                )
+            }
         }
     }
 }
 
 
-@Composable
-private fun RowScope.TabNavigationItem(tab: Tab) {
-    val tabNavigator = LocalTabNavigator.current
-    val isSelected = tabNavigator.current == tab
-
-    NavigationBarItem(
-        selected = isSelected,
-        onClick = { tabNavigator.current = tab },
-        icon = {
-            Icon(
-                tab.options.icon!!,
-                contentDescription = tab.options.title,
-                modifier = Modifier.alpha(if (!isSelected) 0.5f else 1f)
-            )
-        },
-        label = {
-            Text(
-                text = tab.options.title,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.alpha(if (!isSelected) 0.5f else 1f),
-                style = if (isSelected) MaterialTheme.typography.bodyMedium
-                else MaterialTheme.typography.bodySmall
-            )
-        },
-        colors = NavigationBarItemDefaults.colors(
-            indicatorColor = MaterialTheme.colorScheme.primary,
-            selectedTextColor = MaterialTheme.colorScheme.primary
-        )
-    )
-}
+//@Composable
+//private fun RowScope.TabNavigationItem(tab: Tab) {
+//    val tabNavigator = LocalTabNavigator.current
+//    val isSelected = tabNavigator.current == tab
+//
+//    NavigationBarItem(
+//        selected = isSelected,
+//        onClick = { tabNavigator.current = tab },
+//        icon = {
+//            Icon(
+//                tab.options.icon!!,
+//                contentDescription = tab.options.title,
+//                modifier = Modifier.alpha(if (!isSelected) 0.5f else 1f)
+//            )
+//        },
+//        label = {
+//            Text(
+//                text = tab.options.title,
+//                textAlign = TextAlign.Center,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis,
+//                modifier = Modifier.alpha(if (!isSelected) 0.5f else 1f),
+//                style = if (isSelected) MaterialTheme.typography.bodyMedium
+//                else MaterialTheme.typography.bodySmall
+//            )
+//        },
+//        colors = NavigationBarItemDefaults.colors(
+//            indicatorColor = MaterialTheme.colorScheme.primary,
+//            selectedTextColor = MaterialTheme.colorScheme.primary
+//        )
+//    )
+//}

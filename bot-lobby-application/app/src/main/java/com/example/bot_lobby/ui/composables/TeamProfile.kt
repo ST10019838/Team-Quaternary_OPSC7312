@@ -88,7 +88,6 @@ fun TeamProfile(
     var teamIsLFM by remember { mutableStateOf(team.isPublic) }
 
 
-
     LaunchedEffect(true) {
         isLoading = true
 

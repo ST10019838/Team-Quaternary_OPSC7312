@@ -37,8 +37,6 @@ class SessionViewModel(context: Context) : ViewModel() {
 //        viewModelScope, SharingStarted.WhileSubscribed(5000L), null
 //    )
 
-    private val _test = MutableStateFlow(false)
-    val test = _test.asStateFlow()
 
     fun upsertSession(session: Session){
         viewModelScope.launch {
@@ -47,10 +45,18 @@ class SessionViewModel(context: Context) : ViewModel() {
     }
 
     fun updateUsersDetails(updatedUser: User) {
-        session.value?.userLoggedIn = updatedUser
+        val updatedSession = Session(
+            id = session.value?.id,
+            userLoggedIn = updatedUser,
+            usersTeams = session.value?.usersTeams ?: emptyList()
+        )
+
+//        Log.i("UPDATED USER BIO", updatedUser.bio.toString())
+
+//        updatedSession?.userLoggedIn = updatedUser
 
         viewModelScope.launch {
-            session.value?.let { LocalDatabase.getDatabase(context).sessionDao.upsertSession(it) }
+            LocalDatabase.getDatabase(context).sessionDao.upsertSession(updatedSession)
         }
     }
 
@@ -121,7 +127,7 @@ class SessionViewModel(context: Context) : ViewModel() {
 
     }
 
-    fun signOut() {
+    fun signOut(callback: () -> Unit = {}) {
         val userViewModel = UserViewModel()
         userViewModel.clearData()
 
@@ -130,6 +136,8 @@ class SessionViewModel(context: Context) : ViewModel() {
 
         viewModelScope.launch {
             session.value?.let { LocalDatabase.getDatabase(context).sessionDao.clearSession(it) }
+
+            callback()
         }
     }
 

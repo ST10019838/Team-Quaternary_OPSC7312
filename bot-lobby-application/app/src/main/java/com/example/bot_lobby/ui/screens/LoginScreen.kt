@@ -53,12 +53,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.services.GoogleSignInButton
 import com.example.bot_lobby.MainActivity
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
 import com.example.bot_lobby.forms.LoginForm
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.AuthViewModel
@@ -68,7 +71,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class LoginScreen : Screen {
-
+    override val key = uniqueScreenKey
 
     @Composable
     override fun Content() {
@@ -76,6 +79,10 @@ class LoginScreen : Screen {
         val sessionViewModel = viewModel { SessionViewModel(context) }
         val session by sessionViewModel.session.collectAsStateWithLifecycle()
         val navigator = LocalNavigator.currentOrThrow
+
+        val connectivity by connectivityObserver.observe().collectAsState(ConnectivityObserver.Status.Unavailable)
+        val isOffline = connectivity != ConnectivityObserver.Status.Available
+
 
         if(session != null){
             navigator.push(LandingScreen())
@@ -86,7 +93,7 @@ class LoginScreen : Screen {
         val form = LoginForm() // Form that manages the login state
 
         // Initialize areCredentialsValid state
-        var areCredentialsValid by remember { mutableStateOf(true) }
+        val areCredentialsValid by remember { mutableStateOf(true) }
 
         Scaffold(content = {
             // Main Column container for the login screen
@@ -151,7 +158,8 @@ class LoginScreen : Screen {
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
                         isReg = false, // Registration,
-                        navigator = navigator
+                        navigator = navigator,
+                        enabled = !isOffline
                     )
                 }
 
@@ -383,8 +391,9 @@ class LoginScreen : Screen {
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard) // Set button background to BlueStandard
-                    ) {
+                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard),// Set button background to BlueStandard
+                        enabled = !isOffline
+                        ) {
                         Text("Login", color = Color.White) // White text for contrast
                     }
 
@@ -392,6 +401,8 @@ class LoginScreen : Screen {
                     TextButton(
                         onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = false /*!isOffline*/
+                    // as the forgot password functionality is not yet added, there's not really a point in having users access the page
                     ) {
                         Text(
                             "Forgot Password?",
@@ -403,6 +414,7 @@ class LoginScreen : Screen {
                     TextButton(
                         onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = !isOffline
                     ) {
                         Text(
                             "Register",

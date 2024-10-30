@@ -25,6 +25,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.example.bot_lobby.R
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.navigator.Navigator
 import com.example.bot_lobby.api.RetrofitInstance
@@ -34,6 +45,7 @@ import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.google.android.gms.tasks.Task
 import org.json.JSONObject
+import kotlin.reflect.jvm.internal.impl.types.checker.TypeRefinementSupport.Enabled
 
 @Composable
 fun GoogleSignInButton(
@@ -42,7 +54,8 @@ fun GoogleSignInButton(
     viewModel: SupabaseAuthViewModel = viewModel(),
     userModel: UserViewModel = viewModel(),
     isReg: Boolean, // Determines if it's a registration or login,
-    navigator: Navigator
+    navigator: Navigator,
+    enabled: Boolean = true
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -89,7 +102,11 @@ fun GoogleSignInButton(
 
     // UI for the button
     Column {
-        Button(onClick = onClick) {
+        Button(onClick = onClick, enabled = enabled) {
+            Icon(painter = painterResource(id = R.drawable.ic_google_logo)
+                , contentDescription = "Google Icon"
+                , modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(if (isReg) "Register with Google" else "Sign in with Google")
         }
     }

@@ -104,6 +104,39 @@ class UserViewModel : ViewModel() {
         return FetchResponse(users, errorMessage)
     }
 
+    suspend fun getOnlineProfile(localUser: User): FetchResponse<User?> {
+        var user: User? = null
+        var errorMessage: String? = null
+
+//        viewModelScope.launch {
+        try {
+            val response = UserApi.getUser(
+                RetrofitInstance.apiKey,
+                "eq.${localUser.id}",
+            )
+
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    user = body.first()
+
+                    Log.i("DATA!", body.toString())
+                } else {
+                    Log.e("ERROR!", "Response body is null")
+                }
+            } else {
+                Log.e("ERROR", "Failed to fetch users: ${response.errorBody()?.string()}")
+            }
+        } catch (exception: Exception) {
+            errorMessage = exception.message.toString()
+            Log.e("ERROR!", exception.message.toString())
+        }
+//        }
+
+        return FetchResponse(user, errorMessage)
+    }
+
+
     // Function to update an existing user
     fun updateUser(updatedUser: User) {
         viewModelScope.launch {
