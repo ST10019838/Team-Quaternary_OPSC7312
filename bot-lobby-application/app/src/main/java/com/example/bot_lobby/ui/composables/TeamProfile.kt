@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,12 +48,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.bot_lobby.MainActivity
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
@@ -64,7 +70,8 @@ fun TeamProfile(
     team: Team,
     canEdit: Boolean = false,
     onClose: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
+    sessionViewModel: SessionViewModel? = null
 ) {
     // Retrieve the teams players
     val userViewModel = UserViewModel()
@@ -76,6 +83,10 @@ fun TeamProfile(
     var error: String? by remember { mutableStateOf(null) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val connectivity by connectivityObserver.observe()
+        .collectAsStateWithLifecycle(ConnectivityObserver.Status.Unavailable)
+
 
 //    var teamsUsers by remember { mutableStateOf<FetchResponse<List<User>>?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -325,8 +336,7 @@ fun TeamProfile(
                         maxNumberOfUsers = team.maxNumberOfUsers
                     )
 
-                    val sessionViewModel = SessionViewModel(context)
-                    sessionViewModel.updateUsersTeam(updatedTeam)
+                    sessionViewModel!!.updateUsersTeam(updatedTeam)
 
                     teamViewModel.updateTeam(updatedTeam)
 
@@ -389,7 +399,11 @@ fun TeamProfile(
 
         // Player List within LazyColumn for scrolling through players
 
-        if (isLoading) {
+//        val isOffline by remember { mutableStateOf() }
+        if (connectivity != ConnectivityObserver.Status.Available) {
+            // The following code executes when the user is offline
+            Text(stringResource(R.string.team_profile_offline))
+        } else if (isLoading) {
             Text("Loading...")
         } else if (!error.isNullOrEmpty()) {
             error?.let { Text(it) }

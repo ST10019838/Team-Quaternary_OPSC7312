@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.observers.NetworkConnectivityObserver
@@ -47,14 +48,16 @@ class MainActivity : ComponentActivity() {
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         enableEdgeToEdge()
         setContent {
-            val connectivity by connectivityObserver.observe().collectAsState(ConnectivityObserver.Status.Unavailable)
+            val connectivity by connectivityObserver.observe()
+                .collectAsState(ConnectivityObserver.Status.Unavailable)
             var dismissedOfflineDialog by remember { mutableStateOf(false) }
 
 //            val showOfflineDialog by remember {mutableStateOf(connectivity != ConnectivityObserver.Status.Available && !dismissedOfllineDialog)}
 
-            val showOfflineDialog = connectivity != ConnectivityObserver.Status.Available && !dismissedOfflineDialog
+            val showOfflineDialog =
+                connectivity != ConnectivityObserver.Status.Available && !dismissedOfflineDialog
 
-            if(connectivity == ConnectivityObserver.Status.Available){
+            if (connectivity == ConnectivityObserver.Status.Available) {
                 dismissedOfflineDialog = false
             }
 
@@ -107,7 +110,7 @@ class MainActivity : ComponentActivity() {
 //                    if(session != null)
 //                        LandingScreen()
 //                    else
-                        LoginScreen()
+                    LoginScreen()
 //                                screenToDisplay
                 ) {
                     SlideTransition(it)
@@ -205,8 +208,7 @@ class MainActivity : ComponentActivity() {
 //                    }
 
 
-
-                }
+            }
 
 
 //                TabNavigator(HomeTab) {
@@ -243,25 +245,19 @@ class MainActivity : ComponentActivity() {
             if (showOfflineDialog) {
                 AlertDialog(
                     icon = {
-                        Icon(imageVector = Icons.Default.SignalWifiStatusbarConnectedNoInternet4,
-                            contentDescription = "Offline Mode")
+                        Icon(
+                            imageVector = Icons.Default.SignalWifiStatusbarConnectedNoInternet4,
+                            contentDescription = "Offline Mode"
+                        )
                     },
                     title = {
-                        Text(text = "You are now in Offline Mode", textAlign = TextAlign.Center)
+                        Text(
+                            text = stringResource(R.string.student_notice_title),
+                            textAlign = TextAlign.Center
+                        )
                     },
                     text = {
-                        Text("No internet connection detected. " +
-                                "Some features will be disabled until an internet connection is found." +
-                                "\n\nThese features include: \n" +
-                                "    - Logging In / Registering\n" +
-                                "    - Announcement Creation\n" +
-                                "    - Scouting\n" +
-                                "    - Account Deleting\n" +
-                                "    - Syncing to the Online Database\n \n"+
-                                "Ps: Don't forget to Sync when online :)"
-
-
-                        )
+                        Text(stringResource(R.string.offline_notice_body))
                     },
                     onDismissRequest = {
                         dismissedOfflineDialog = true
@@ -272,7 +268,7 @@ class MainActivity : ComponentActivity() {
                                 dismissedOfflineDialog = true
                             }
                         ) {
-                            Text("Confirm")
+                            Text(stringResource(R.string.confirm_action))
                         }
                     },
                 )
@@ -281,16 +277,20 @@ class MainActivity : ComponentActivity() {
             if (showStudentNotice) {
                 AlertDialog(
                     icon = {
-                        Icon(imageVector = Icons.Default.Warning,
-                            contentDescription = "Student Alert")
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Student Alert"
+                        )
                     },
                     title = {
-                        Text(text = "Student Notice!", textAlign = TextAlign.Center)
+                        Text(
+                            text = stringResource(R.string.student_notice_title),
+                            textAlign = TextAlign.Center
+                        )
                     },
                     text = {
-                        Text("This is a student application that was developed to complete a university course " +
-                                "and is not intended or optimized for consumption. \n \n" +
-                                "But who knows, one day the application might gain popularity resulting in a better more optimized version ;)",
+                        Text(
+                            stringResource(R.string.student_notice_body),
                             textAlign = TextAlign.Justify
                         )
                     },
@@ -303,7 +303,7 @@ class MainActivity : ComponentActivity() {
                                 showStudentNotice = false
                             }
                         ) {
-                            Text("Confirm")
+                            Text(stringResource(R.string.confirm_action))
                         }
                     },
                 )

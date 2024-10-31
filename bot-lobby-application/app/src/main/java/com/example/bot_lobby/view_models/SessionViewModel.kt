@@ -27,7 +27,6 @@ class SessionViewModel(context: Context) : ViewModel() {
     )
 
 
-
 //    val session =
 //        flow<Session> {
 ////            delay(1000L)
@@ -38,7 +37,7 @@ class SessionViewModel(context: Context) : ViewModel() {
 //    )
 
 
-    fun upsertSession(session: Session){
+    fun upsertSession(session: Session) {
         viewModelScope.launch {
             LocalDatabase.getDatabase(context).sessionDao.upsertSession(session)
         }
@@ -64,7 +63,7 @@ class SessionViewModel(context: Context) : ViewModel() {
     fun addTeamToUser(newTeam: Team, callback: (User?) -> Unit) {
 //        _usersTeams.value += newTeam
 
-        val updatedUser =  session.value?.userLoggedIn
+        val updatedUser = session.value?.userLoggedIn
         val updatedUsersTeams = session.value?.usersTeams?.plus(newTeam)!!
 
 //        val userCopy = session.value?.userLoggedIn
@@ -75,7 +74,7 @@ class SessionViewModel(context: Context) : ViewModel() {
 
         if (updatedTeamIds == null) {
             updatedTeamIds = mutableListOf(newTeam.id)
-        } else{
+        } else {
             updatedTeamIds += newTeam.id
         }
 
@@ -113,7 +112,7 @@ class SessionViewModel(context: Context) : ViewModel() {
 //            }
 //        }
 
-        session.value?.usersTeams = session.value?.usersTeams?.map {
+        val updatedTeams = session.value?.usersTeams?.map {
             if (it.id == team.id) {
                 team
             } else {
@@ -121,8 +120,14 @@ class SessionViewModel(context: Context) : ViewModel() {
             }
         }!!
 
+        val updatedSession = Session(
+            id = session.value!!.id,
+            userLoggedIn = session.value!!.userLoggedIn,
+            usersTeams = updatedTeams
+        )
+
         viewModelScope.launch {
-            session.value?.let { LocalDatabase.getDatabase(context).sessionDao.upsertSession(it) }
+            LocalDatabase.getDatabase(context).sessionDao.upsertSession(updatedSession)
         }
 
     }
@@ -142,7 +147,6 @@ class SessionViewModel(context: Context) : ViewModel() {
     }
 
 
-
 //    fun clearSession(session: Session){
 //        viewModelScope.launch {
 //            LocalDatabase.getDatabase(context).sessionDao.clearSession()
@@ -152,7 +156,7 @@ class SessionViewModel(context: Context) : ViewModel() {
     fun removeTeamFromUser(team: Team, callback: (User?) -> Unit) {
 //        _usersTeams.value += newTeam
 
-        val updatedUser =  session.value?.userLoggedIn
+        val updatedUser = session.value?.userLoggedIn
         val updatedUsersTeams = session.value?.usersTeams?.minus(team)!!
 
 //        val userCopy = session.value?.userLoggedIn

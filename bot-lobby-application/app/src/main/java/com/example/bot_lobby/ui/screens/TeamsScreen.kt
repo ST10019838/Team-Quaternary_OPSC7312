@@ -57,7 +57,7 @@ fun TeamsScreen() {
     val session by sessionViewModel.session.collectAsState()
 
     // Get the total number of teams
-    val totalTeams = session?.usersTeams?.size ?:  0
+    val totalTeams = session?.usersTeams?.size ?: 0
 
     var isDialogOpen by remember { mutableStateOf(false) }
     var teamToView by remember { mutableStateOf<Team?>(null) }
@@ -77,7 +77,7 @@ fun TeamsScreen() {
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            if(session?.usersTeams != null){
+            if (session?.usersTeams != null) {
                 LazyColumn {
                     items(session?.usersTeams!!) { team ->
                         TeamListItem(team = team, onView = {
@@ -182,7 +182,7 @@ fun TeamsScreen() {
 
                     teamViewModel.deleteTeam(teamToView!!.id)
                 }
-            })
+            }, sessionViewModel = sessionViewModel)
         }
     }
 }
