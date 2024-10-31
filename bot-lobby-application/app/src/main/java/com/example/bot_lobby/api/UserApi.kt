@@ -12,6 +12,12 @@ import retrofit2.http.Query
 
 interface UserApi {
     @GET("users")
+    suspend fun getUser(
+        @Header("apikey") key: String,
+        @Query("id") id: String? = null,
+    ): Response<List<User>>
+
+    @GET("users")
     suspend fun getUsers(
         @Header("apikey") key: String,
         @Query("id") id: String? = null,

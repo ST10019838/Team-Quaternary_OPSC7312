@@ -18,21 +18,6 @@ import retrofit2.HttpException
 import java.io.IOException
 
 object AuthViewModel : ViewModel() {
-    private val _userLoggedIn = MutableStateFlow<User?>(
-//        User(
-//            id = 1,
-//            password = "123",
-//            teamIds = listOf(1, 2),
-//            username = "DJDare",
-//            bio = "This is me DJDare"
-//        )
-        null
-    )
-    val userLoggedIn: StateFlow<User?> = _userLoggedIn.asStateFlow()
-
-    private val _usersTeams: MutableStateFlow<List<Team>> = MutableStateFlow(listOf())
-    val usersTeams: StateFlow<List<Team>> = _usersTeams.asStateFlow()
-
 //    private val _usersTeamsUsers: MutableStateFlow<MutableMap<UUID, List<User>>> =
 //        MutableStateFlow(mutableMapOf())
 //    val usersTeamsUsers: StateFlow<Map<UUID, List<User>>> = _usersTeamsUsers.asStateFlow()
@@ -147,16 +132,6 @@ object AuthViewModel : ViewModel() {
 //        }
 //    }
 
-    fun signOut() {
-        _userLoggedIn.value = null
-        _usersTeams.value = emptyList()
-
-        val userViewModel = UserViewModel()
-        userViewModel.clearData()
-
-        val teamViewModel = TeamViewModel()
-        teamViewModel.clearData()
-    }
 
     // To clear the auth state after successful login/registration
     fun clearAuthState() {
@@ -164,54 +139,17 @@ object AuthViewModel : ViewModel() {
         _errorState.value = null
     }
 
-    fun updateUsersDetails(updatedUser: User) {
-        _userLoggedIn.value = updatedUser
-        Log.d("Auth", "${updatedUser}")
-        Log.d("Auth", "${_userLoggedIn.value}")
 
-    }
 
-    fun updateUsersTeam(team: Team) {
-        // the following code was adapted from baeldung.com
-        // Author: Albert Ache (https://www.baeldung.com/kotlin/author/albertache)
-        // Link: https://www.baeldung.com/kotlin/list-mutable-change-element#:~:text=Using%20the%20map()%20Method,value%20we%20wish%20to%20update.
-        _usersTeams.value = _usersTeams.value.map {
-            if (it.id == team.id) {
-                team
-            } else {
-                it
-            }
-        }
-    }
+//    fun setUser(user: User){
+//        _userLoggedIn.value = user
+//    }
 
-    fun setUsersTeams(teams: List<Team>){
-        _usersTeams.value = teams
-    }
 
-    fun setUser(user: User){
-        _userLoggedIn.value = user
-    }
-
-    fun addTeamToUser(newTeam: Team, callback: (User?) -> Unit) {
-        _usersTeams.value += newTeam
-
-        val userCopy = _userLoggedIn.value
-
-        _userLoggedIn.value = userCopy
-        Log.i("VALS", _userLoggedIn.value.toString())
-
-        callback(userCopy)
-
-//        _usersTeamsUsers.value[newTeam.id!!] = listOf()
-    }
 
 //    fun updateTeamsUsers(teamId: UUID, teamsUsers: List<User>) {
 //        _usersTeamsUsers.value[teamId] = teamsUsers
 //    }
 
-    fun removeTeamFromUser(team: Team) {
-        _usersTeams.value -= team
 
-//        _usersTeamsUsers.value.remove(team.id)
-    }
 }

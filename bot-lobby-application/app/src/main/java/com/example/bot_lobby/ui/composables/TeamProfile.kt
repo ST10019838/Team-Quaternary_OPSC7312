@@ -19,21 +19,26 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.PublicOff
 import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +48,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.bot_lobby.MainActivity
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -57,6 +69,9 @@ import com.example.bot_lobby.view_models.UserViewModel
 fun TeamProfile(
     team: Team,
     canEdit: Boolean = false,
+    onClose: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    sessionViewModel: SessionViewModel? = null
 ) {
     // Retrieve the teams players
     val userViewModel = UserViewModel()
@@ -67,6 +82,12 @@ fun TeamProfile(
     var users by remember { mutableStateOf<List<User>?>(null) }
     var error: String? by remember { mutableStateOf(null) }
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val connectivity by connectivityObserver.observe()
+        .collectAsStateWithLifecycle(ConnectivityObserver.Status.Unavailable)
+
+
 //    var teamsUsers by remember { mutableStateOf<FetchResponse<List<User>>?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -76,7 +97,6 @@ fun TeamProfile(
     var teamIsOpen by remember { mutableStateOf(team.isOpen) }
     var teamIsPublic by remember { mutableStateOf(team.isPublic) }
     var teamIsLFM by remember { mutableStateOf(team.isPublic) }
-
 
 
     LaunchedEffect(true) {
@@ -316,7 +336,7 @@ fun TeamProfile(
                         maxNumberOfUsers = team.maxNumberOfUsers
                     )
 
-                    AuthViewModel.updateUsersTeam(updatedTeam)
+                    sessionViewModel!!.updateUsersTeam(updatedTeam)
 
                     teamViewModel.updateTeam(updatedTeam)
 
@@ -336,6 +356,21 @@ fun TeamProfile(
                 Icon(imageVector = Icons.Default.SaveAlt, contentDescription = "Save Changes")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Save Changes", style = MaterialTheme.typography.bodyLarge)
+            }
+
+            Button(
+                onClick = {
+                    showDeleteDialog = true
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red,
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Delete Team", fontSize = 16.sp)
             }
         }
 
@@ -364,7 +399,11 @@ fun TeamProfile(
 
         // Player List within LazyColumn for scrolling through players
 
-        if (isLoading) {
+//        val isOffline by remember { mutableStateOf() }
+        if (connectivity != ConnectivityObserver.Status.Available) {
+            // The following code executes when the user is offline
+            Text(stringResource(R.string.team_profile_offline))
+        } else if (isLoading) {
             Text("Loading...")
         } else if (!error.isNullOrEmpty()) {
             error?.let { Text(it) }
@@ -401,5 +440,52 @@ fun TeamProfile(
 //            })
 //            Spacer(modifier = Modifier.height(8.dp))
 //        }
+    }
+
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            icon = {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            },
+            title = {
+                Text(text = "Delete Team")
+            },
+            text = {
+                Text("Are you sure you want to delete this team?")
+            },
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+
+                        showDeleteDialog = false
+
+                        onClose()
+
+                        Toast.makeText(
+                            context,
+                            "Successfully Deleted Team",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()  // Show a confirmation toast
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Dismiss")
+                }
+            }
+        )
     }
 }

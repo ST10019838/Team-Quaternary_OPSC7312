@@ -50,6 +50,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.R
@@ -69,6 +70,7 @@ enum class Mode {
 data class AccountScreen(
     val mode: Mode // Determines whether it's SignUp or ForgotPassword mode
 ) : Screen {
+    override val key = uniqueScreenKey
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -280,7 +282,8 @@ data class AccountScreen(
                                         ){
                                             userViewModel.loginUser(
                                                 username = form.username.state.value!!,
-                                                password = form.password.state.value!!
+                                                password = form.password.state.value!!,
+                                                context
                                             ) { user ->
                                                 if(user == null){
                                                     Toast.makeText(context,

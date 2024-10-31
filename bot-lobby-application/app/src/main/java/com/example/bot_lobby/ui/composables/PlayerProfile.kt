@@ -49,10 +49,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -66,6 +68,8 @@ fun PlayerProfile(
     val teamViewModel = TeamViewModel()
 
     val context = LocalContext.current
+
+    val sessionViewModel = viewModel { SessionViewModel(context) }
 
     var teams by remember { mutableStateOf<List<Team>?>(null) }
     var error: String? by remember { mutableStateOf(null) }
@@ -301,7 +305,8 @@ fun PlayerProfile(
                         isLFT = userIsLFT
                     )
 
-                    AuthViewModel.updateUsersDetails(updatedUser)
+
+                    sessionViewModel.updateUsersDetails(updatedUser)
 
                     userViewModel.updateUser(updatedUser)
 

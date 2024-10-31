@@ -46,21 +46,20 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerSettings() {
-    val userViewModel = UserViewModel()
-
+fun PlayerSettings(onSignOut: () -> Unit = {},
+                   onDelete: () -> Unit = {},
+                   onSync: () -> Unit = {},
+                   isOffline: Boolean = false) {
     // Variables for toggles and dropdown
     var isPushNotificationsEnabled by remember { mutableStateOf(false) }
     var isDarkModeEnabled by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
 
-    val navigator = LocalNavigator.currentOrThrow
-
-    val context = LocalContext.current
 
     // List of supported languages
     val languages = listOf("English", "Afrikaans")
@@ -74,6 +73,7 @@ fun PlayerSettings() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         // Centered Heading for Settings
         Text(
             text = "Settings",
@@ -101,13 +101,14 @@ fun PlayerSettings() {
             ) {
                 Text("Sync to Online Database", fontSize = 16.sp)
                 IconButton(
-                    onClick = { /* Handle Sync */ },
-                    modifier = Modifier.size(24.dp) // Icon button with no border
+                    onClick = onSync,
+//                    modifier = Modifier.size(24.dp) // Icon button with no border
+                    enabled = !isOffline
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "Sync",
-                        tint = Color.Black // Icon color
+//                        tint = Color.Black // Icon color
                     )
                 }
             }
@@ -230,17 +231,9 @@ fun PlayerSettings() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(
-                onClick = {
-//                auth.signOut()  // Sign out the current user
-                    navigator.popUntilRoot()  // Navigate back to the root screen
-                    AuthViewModel.signOut()
-
-                    Toast.makeText(context, "Successfully Signed Out", Toast.LENGTH_SHORT)
-                        .show()  // Show a confirmation toast
-
+                onClick = onSignOut
 //                navigator.push(LoginScreen())  // Push the LoginScreen back onto the stack
-
-                },
+                ,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
@@ -255,19 +248,13 @@ fun PlayerSettings() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(
-                onClick = {
-                    navigator.popUntilRoot()  // Navigate back to the root screen
-                    userViewModel.deleteUser(AuthViewModel.userLoggedIn.value?.id!!)
-
-                    AuthViewModel.signOut()
-                    Toast.makeText(context, "Successfully Deleted Account", Toast.LENGTH_SHORT)
-                        .show()  // Show a confirmation toast
-                },
+                onClick = onDelete,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
                     contentColor = Color.White
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isOffline
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                 Spacer(modifier = Modifier.width(8.dp))

@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -49,6 +50,7 @@ import com.example.bot_lobby.ui.composables.PlayerListItem
 import com.example.bot_lobby.ui.composables.PlayerProfile
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -64,8 +66,8 @@ fun ScoutingPlayersScreen(
     val searchedUsers by userViewModel.searchedUsers.collectAsState()
     val searchError by userViewModel.searchError.collectAsState()
 
-    // Collect teams from the TeamViewModel
-    val teams by AuthViewModel.usersTeams.collectAsState()
+    val sessionViewModel = SessionViewModel(LocalContext.current)
+    val session by sessionViewModel.session.collectAsState()
 
     // Focus manager for clearing the focus when search is triggered
     val focusManager = LocalFocusManager.current
@@ -174,7 +176,7 @@ fun ScoutingPlayersScreen(
                 ) {
                     items(searchedUsers!!) { user ->
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, teams = teams, canView = true, onView = {
+                        PlayerListItem(user = user, teams = session?.usersTeams, canView = true, onView = {
                             isDialogOpen = true
                             userToView = user
                         })
