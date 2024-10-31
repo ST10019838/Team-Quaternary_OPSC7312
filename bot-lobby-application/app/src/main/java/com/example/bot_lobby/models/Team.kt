@@ -16,7 +16,7 @@ data class Team(
 
     val tag: String,
     val name: String,
-    val userIdsAndRoles: List<IdAndRole>,// Map<Int, String>, //List<Pair<Int, String>>
+    val userIdsAndRoles: List<IdAndRole>?,// Map<Int, String>, //List<Pair<Int, String>>
     val isPublic: Boolean = true,
     val isOpen: Boolean = true,
     val isLFM: Boolean = true,
@@ -26,8 +26,9 @@ data class Team(
 
 data class IdAndRole(
     val id: Int,
-    val role: String
+    val isOwner: Boolean = true
 )
+
 
 class IdAndRoleConverters {
 

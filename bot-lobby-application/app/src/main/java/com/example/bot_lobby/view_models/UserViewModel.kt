@@ -72,7 +72,7 @@ class UserViewModel : ViewModel() {
             // Create a query string that will be used to search for all users based on their ids
             var queryString = "in.("
 
-            team.userIdsAndRoles.forEach { item ->
+            team.userIdsAndRoles?.forEach { item ->
                 // The first item in the pair is the user id
                 queryString += "${item.id}"
 
@@ -139,6 +139,8 @@ class UserViewModel : ViewModel() {
 
     // Function to update an existing user
     fun updateUser(updatedUser: User) {
+        Log.i("updated user?", updatedUser.toString())
+
         viewModelScope.launch {
             try {
                 val response = UserApi.updateUser(
@@ -309,12 +311,12 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    fun clearData(){
+    fun clearData() {
         _searchQuery.value = ""
 
         _isSearching.value = false
 
-       _searchError.value = null
+        _searchError.value = null
 
         _searchedUsers.value = null
 

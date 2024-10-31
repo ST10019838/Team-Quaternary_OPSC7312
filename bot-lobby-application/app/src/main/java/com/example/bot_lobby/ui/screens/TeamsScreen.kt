@@ -112,7 +112,12 @@ fun TeamsScreen() {
                         id = UUID.randomUUID(),
                         tag = "EDIT",
                         name = "${user?.username}'s Team ${session?.usersTeams?.size!! + 1}",
-                        userIdsAndRoles = listOf(IdAndRole(user?.id!!, "Owner")),//List<IdAndRole>
+                        userIdsAndRoles = listOf(
+                            IdAndRole(
+                                user?.id!!,
+                                isOwner = true
+                            )
+                        ),//List<IdAndRole>
                         isPublic = true,
                         maxNumberOfUsers = 10
                     )
@@ -170,19 +175,57 @@ fun TeamsScreen() {
             isDialogOpen = false
             teamToView = null
         }) {
-            // TODO: change ability to edit team details when more members join
-            TeamProfile(team = teamToView!!, canEdit = true, onClose = {
-                isDialogOpen = false
-                teamToView = null
-            }, onDelete = {
-                sessionViewModel.removeTeamFromUser(team = teamToView!!) {
-                    if (it != null) {
-                        userViewModel.updateUser(it)
-                    }
+            val isOwner =
+                teamToView?.userIdsAndRoles?.find { it.id == session?.userLoggedIn?.id }?.isOwner == true
 
-                    teamViewModel.deleteTeam(teamToView!!.id)
-                }
-            }, sessionViewModel = sessionViewModel)
+            // TODO: change ability to edit team details when more members join
+            TeamProfile(
+                team = teamToView!!,
+                canEdit = isOwner,
+                onClose = {
+                    isDialogOpen = false
+                    teamToView = null
+                },
+                onDelete = {
+                    sessionViewModel.removeTeamFromUser(team = teamToView!!) {
+                        if (it != null) {
+                            userViewModel.updateUser(it)
+                        }
+
+                        teamViewModel.deleteTeam(teamToView!!.id)
+                    }
+                },
+                sessionViewModel = sessionViewModel,
+                canLeave = !isOwner,
+                onLeave = {
+                    teamViewModel.getTeam(teamToView?.id!!) { teamToUpdate ->
+                        val updatedIdsAndRoles = teamToUpdate.userIdsAndRoles?.filter {
+                            it.id != session?.userLoggedIn?.id
+                        }
+
+                        val updatedTeam = Team(
+                            id = teamToUpdate.id,
+                            tag = teamToUpdate.tag,
+                            name = teamToUpdate.name,
+                            bio = teamToUpdate.bio,
+                            isPublic = teamToUpdate.isPublic,
+                            isLFM = teamToUpdate.isLFM,
+                            isOpen = teamToUpdate.isOpen,
+                            userIdsAndRoles = updatedIdsAndRoles, // TODO fix this to accomodate for multiple users
+                            maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
+                        )
+
+                        teamViewModel.updateTeam(updatedTeam)
+
+                        sessionViewModel.removeTeamFromUser(team = teamToUpdate) {
+                            if (it != null) {
+                                userViewModel.updateUser(it)
+                            }
+                        }
+                    }
+                },
+
+                )
         }
     }
 }

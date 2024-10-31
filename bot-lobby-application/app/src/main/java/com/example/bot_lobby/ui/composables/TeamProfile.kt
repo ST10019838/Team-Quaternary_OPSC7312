@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.composables
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +21,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.GroupAdd
+import androidx.compose.material.icons.filled.JoinFull
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.PublicOff
 import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material.icons.outlined.DoorBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -53,6 +57,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.MainActivity
 import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
@@ -71,11 +76,15 @@ fun TeamProfile(
     canEdit: Boolean = false,
     onClose: () -> Unit = {},
     onDelete: () -> Unit = {},
-    sessionViewModel: SessionViewModel? = null
+    sessionViewModel: SessionViewModel? = null,
+    canJoin: Boolean = false,
+    onJoin: () -> Unit = {},
+    canLeave: Boolean = false,
+    onLeave: () -> Unit = {},
 ) {
     // Retrieve the teams players
-    val userViewModel = UserViewModel()
-    val teamViewModel = TeamViewModel()
+    val userViewModel = viewModel<UserViewModel>()
+    val teamViewModel = viewModel<TeamViewModel>()
 
     val context = LocalContext.current
 
@@ -83,6 +92,8 @@ fun TeamProfile(
     var error: String? by remember { mutableStateOf(null) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLeaveDialog by remember { mutableStateOf(false) }
+
 
     val connectivity by connectivityObserver.observe()
         .collectAsStateWithLifecycle(ConnectivityObserver.Status.Unavailable)
@@ -332,7 +343,7 @@ fun TeamProfile(
                         isPublic = teamIsPublic,
                         isLFM = teamIsLFM,
                         isOpen = teamIsOpen,
-                        userIdsAndRoles = team.userIdsAndRoles,
+                        userIdsAndRoles = team.userIdsAndRoles, // TODO fix this to accomodate for multiple users
                         maxNumberOfUsers = team.maxNumberOfUsers
                     )
 
@@ -372,8 +383,35 @@ fun TeamProfile(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Delete Team", fontSize = 16.sp)
             }
+        } else if (canJoin && team.isOpen) {
+            Button(
+                onClick = onJoin,
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.Red,
+//                contentColor = Color.White
+//            ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.GroupAdd, contentDescription = "Join Team")
+                Spacer(modifier = Modifier.width(8.dp))
+                // TODO: Convert string to Resource
+                Text("Join Team", style = MaterialTheme.typography.bodyLarge)
+            }
+        } else if (canLeave) {
+            Button(
+                onClick = { showLeaveDialog = true },
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.Red,
+//                contentColor = Color.White
+//            ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Outlined.DoorBack, contentDescription = "Leave Team")
+                Spacer(modifier = Modifier.width(8.dp))
+                // TODO: Convert string to Resource
+                Text("Leave Team", style = MaterialTheme.typography.bodyLarge)
+            }
         }
-
 
         Spacer(Modifier.height(25.dp))
 
@@ -387,7 +425,7 @@ fun TeamProfile(
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = "${team.userIdsAndRoles.size} / 10",  // Assuming a max of 10 members
+                text = "${team.userIdsAndRoles?.size} / 10",  // Assuming a max of 10 members
                 color = Color.Black,
                 style = MaterialTheme.typography.titleLarge
             )
@@ -417,12 +455,17 @@ fun TeamProfile(
 
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(users!!) { user ->
-
+                        val isOwner =
+                            if (team.userIdsAndRoles?.find { it.id == user.id }?.isOwner == true)
+                                true
+                            else
+                                null
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, canView = false)
+                        PlayerListItem(user = user, canView = false, isRoleOwner = isOwner)
                     }
                 }
             }
@@ -449,10 +492,10 @@ fun TeamProfile(
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
             },
             title = {
-                Text(text = "Delete Team")
+                Text(text = stringResource(R.string.delete_team_title))
             },
             text = {
-                Text("Are you sure you want to delete this team?")
+                Text(text = stringResource(R.string.delete_team_confirmation))
             },
             onDismissRequest = {
                 showDeleteDialog = false
@@ -468,13 +511,13 @@ fun TeamProfile(
 
                         Toast.makeText(
                             context,
-                            "Successfully Deleted Team",
+                            R.string.delete_team_success,
                             Toast.LENGTH_SHORT
                         )
                             .show()  // Show a confirmation toast
                     }
                 ) {
-                    Text("Confirm")
+                    Text(stringResource(R.string.confirm_action))
                 }
             },
             dismissButton = {
@@ -483,7 +526,54 @@ fun TeamProfile(
                         showDeleteDialog = false
                     }
                 ) {
-                    Text("Dismiss")
+                    Text(stringResource(R.string.dismiss_action))
+                }
+            }
+        )
+    }
+
+
+    if (showLeaveDialog) {
+        AlertDialog(
+            icon = {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            },
+            title = {
+                Text(text = stringResource(R.string.leave_team_title))
+            },
+            text = {
+                Text(stringResource(R.string.leave_team_confirmation))
+            },
+            onDismissRequest = {
+                showLeaveDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onLeave()
+
+                        showLeaveDialog = false
+
+                        onClose()
+
+                        Toast.makeText(
+                            context,
+                            R.string.left_team_success,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()  // Show a confirmation toast
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm_action))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLeaveDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.dismiss_action))
                 }
             }
         )

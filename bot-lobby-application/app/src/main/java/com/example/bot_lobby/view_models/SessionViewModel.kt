@@ -186,9 +186,11 @@ class SessionViewModel(context: Context) : ViewModel() {
             if (updatedSession != null) {
                 LocalDatabase.getDatabase(context).sessionDao.upsertSession(updatedSession)
             }
+
+            callback(updatedSession?.userLoggedIn)
         }
 
-        callback(session.value!!.userLoggedIn)
+
     }
 
 //
