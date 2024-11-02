@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +68,7 @@ import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.UserViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -80,11 +82,19 @@ class LoginScreen : Screen {
         val session by sessionViewModel.session.collectAsStateWithLifecycle()
         val navigator = LocalNavigator.currentOrThrow
 
-        val connectivity by connectivityObserver.observe().collectAsState(ConnectivityObserver.Status.Unavailable)
+        val connectivity by connectivityObserver.observe()
+            .collectAsState(ConnectivityObserver.Status.Unavailable)
         val isOffline = connectivity != ConnectivityObserver.Status.Available
 
 
-        if(session != null){
+        var isDeterminingLogin by remember { mutableStateOf(true) }
+
+        LaunchedEffect(true) {
+            delay(300L)
+            isDeterminingLogin = false
+        }
+
+        if (session != null && !isDeterminingLogin) {
             navigator.push(LandingScreen())
         }
 
@@ -393,7 +403,7 @@ class LoginScreen : Screen {
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = BlueStandard),// Set button background to BlueStandard
                         enabled = !isOffline
-                        ) {
+                    ) {
                         Text("Login", color = Color.White) // White text for contrast
                     }
 
@@ -402,7 +412,7 @@ class LoginScreen : Screen {
                         onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = false /*!isOffline*/
-                    // as the forgot password functionality is not yet added, there's not really a point in having users access the page
+                        // as the forgot password functionality is not yet added, there's not really a point in having users access the page
                     ) {
                         Text(
                             "Forgot Password?",

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import cafe.adriel.voyager.navigator.Navigator
@@ -22,15 +23,23 @@ import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInte
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.util.TableInfo
 import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.observers.NetworkConnectivityObserver
+import com.example.bot_lobby.ui.screens.LandingScreen
+import com.example.bot_lobby.view_models.SessionViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : ComponentActivity() {
@@ -63,6 +72,22 @@ class MainActivity : ComponentActivity() {
 
             var showStudentNotice by remember { mutableStateOf(true) }
 
+            val context = LocalContext.current
+            val sessionViewModel = viewModel { SessionViewModel(context) }
+//            val session by sessionViewModel.session.collectAsState()
+//            var isLoading by remember { mutableStateOf(false) }
+//
+//
+//
+//            LaunchedEffect(true) {
+//                Log.i("SESSION BOI", session.toString())
+//                isLoading = true
+//                delay(3000L)
+//
+//                Log.i("SESSION BOI", session.toString())
+//
+//                isLoading = false
+//            }
 
 //            val coroutineScope = rememberCoroutineScope()
 //
@@ -102,12 +127,22 @@ class MainActivity : ComponentActivity() {
 //            }
 
             BotLobbyTheme {
-                Navigator(
-//                    if (auth.currentUser != null)
-//                        LandingScreen()
-//                    else
+//                Column {
+//                    if (isLoading) {
+//                        Text(isLoading.toString())
+//                    } else {
+//
+//                    }
+//
+//                    Text(session.toString())
+//                }
 
-//                    if(session != null)
+                Navigator(
+////                    if (auth.currentUser != null)
+////                        LandingScreen()
+////                    else
+//
+//                    if (session != null)
 //                        LandingScreen()
 //                    else
                     LoginScreen()
@@ -115,6 +150,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     SlideTransition(it)
                 }
+
+
+//
 
 //if(sessionViewModel.session.value !== null){
 //    Text("LOG ME IN")

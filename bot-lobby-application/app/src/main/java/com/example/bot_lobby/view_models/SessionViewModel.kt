@@ -141,9 +141,9 @@ class SessionViewModel(context: Context) : ViewModel() {
 
         viewModelScope.launch {
             session.value?.let { LocalDatabase.getDatabase(context).sessionDao.clearSession(it) }
-
-            callback()
         }
+
+        callback()
     }
 
 

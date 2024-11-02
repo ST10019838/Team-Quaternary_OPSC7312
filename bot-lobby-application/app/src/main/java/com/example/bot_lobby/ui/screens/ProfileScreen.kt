@@ -69,13 +69,15 @@ fun ProfileScreen(
         item {
             PlayerSettings(isOffline = isOffline,
                 onSignOut = {
-                    sessionViewModel.signOut()
+                    sessionViewModel.signOut {
+                        runBlocking {
+                            delay(300L)
 
-                    runBlocking {
-                        delay(300L)
+                            navigator.popUntilRoot()  // Navigate back to the root screen
+                        }
                     }
 
-                    navigator.popUntilRoot()  // Navigate back to the root screen
+
 
                     Toast.makeText(context, R.string.account_sign_out_success, Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
@@ -143,20 +145,6 @@ fun ProfileScreen(
                             val isOwner = team?.userIdsAndRoles
                                 ?.find { (it.id == session!!.userLoggedIn.id) }
                                 ?.isOwner
-
-                            // TODO: need to exclude the userIdsAndRoles to ensure that everything else is updated,
-                            //  so that we don't override any users that may have joined the team
-//                            val updatedTeam = Team(
-//                                id = team.id,
-//                                tag = team.tag,
-//                                name = team.name,
-//                                isPublic = team.isPublic,
-//                                isOpen = team.isOpen,
-//                                isLFM = team.isLFM,
-//                                maxNumberOfUsers = team.maxNumberOfUsers,
-//                                bio = team.bio,
-//                                userIdsAndRoles = team.userIdsAndRoles,
-//                            )
 
                             if (team != null && isOwner == true) {
                                 // The online data is fetched so that we can don't override the teams
