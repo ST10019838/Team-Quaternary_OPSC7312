@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 
-class UserViewModel : ViewModel() {
+object UserViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
@@ -264,9 +264,8 @@ class UserViewModel : ViewModel() {
 //                AuthViewModel.updateUsersDetails(user)
 
                 // get and save users teams
-                val teamViewModel = TeamViewModel()
                 var usersTeams = emptyList<Team>()
-                val response = teamViewModel.getUsersTeams(user)
+                val response = TeamViewModel.getUsersTeams(user)
 
                 if (response.errors.isNullOrEmpty()) {
                     usersTeams = response.data!!

@@ -98,7 +98,7 @@ class LoginScreen : Screen {
             navigator.push(LandingScreen())
         }
 
-        val userViewModel = UserViewModel()
+//        val userViewModel = UserViewModel()
 
         val form = LoginForm() // Form that manages the login state
 
@@ -313,7 +313,7 @@ class LoginScreen : Screen {
 
                                 runBlocking {
                                     launch {
-                                        userViewModel.loginUser(
+                                        UserViewModel.loginUser(
                                             username = form.username.state.value!!,
                                             password = form.password.state.value!!,
                                             context

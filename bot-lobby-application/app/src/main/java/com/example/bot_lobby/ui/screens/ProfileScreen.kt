@@ -42,8 +42,8 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val sessionViewModel = viewModel { SessionViewModel(context) }
-    val userViewModel = viewModel<UserViewModel>()
-    val teamViewModel = viewModel<TeamViewModel>()
+//    val userViewModel = viewModel<UserViewModel>()
+//    val teamViewModel = viewModel<TeamViewModel>()
 
 
     val session by sessionViewModel.session.collectAsState()
@@ -87,7 +87,7 @@ fun ProfileScreen(
                 },
                 onDelete = {
                     // Navigate back to the root screen
-                    userViewModel.deleteUser(sessionViewModel.session.value?.userLoggedIn?.id!!)
+                    UserViewModel.deleteUser(sessionViewModel.session.value?.userLoggedIn?.id!!)
 
                     sessionViewModel.signOut {
                         navigator.popUntilRoot()
@@ -102,7 +102,7 @@ fun ProfileScreen(
                         .show()  // Show a confirmation toast
 
                     coroutineScope.launch {
-                        val response = userViewModel.getOnlineProfile(session?.userLoggedIn!!)
+                        val response = UserViewModel.getOnlineProfile(session?.userLoggedIn!!)
 
                         val remoteProfile = response.data
                         val localProfile = session?.userLoggedIn
@@ -135,7 +135,7 @@ fun ProfileScreen(
 
                             // the user needs to be the owner of the team to add it
                             if (teamToAdd != null && isOwner == true) {
-                                teamViewModel.createTeam(teamToAdd)
+                                TeamViewModel.createTeam(teamToAdd)
                             }
                         }
 
@@ -150,7 +150,7 @@ fun ProfileScreen(
                                 // The online data is fetched so that we can don't override the teams
                                 // userIdsAndRoles so that we don't accidentally remove a user that might
                                 // have joined team when the owner was offline.
-                                teamViewModel.getTeam(teamId) { remoteTeam ->
+                                TeamViewModel.getTeam(teamId) { remoteTeam ->
 
                                     val updatedTeam = Team(
                                         id = team.id,
@@ -164,7 +164,7 @@ fun ProfileScreen(
                                         userIdsAndRoles = remoteTeam.userIdsAndRoles,
                                     )
 
-                                    teamViewModel.updateTeam(updatedTeam)
+                                    TeamViewModel.updateTeam(updatedTeam)
                                 }
                             }
                         }
@@ -172,18 +172,18 @@ fun ProfileScreen(
 
                         teamsToDelete?.forEach { teamId ->
                             // wont work as the team is already deleted
-                            teamViewModel.getTeam(teamId) { teamToDelete ->
+                            TeamViewModel.getTeam(teamId) { teamToDelete ->
                                 val isOwner = teamToDelete.userIdsAndRoles
                                     ?.find { (it.id == session!!.userLoggedIn.id) }
                                     ?.isOwner
 
                                 // the user needs to be the owner of the team to delete it
                                 if (isOwner == true) {
-                                    teamViewModel.deleteTeam(teamId)
+                                    TeamViewModel.deleteTeam(teamId)
                                 } else if (isOwner == false) {
                                     // If the user is not a member of the team and it is no longer there,
                                     // the user has left the team
-                                    teamViewModel.getTeam(teamToDelete.id) { teamToUpdate ->
+                                    TeamViewModel.getTeam(teamToDelete.id) { teamToUpdate ->
                                         val updatedIdsAndRoles =
                                             teamToUpdate.userIdsAndRoles?.filter {
                                                 it.id != session?.userLoggedIn?.id
@@ -201,7 +201,7 @@ fun ProfileScreen(
                                             maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
                                         )
 
-                                        teamViewModel.updateTeam(updatedTeam)
+                                        TeamViewModel.updateTeam(updatedTeam)
 
 //                                    sessionViewModel.removeTeamFromUser(team = teamToUpdate) {
 //                                        if (it != null) {
@@ -220,7 +220,7 @@ fun ProfileScreen(
                         // - the sync requires the ids stored in player profile to determine what action to perform for a team,
                         // hence the profile will be updated last and not before
 
-                        userViewModel.updateUser(session?.userLoggedIn!!)
+                        UserViewModel.updateUser(session?.userLoggedIn!!)
                     }
 
 

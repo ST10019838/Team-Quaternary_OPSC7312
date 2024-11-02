@@ -11,10 +11,11 @@ import com.example.bot_lobby.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class TeamViewModel : ViewModel() {
+object TeamViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
@@ -216,6 +217,7 @@ class TeamViewModel : ViewModel() {
 
 
     fun clearData() {
+        Log.i("MAN CLEAR!", _searchQuery.value)
         _searchQuery.value = ""
 
         _isSearching.value = false
@@ -223,6 +225,8 @@ class TeamViewModel : ViewModel() {
         _searchError.value = null
 
         _searchedTeams.value = null
+        Log.i("MAN CLEAR!", _searchQuery.value)
+
     }
 }
 
