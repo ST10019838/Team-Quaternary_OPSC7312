@@ -139,8 +139,6 @@ class UserViewModel : ViewModel() {
 
     // Function to update an existing user
     fun updateUser(updatedUser: User) {
-        Log.i("updated user?", updatedUser.toString())
-
         viewModelScope.launch {
             try {
                 val response = UserApi.updateUser(

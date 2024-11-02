@@ -191,9 +191,9 @@ fun TeamsScreen() {
                         if (it != null) {
                             userViewModel.updateUser(it)
                         }
-
-                        teamViewModel.deleteTeam(teamToView!!.id)
                     }
+
+                    teamViewModel.deleteTeam(teamToView!!.id)
                 },
                 sessionViewModel = sessionViewModel,
                 canLeave = !isOwner,
@@ -211,16 +211,16 @@ fun TeamsScreen() {
                             isPublic = teamToUpdate.isPublic,
                             isLFM = teamToUpdate.isLFM,
                             isOpen = teamToUpdate.isOpen,
-                            userIdsAndRoles = updatedIdsAndRoles, // TODO fix this to accomodate for multiple users
+                            userIdsAndRoles = updatedIdsAndRoles,
                             maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
                         )
 
                         teamViewModel.updateTeam(updatedTeam)
+                    }
 
-                        sessionViewModel.removeTeamFromUser(team = teamToUpdate) {
-                            if (it != null) {
-                                userViewModel.updateUser(it)
-                            }
+                    sessionViewModel.removeTeamFromUser(team = teamToView!!) {
+                        if (it != null) {
+                            userViewModel.updateUser(it)
                         }
                     }
                 },

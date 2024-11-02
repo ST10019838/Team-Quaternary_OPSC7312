@@ -252,7 +252,7 @@ class MainActivity : ComponentActivity() {
                     },
                     title = {
                         Text(
-                            text = stringResource(R.string.student_notice_title),
+                            text = stringResource(R.string.offline_notice_title),
                             textAlign = TextAlign.Center
                         )
                     },

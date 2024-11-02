@@ -203,11 +203,10 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
                             isPublic = teamToUpdate.isPublic,
                             isLFM = teamToUpdate.isLFM,
                             isOpen = teamToUpdate.isOpen,
-                            userIdsAndRoles = updatedIdsAndRoles, // TODO fix this to accomodate for multiple users
+                            userIdsAndRoles = updatedIdsAndRoles,
                             maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
                         )
 
-                        Log.i("TEam data", updatedTeam.toString())
 
                         teamViewModel.updateTeam(updatedTeam)
 
@@ -217,6 +216,8 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
                             }
                         }
 
+
+                        isDialogOpen = false
 
                         Toast.makeText(
                             context,

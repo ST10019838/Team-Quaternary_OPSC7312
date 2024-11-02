@@ -89,7 +89,7 @@ class TeamViewModel : ViewModel() {
     }
 
 
-    fun createTeam(newTeam: Team, callback: () -> Unit) {
+    fun createTeam(newTeam: Team, callback: () -> Unit = {}) {
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.TeamApi.createTeam(RetrofitInstance.apiKey, newTeam)
