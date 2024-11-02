@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bot-Lobby</string>
+
+    <!-- AccountScreen -->
+    <string name="register">Registreer</string>
+    <string name="reset_password">Stel wagwoord terug</string>
+    <string name="create_account">Skep tou rekening</string>
+    <string name="reset_your_password">Stel jou wagwoord terug</string>
+    <string name="username_placeholder">Gebruikersnaam</string>
+    <string name="password_placeholder_signup">Wagwoord</string>
+    <string name="password_placeholder_reset">Nuwe wagwoord</string>
+    <string name="confirm_password_placeholder">Bevestig wagwoord</string>
+    <string name="error_something_wrong">Iets het verkeerd geloop, probeer asseblief weer</string>
+    <string name="error_invalid_login">Gebruikersnaam of wagwoord bestaan nie</string>
+    <string name="already_have_account">Het jy reeds \'n rekening? Meld hier aan</string>
+
+    <!-- AuthScreen -->
+    <string name="login_title">Teken in</string>
+    <string name="first_name_placeholder">Voornaam</string>
+    <string name="last_name_placeholder">Van</string>
+    <string name="age_placeholder">Ouderdom</string>
+    <string name="no_account_register">Het jy nie \'n rekening nie? Registreer</string>
+    <string name="already_have_account_login">Het jy reeds \'n rekening? Teken in</string>
+
+    <!-- EventsScreen -->
+    <string name="coming_soon">Kom binnekort...</string>
+
+    <!-- HomeScreen -->
+    <string name="welcome_back">Welkom Terug!</string>
+    <string name="upcoming_events">Komende gebeure</string>
+    <string name="announcements">Aankondigings</string>
+
+    <!-- LoginScreen -->
+    <string name="sign_in_title">Meld jou rekening aan</string>
+    <string name="username_placeholder_login">Gebruikersnaam</string>
+    <string name="password_placeholder_login">Wagwoord</string>
+    <string name="error_incorrect_credentials">Verkeerde e-pos of wagwoord</string>
+    <string name="forgot_password">Wagwoord vergeet?</string>
+
+    <!-- ScoutingPlayersScreen -->
+    <string name="search_player_tag">Soek \'n speler se merker</string>
+    <string name="players_found">Spelers gevind: %1$d</string>
+    <string name="enter_player_name">Voer \'n speler se naam in om te soek</string>
+    <string name="no_players_found">Geen spelers gevind nie</string>
+    <string name="searching">Soek tans...</string>
+
+    <!-- ScoutingTeamsScreen -->
+    <string name="search_team_name">Soek \'n span se naam</string>
+    <string name="teams_found">Spanne gevind: %1$d</string>
+    <string name="enter_team_name">Voer \'n span se naam in om te soek</string>
+    <string name="no_teams_found">Geen spanne gevind nie</string>
+
+    <!-- TeamsScreen -->
+    <string name="team_created_success">Suksesvol \'n span geskep</string>
+    <string name="teams_header">Spankopskrif</string>
+</resources>
