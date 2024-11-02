@@ -3,47 +3,21 @@ package com.example.bot_lobby.ui.screens
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -66,81 +40,69 @@ import kotlinx.coroutines.runBlocking
 
 class LoginScreen : Screen {
 
-
     @Composable
     override fun Content() {
         val userViewModel = UserViewModel()
         val navigator = LocalNavigator.currentOrThrow
-        val form = LoginForm() // Form that manages the login state
+        val form = LoginForm()
         val context = LocalContext.current
 
         val userLoggedIn by AuthViewModel.userLoggedIn.collectAsState()
-        // Initialize areCredentialsValid state
         var areCredentialsValid by remember { mutableStateOf(true) }
 
         Scaffold(content = {
-            // Main Column container for the login screen
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
                     .padding(horizontal = 25.dp)
                     .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally, // Align all children to the center horizontally
-                verticalArrangement = Arrangement.SpaceBetween // Space the content vertically
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Top part with the logo and app name
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp), // Spacing between items
-                    horizontalAlignment = Alignment.CenterHorizontally // Center the content horizontally
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // First empty row (Spacer)
-                    Spacer(modifier = Modifier.height(16.dp)) // Adjust the height as needed
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // Second empty row (Spacer)
-                    Spacer(modifier = Modifier.height(16.dp)) // Adjust the height as needed
-
-                    // Title: "Sign in Your Account"
                     Text(
-                        text = "Sign in Your Account",
+                        text = stringResource(R.string.sign_in_title),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground, // Color of the text based on the current theme
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
-                    // App Logo Image
                     Image(
                         painter = painterResource(id = R.drawable.ic_bot_lobby_logo),
-                        contentDescription = "App Logo", // Description for accessibility
+                        contentDescription = stringResource(R.string.app_name),
                         modifier = Modifier
-                            .fillMaxWidth(1.0f) // Fill up the width
-                            .aspectRatio(16f / 9f) // Maintain the aspect ratio
+                            .fillMaxWidth(1.0f)
+                            .aspectRatio(16f / 9f)
                     )
 
-                    // App Name Text: "BotLobby"
                     Text(
-                        text = "Bot Lobby",
+                        text = stringResource(R.string.app_name),
                         fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onBackground, // Color of the text
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
 
-                // Spacer to center email and password fields between "BotLobby" and the buttons
                 Spacer(modifier = Modifier.weight(1f))
 
                 Row(
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth(),
-
-                    ) {
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     GoogleSignInButton(
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
-                        isReg = false, // Registration,
+                        isReg = false,
                         navigator = navigator
                     )
                 }
@@ -160,7 +122,7 @@ class LoginScreen : Screen {
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        "or",
+                        text = stringResource(R.string.or),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -175,17 +137,14 @@ class LoginScreen : Screen {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Email and Password fields
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Email Input Field with Email icon
                     OutlinedTextField(
-                        value = form.username.state.value
-                            ?: "", // Retrieve the current value of email from the form
-                        onValueChange = { value -> // Handle text change and update the form
+                        value = form.username.state.value ?: "",
+                        onValueChange = { value ->
                             onFormValueChange(
                                 value = value,
                                 form = form,
@@ -193,34 +152,31 @@ class LoginScreen : Screen {
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Username") }, // Placeholder text inside the input
-                        isError = form.username.hasError(), // Show error if there is one in the form
+                        placeholder = { Text(stringResource(R.string.username_placeholder_login)) },
+                        isError = form.username.hasError(),
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Person, // Display email icon inside the input field
-                                contentDescription = "Username Icon"
+                                imageVector = Icons.Default.Person,
+                                contentDescription = stringResource(R.string.username_icon)
                             )
                         },
-                        singleLine = true, // Ensure the input stays a single line
-                        visualTransformation = VisualTransformation.None, // No transformation (plain text)
+                        singleLine = true,
+                        visualTransformation = VisualTransformation.None,
                         trailingIcon = {
-                            // Show error icon if there's an error
                             if (form.username.hasError()) {
                                 Icon(
                                     imageVector = Icons.Default.Error,
-                                    contentDescription = "Error Icon",
-                                    tint = MaterialTheme.colorScheme.error // Error color based on theme
+                                    contentDescription = stringResource(R.string.error_icon),
+                                    tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
                     )
 
-                    // Password Input Field with visibility toggle and lock icon
-                    var passwordVisible by remember { mutableStateOf(false) } // Manage password visibility
+                    var passwordVisible by remember { mutableStateOf(false) }
                     OutlinedTextField(
-                        value = form.password.state.value
-                            ?: "", // Retrieve the current value of password from the form
-                        onValueChange = { value -> // Handle password text change
+                        value = form.password.state.value ?: "",
+                        onValueChange = { value ->
                             onFormValueChange(
                                 value = value,
                                 form = form,
@@ -228,175 +184,99 @@ class LoginScreen : Screen {
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Password") }, // Placeholder text
+                        placeholder = { Text(stringResource(R.string.password_placeholder_login)) },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Lock, // Display lock icon inside the input field
-                                contentDescription = "Password Icon"
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = stringResource(R.string.password_icon)
                             )
                         },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Handle password visibility
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             val image = if (passwordVisible)
                                 Icons.Filled.Visibility
                             else
                                 Icons.Filled.VisibilityOff
 
-                            val description =
-                                if (passwordVisible) "Hide password" else "Show password"
+                            val description = if (passwordVisible) {
+                                stringResource(R.string.hide_password)
+                            } else {
+                                stringResource(R.string.show_password)
+                            }
 
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     imageVector = image,
                                     contentDescription = description
-                                ) // Password visibility toggle
+                                )
                             }
                         },
-                        singleLine = true, // Single-line input
-                        isError = form.password.hasError() // Show error if there's one
+                        singleLine = true,
+                        isError = form.password.hasError()
                     )
                 }
 
-                // Spacer to ensure Login button is at the bottom
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Column for buttons and error messages
                 Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                     if (!areCredentialsValid) {
-                        // Display error message for invalid credentials
                         Text(
-                            "Incorrect Email or Password",
-                            color = MaterialTheme.colorScheme.error, // Error color
+                            text = stringResource(R.string.error_incorrect_credentials),
+                            color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
                     }
 
-                    // Login Button with BlueStandard background color
                     Button(
                         onClick = {
-                            form.validate(true) // Validate form inputs
-
+                            form.validate(true)
                             if (form.isValid) {
-//                                AuthViewModel.loginUser(
-//                                    email = form.email.state.value!!,
-//                                    password = form.password.state.value!!
-//                                )
-
                                 runBlocking {
                                     launch {
                                         userViewModel.loginUser(
                                             username = form.username.state.value!!,
                                             password = form.password.state.value!!
-                                        ) { user -> // Provide the callback here
+                                        ) { user ->
                                             Log.i("USER", user.toString())
-
-                                            // Handle successful user login
                                             if (user != null) {
-                                                // Navigate to LandingScreen if login is successful
                                                 navigator.push(LandingScreen())
-
                                                 Toast.makeText(
                                                     context,
-                                                    "Successfully Logged In",
+                                                    stringResource(R.string.login_success),
                                                     Toast.LENGTH_SHORT
-                                                )
-                                                    .show()  // Show a confirmation toast
+                                                ).show()
                                             } else {
                                                 Log.i("USER", "Login failed or user is null")
-
                                                 Toast.makeText(
                                                     context,
-                                                    "Username or Password Incorrect",
+                                                    stringResource(R.string.error_invalid_login),
                                                     Toast.LENGTH_SHORT
-                                                )
-                                                    .show()  // Show a confirmation toast
+                                                ).show()
                                             }
                                         }
                                     }
                                 }
-
-
-//                                if (userLoggedIn != null) {
-//                                    navigator.push(LandingScreen())
-//                                }
-//
-//                                Log.i("USER", userLoggedIn.toString())
-//
-//                                userViewModel.loginUser(
-//                                    username = "eq.${form.email.state.value!!}",
-//                                    password = "eq.${form.password.state.value!!}"
-//                                )
-//
-//                                runBlocking {
-//                                    launch {
-//
-//                                    }
-//
-//
-//                                }
-//
-//                                if (userLoggedIn != null) {
-//                                    navigator.push(LandingScreen())
-//                                }
-//
-//                                Log.i("USER", userLoggedIn.toString())
-
-
-                                // Firebase sign in attempt
-//                                auth.signInWithEmailAndPassword(
-//                                    form.email.state.value!!,
-//                                    form.password.state.value!!
-//                                ).addOnCompleteListener { task ->
-//                                    if (task.isSuccessful) {
-//                                        // Display success message
-//                                        Toast.makeText(
-//                                            context,
-//                                            "Log In Successful",
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
-//                                        // Navigate to landing screen
-//                                        navigator.push(LandingScreen())
-//                                    } else {
-//                                        // Sign in failed: Display error message
-//                                        areCredentialsValid = false
-//                                        Toast.makeText(
-//                                            context,
-//                                            "Log In Failed: ${task.exception?.message}",
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
-//                                    }
-//                                }
-
-
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard) // Set button background to BlueStandard
+                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard)
                     ) {
-                        Text("Login", color = Color.White) // White text for contrast
+                        Text(stringResource(R.string.login_title), color = Color.White)
                     }
 
-                    // Forgot Password Button
                     TextButton(
                         onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            "Forgot Password?",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(stringResource(R.string.forgot_password), style = MaterialTheme.typography.bodyMedium)
                     }
 
-                    // Register Button for new users
                     TextButton(
                         onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            "Register",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(stringResource(R.string.register), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

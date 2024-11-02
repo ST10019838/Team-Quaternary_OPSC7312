@@ -2,44 +2,23 @@ package com.example.bot_lobby.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -59,15 +38,12 @@ import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.UserViewModel
 
-// Enum to handle screen mode
 enum class Mode {
     SignUp, ForgotPassword
 }
 
-// Main AccountScreen class with screen mode
-
 data class AccountScreen(
-    val mode: Mode // Determines whether it's SignUp or ForgotPassword mode
+    val mode: Mode
 ) : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -77,15 +53,13 @@ data class AccountScreen(
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
         val userViewModel = UserViewModel()
-//        val auth = remember { FirebaseAuth.getInstance() }
 
-        // Scaffold to provide the layout
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
-                            if (mode == Mode.SignUp) "Register" else "Reset Password", // Dynamic title
+                            text = stringResource(id = if (mode == Mode.SignUp) R.string.register else R.string.reset_password),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.headlineSmall
@@ -95,7 +69,7 @@ data class AccountScreen(
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Arrow Back"
+                                contentDescription = stringResource(R.string.arrow_back)
                             )
                         }
                     },
@@ -111,25 +85,14 @@ data class AccountScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Title text
-//                    Text(
-//                        text = if (mode == Mode.SignUp) "Create Your Account" else "Reset Your Password",
-//                        fontSize = 26.sp,
-//                        fontWeight = FontWeight.Bold,
-//                        color = MaterialTheme.colorScheme.onBackground,
-//                        textAlign = TextAlign.Center
-//                    )
-
-                    // App logo
                     Image(
                         painter = painterResource(id = R.drawable.ic_bot_lobby_logo),
-                        contentDescription = "App Logo",
+                        contentDescription = stringResource(R.string.app_logo),
                         modifier = Modifier
                             .fillMaxWidth(1.0f)
                             .aspectRatio(16f / 9f)
                     )
 
-                    // App name text
                     Text(
                         text = "Bot Lobby",
                         fontSize = 20.sp,
@@ -137,8 +100,6 @@ data class AccountScreen(
                         textAlign = TextAlign.Center
                     )
 
-
-                    // Email Input Field
                     OutlinedTextField(
                         value = form.username.state.value ?: "",
                         onValueChange = { value ->
@@ -149,12 +110,12 @@ data class AccountScreen(
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("User Name") },
+                        placeholder = { Text(stringResource(R.string.username_placeholder)) },
                         isError = form.username.hasError(),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Person,
-                                contentDescription = "Username Icon"
+                                contentDescription = stringResource(R.string.username_icon)
                             )
                         },
                         singleLine = true,
@@ -163,14 +124,13 @@ data class AccountScreen(
                             if (form.username.hasError()) {
                                 Icon(
                                     imageVector = Icons.Default.Error,
-                                    contentDescription = "Error Icon",
+                                    contentDescription = stringResource(R.string.error_icon),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
                     )
 
-                    // Password Input Field with visibility toggle
                     var passwordVisible by remember { mutableStateOf(false) }
                     OutlinedTextField(
                         value = form.password.state.value ?: "",
@@ -182,11 +142,11 @@ data class AccountScreen(
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text(if (mode == Mode.SignUp) "Password" else "New Password") },
+                        placeholder = { Text(stringResource(if (mode == Mode.SignUp) R.string.password_placeholder_signup else R.string.password_placeholder_reset)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Lock,
-                                contentDescription = "Password Icon"
+                                contentDescription = stringResource(R.string.password_icon)
                             )
                         },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -197,7 +157,7 @@ data class AccountScreen(
                                 Icons.Filled.VisibilityOff
 
                             val description =
-                                if (passwordVisible) "Hide password" else "Show password"
+                                if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
 
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(imageVector = image, contentDescription = description)
@@ -207,7 +167,6 @@ data class AccountScreen(
                         isError = form.password.hasError()
                     )
 
-                    // Confirm Password Input Field
                     OutlinedTextField(
                         value = form.passwordConfirmation.state.value ?: "",
                         onValueChange = { value ->
@@ -218,11 +177,11 @@ data class AccountScreen(
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Confirm Password") },
+                        placeholder = { Text(stringResource(R.string.confirm_password_placeholder)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Lock,
-                                contentDescription = "Confirm Password Icon"
+                                contentDescription = stringResource(R.string.confirm_password_icon)
                             )
                         },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -233,7 +192,7 @@ data class AccountScreen(
                                 Icons.Filled.VisibilityOff
 
                             val description =
-                                if (passwordVisible) "Hide password" else "Show password"
+                                if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
 
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(imageVector = image, contentDescription = description)
@@ -243,9 +202,8 @@ data class AccountScreen(
                         isError = form.passwordConfirmation.hasError()
                     )
 
-                    Spacer(Modifier.height(20.dp)) // Spacer between form and button
+                    Spacer(Modifier.height(20.dp))
 
-                    // Buttons
                     var actionWasSuccessful by remember { mutableStateOf(true) }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -253,25 +211,17 @@ data class AccountScreen(
                     ) {
                         if (!actionWasSuccessful) {
                             Text(
-                                "Something went wrong, please try again",
+                                stringResource(R.string.error_something_wrong),
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center
                             )
                         }
 
-                        // Register/Reset Button with BlueStandard background
                         Button(
                             onClick = {
                                 form.validate(true)
                                 if (form.isValid) {
                                     if (mode == Mode.SignUp) {
-//                                        createUser(
-//                                            email = form.email.state.value!!,
-//                                            password = form.password.state.value!!,
-////                                            auth = auth,
-//                                            context = context
-//                                        )
-
                                         userViewModel.createUser(
                                             User(
                                                 username = form.username.state.value!!,
@@ -284,22 +234,18 @@ data class AccountScreen(
                                             ) { user ->
                                                 if(user == null){
                                                     Toast.makeText(context,
-                                                        "Username or Password doesn't exist",
+                                                        stringResource(R.string.error_invalid_login),
                                                         Toast.LENGTH_SHORT)
-                                                        .show() // Toast message to indicate the process
+                                                        .show()
                                                 } else{
                                                     navigator.push(LandingScreen())
                                                 }
                                             }
                                         }
-
-
-
                                     } else {
-                                        // Handle forgot password
                                         Toast.makeText(
                                             context,
-                                            "Password reset functionality is not yet implemented.",
+                                            stringResource(R.string.password_reset_unimplemented),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -307,13 +253,12 @@ data class AccountScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = BlueStandard // Use BlueStandard from your theme
+                                containerColor = BlueStandard
                             )
                         ) {
-                            Text(if (mode == Mode.SignUp) "Register" else "Reset Password")
+                            Text(text = stringResource(if (mode == Mode.SignUp) R.string.register else R.string.reset_password))
                         }
 
-                        // Show "Already have an account? Sign in here" only in SignUp mode
                         if (mode == Mode.SignUp) {
                             TextButton(
                                 modifier = Modifier.fillMaxWidth(),
@@ -321,9 +266,9 @@ data class AccountScreen(
                             ) {
                                 Text(
                                     buildAnnotatedString {
-                                        append("Already have an account? ")
+                                        append(stringResource(R.string.already_have_account))
                                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                                            append("Sign in here")
+                                            append(stringResource(R.string.sign_in_here))
                                         }
                                     },
                                     style = MaterialTheme.typography.bodyMedium
@@ -336,37 +281,3 @@ data class AccountScreen(
         )
     }
 }
-
-// Function to handle user registration
-//fun createUser(
-//    email: String,
-//    password: String,
-//    auth: FirebaseAuth,
-//    context: android.content.Context
-//) {
-//    if (email.isNotEmpty() && password.isNotEmpty()) {
-//        auth.createUserWithEmailAndPassword(email, password)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    Toast.makeText(
-//                        context,
-//                        "Registration successful! Please log in.",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                } else {
-//                    val errorMessage = task.exception?.message
-//                    Toast.makeText(context, "Registration failed: $errorMessage", Toast.LENGTH_LONG)
-//                        .show()
-//                }
-//            }
-//            .addOnFailureListener { exception ->
-//                Toast.makeText(
-//                    context,
-//                    "Registration failed: ${exception.message}",
-//                    Toast.LENGTH_LONG
-//                ).show()
-//            }
-//    } else {
-//        Toast.makeText(context, "Email and password cannot be empty", Toast.LENGTH_SHORT).show()
-//    }
-//}
