@@ -1,14 +1,12 @@
 package com.example.bot_lobby.screens
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.services.LoginService
@@ -20,7 +18,8 @@ import kotlinx.coroutines.launch
 fun AuthScreen(
     modifier: Modifier = Modifier,
     loginService: LoginService,
-    registerService: RegisterService
+    registerService: RegisterService,
+    activity: AppCompatActivity
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -49,7 +48,7 @@ fun AuthScreen(
                 if (!isLoginMode) {
                     val newUser = User(username = username, password = password)
                     if (enableBiometrics) {
-                        registerBiometricData(newUser)
+                        registerBiometricData(newUser, activity) // Pass activity here
                     }
                     val response = registerService.register(newUser)
                     result = if (response.isSuccessful) "Registration successful!" else "Registration failed!"
@@ -60,11 +59,9 @@ fun AuthScreen(
         }
     }
 }
-fun registerBiometricData(user: User): User {
-    // Example: Assigning a mock biometric data for demonstration purposes
-    user.biometrics = "sample_biometric_data"  // You would replace this with actual biometric data logic
-    Log.d("BiometricAuthHelper", "Biometric data registered for user: ${user.username}")
 
-    return user
+fun registerBiometricData(user: User, activity: AppCompatActivity): User {
+    val updatedUser = BiometricAuthHelper.registerBiometricData(user, activity)
+    Log.d("BiometricAuthHelper", "Biometric data registered for user: ${updatedUser.username}")
+    return updatedUser
 }
-

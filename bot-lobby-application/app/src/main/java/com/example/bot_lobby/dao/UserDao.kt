@@ -19,6 +19,6 @@ interface UserDao {
 //    @Query("DELETE FROM teams")
 //    suspend fun deleteAll()
 //
-    @Query("SELECT * FROM teams")
+    @Query("SELECT * FROM users")
     fun getUsers(): Flow<List<User>>
 }

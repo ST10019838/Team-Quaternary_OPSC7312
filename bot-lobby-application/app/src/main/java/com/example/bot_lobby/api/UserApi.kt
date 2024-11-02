@@ -32,9 +32,15 @@ interface UserApi {
     ): Response<User>
 
     @GET("users")
+    suspend fun getUsersByUsername(
+        @Header("apikey") apiKey: String,
+        @Query("username") username: String
+    ): Response<List<User>>
+
+    @GET("users")
     suspend fun getUsersByName(
-        @Header("apiKey") key: String,
-        @Query("username") id: String? = null
+        @Query("username") username: String,
+        @Header("apikey") apiKey: String
     ): Response<List<User>>
 
     @POST("users")

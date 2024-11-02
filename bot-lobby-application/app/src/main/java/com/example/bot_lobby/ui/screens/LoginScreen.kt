@@ -2,45 +2,22 @@ package com.example.bot_lobby.ui.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,22 +27,24 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.bot_lobby.services.GoogleSignInButton
 import com.example.bot_lobby.MainActivity
 import com.example.bot_lobby.R
 import com.example.bot_lobby.forms.LoginForm
+import com.example.bot_lobby.services.GoogleSignInButton
 import com.example.bot_lobby.ui.theme.BlueStandard
+import com.example.bot_lobby.utils.BiometricAuthHelper
 import com.example.bot_lobby.utils.onFormValueChange
-import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.UserViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
-class LoginScreen : Screen {
-
+class LoginScreen : Screen, AppCompatActivity() {
 
     @Composable
     override fun Content() {
@@ -74,106 +53,117 @@ class LoginScreen : Screen {
         val form = LoginForm() // Form that manages the login state
         val context = LocalContext.current
 
-        val userLoggedIn by AuthViewModel.userLoggedIn.collectAsState()
-        // Initialize areCredentialsValid state
-        var areCredentialsValid by remember { mutableStateOf(true) }
+        var useBiometrics by remember { mutableStateOf(false) }
+        val isBiometricAvailable = BiometricAuthHelper.isBiometricSupported(context)
 
-        Scaffold(content = {
-            // Main Column container for the login screen
+        // Biometric prompt Setup
+        val biometricPromptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Biometric Login")
+            .setSubtitle("Use your biometric credential to log in")
+            .setNegativeButtonText("Cancel")
+            .build()
+
+        // Create an instance of BiometricPrompt
+        val biometricPrompt = BiometricPrompt(
+            context as FragmentActivity,
+            ContextCompat.getMainExecutor(context),
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    // Handle successful biometric login here
+                    if (!form.username.state.value.isNullOrBlank()) {
+                        val username = form.username.state.value ?: ""
+                        Log.d("LoginScreen", "Attempting biometric login for user: $username")
+
+                        userViewModel.loginWithBiometrics(
+                            username = username,
+                            activity = context as AppCompatActivity // Pass the current activity context
+                        ) { user ->
+                            // Handle navigation and user session on successful biometric login
+                            if (user != null) {
+                                Log.d("LoginScreen", "Biometric login successful for user: $username")
+                                navigator.push(LandingScreen()) // Ensure LandingScreen is defined appropriately
+                                Toast.makeText(context, "Successfully Logged In", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Log.e("LoginScreen", "Biometric login failed for user: $username")
+                                Toast.makeText(context, "Biometric login failed", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        Log.w("LoginScreen", "Username input is blank or null.")
+                    }
+                }
+
+                override fun onAuthenticationFailed() {
+                    Toast.makeText(context, "Biometric authentication failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+
+        // Check if biometric login is enabled and available
+        if (useBiometrics && isBiometricAvailable) {
+            // Trigger the biometric prompt
+            biometricPrompt.authenticate(biometricPromptInfo)
+        }
+
+        Scaffold { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
+                    .padding(paddingValues)
                     .padding(horizontal = 25.dp)
                     .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally, // Align all children to the center horizontally
-                verticalArrangement = Arrangement.SpaceBetween // Space the content vertically
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 // Top part with the logo and app name
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp), // Spacing between items
-                    horizontalAlignment = Alignment.CenterHorizontally // Center the content horizontally
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // First empty row (Spacer)
-                    Spacer(modifier = Modifier.height(16.dp)) // Adjust the height as needed
-
-                    // Second empty row (Spacer)
-                    Spacer(modifier = Modifier.height(16.dp)) // Adjust the height as needed
-
-                    // Title: "Sign in Your Account"
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Sign in Your Account",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground, // Color of the text based on the current theme
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
-                    // App Logo Image
                     Image(
                         painter = painterResource(id = R.drawable.ic_bot_lobby_logo),
-                        contentDescription = "App Logo", // Description for accessibility
+                        contentDescription = "App Logo",
                         modifier = Modifier
-                            .fillMaxWidth(1.0f) // Fill up the width
-                            .aspectRatio(16f / 9f) // Maintain the aspect ratio
+                            .fillMaxWidth()
+                            .aspectRatio(16f / 9f)
                     )
 
-                    // App Name Text: "BotLobby"
                     Text(
                         text = "Bot Lobby",
                         fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onBackground, // Color of the text
+                        color = MaterialTheme.colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
 
-                // Spacer to center email and password fields between "BotLobby" and the buttons
-                Spacer(modifier = Modifier.weight(1f))
-
+                // Google Sign-In Button
                 Row(
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth(),
-
-                    ) {
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight() // Ensure it takes enough height
+                ) {
                     GoogleSignInButton(
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
-                        isReg = false, // Registration,
-                        navigator = navigator
+                        //activity = context as AppCompatActivity,
+                        isReg = false, // Registration
+                        navigator = navigator,
                     )
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(100))
-                            .fillMaxWidth()
-                            .weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        "or",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(100))
-                            .fillMaxWidth()
-                            .weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.weight(1f))
 
                 // Email and Password fields
                 Column(
@@ -181,225 +171,127 @@ class LoginScreen : Screen {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Email Input Field with Email icon
+                    // Username Field
                     OutlinedTextField(
-                        value = form.username.state.value
-                            ?: "", // Retrieve the current value of email from the form
-                        onValueChange = { value -> // Handle text change and update the form
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.username
-                            )
+                        value = form.username.state.value ?: "",
+                        onValueChange = { value ->
+                            onFormValueChange(value, form, form.username)
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Username") }, // Placeholder text inside the input
-                        isError = form.username.hasError(), // Show error if there is one in the form
+                        placeholder = { Text("Username") },
+                        isError = form.username.hasError(),
                         leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Person, // Display email icon inside the input field
-                                contentDescription = "Username Icon"
-                            )
+                            Icon(imageVector = Icons.Default.Person, contentDescription = "Username Icon")
                         },
-                        singleLine = true, // Ensure the input stays a single line
-                        visualTransformation = VisualTransformation.None, // No transformation (plain text)
+                        singleLine = true,
+                        visualTransformation = VisualTransformation.None,
                         trailingIcon = {
-                            // Show error icon if there's an error
                             if (form.username.hasError()) {
                                 Icon(
                                     imageVector = Icons.Default.Error,
                                     contentDescription = "Error Icon",
-                                    tint = MaterialTheme.colorScheme.error // Error color based on theme
+                                    tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
                     )
 
-                    // Password Input Field with visibility toggle and lock icon
-                    var passwordVisible by remember { mutableStateOf(false) } // Manage password visibility
+                    // Password Field
+                    var passwordVisible by remember { mutableStateOf(false) }
                     OutlinedTextField(
-                        value = form.password.state.value
-                            ?: "", // Retrieve the current value of password from the form
-                        onValueChange = { value -> // Handle password text change
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.password
-                            )
+                        value = form.password.state.value ?: "",
+                        onValueChange = { value ->
+                            onFormValueChange(value, form, form.password)
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Password") }, // Placeholder text
+                        placeholder = { Text("Password") },
                         leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock, // Display lock icon inside the input field
-                                contentDescription = "Password Icon"
-                            )
+                            Icon(imageVector = Icons.Default.Lock, contentDescription = "Password Icon")
                         },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Handle password visibility
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible)
-                                Icons.Filled.Visibility
-                            else
-                                Icons.Filled.VisibilityOff
-
-                            val description =
-                                if (passwordVisible) "Hide password" else "Show password"
-
+                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(
-                                    imageVector = image,
-                                    contentDescription = description
-                                ) // Password visibility toggle
+                                Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
                             }
                         },
-                        singleLine = true, // Single-line input
-                        isError = form.password.hasError() // Show error if there's one
+                        singleLine = true,
+                        isError = form.password.hasError()
                     )
                 }
 
-                // Spacer to ensure Login button is at the bottom
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Column for buttons and error messages
-                Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                    if (!areCredentialsValid) {
-                        // Display error message for invalid credentials
-                        Text(
-                            "Incorrect Email or Password",
-                            color = MaterialTheme.colorScheme.error, // Error color
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
+                // Toggle switch for biometric login
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Login with Biometrics")
+                    if (!form.username.state.value.isNullOrBlank()) {
+                        Switch(
+                            checked = useBiometrics,
+                            onCheckedChange = { checked ->
+                                if (isBiometricAvailable) {
+                                    useBiometrics = checked
+                                } else {
+                                    Toast.makeText(context, "Biometric login not available", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         )
+                    } else {
+                        Text("Username required", color = Color.Gray)
                     }
+                }
 
-                    // Login Button with BlueStandard background color
-                    Button(
-                        onClick = {
-                            form.validate(true) // Validate form inputs
-
+                // Login Button
+                Button(
+                    onClick = {
+                        if (useBiometrics) {
+                            biometricPrompt.authenticate(biometricPromptInfo)
+                        } else {
+                            form.validate(true)
                             if (form.isValid) {
-//                                AuthViewModel.loginUser(
-//                                    email = form.email.state.value!!,
-//                                    password = form.password.state.value!!
-//                                )
-
-                                runBlocking {
-                                    launch {
-                                        userViewModel.loginUser(
-                                            username = form.username.state.value!!,
-                                            password = form.password.state.value!!
-                                        ) { user -> // Provide the callback here
-                                            Log.i("USER", user.toString())
-
-                                            // Handle successful user login
-                                            if (user != null) {
-                                                // Navigate to LandingScreen if login is successful
-                                                navigator.push(LandingScreen())
-
-                                                Toast.makeText(
-                                                    context,
-                                                    "Successfully Logged In",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                    .show()  // Show a confirmation toast
-                                            } else {
-                                                Log.i("USER", "Login failed or user is null")
-
-                                                Toast.makeText(
-                                                    context,
-                                                    "Username or Password Incorrect",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                    .show()  // Show a confirmation toast
-                                            }
+                                // Launch the coroutine in the correct scope
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    userViewModel.loginUser(
+                                        username = form.username.state.value ?: "",
+                                        password = form.password.state.value ?: ""
+                                    ) { user ->
+                                        if (user != null) {
+                                            navigator.push(LandingScreen())
+                                            Toast.makeText(context, "Successfully Logged In", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Username or Password Incorrect", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 }
-
-
-//                                if (userLoggedIn != null) {
-//                                    navigator.push(LandingScreen())
-//                                }
-//
-//                                Log.i("USER", userLoggedIn.toString())
-//
-//                                userViewModel.loginUser(
-//                                    username = "eq.${form.email.state.value!!}",
-//                                    password = "eq.${form.password.state.value!!}"
-//                                )
-//
-//                                runBlocking {
-//                                    launch {
-//
-//                                    }
-//
-//
-//                                }
-//
-//                                if (userLoggedIn != null) {
-//                                    navigator.push(LandingScreen())
-//                                }
-//
-//                                Log.i("USER", userLoggedIn.toString())
-
-
-                                // Firebase sign in attempt
-//                                auth.signInWithEmailAndPassword(
-//                                    form.email.state.value!!,
-//                                    form.password.state.value!!
-//                                ).addOnCompleteListener { task ->
-//                                    if (task.isSuccessful) {
-//                                        // Display success message
-//                                        Toast.makeText(
-//                                            context,
-//                                            "Log In Successful",
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
-//                                        // Navigate to landing screen
-//                                        navigator.push(LandingScreen())
-//                                    } else {
-//                                        // Sign in failed: Display error message
-//                                        areCredentialsValid = false
-//                                        Toast.makeText(
-//                                            context,
-//                                            "Log In Failed: ${task.exception?.message}",
-//                                            Toast.LENGTH_SHORT
-//                                        ).show()
-//                                    }
-//                                }
-
-
                             }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard) // Set button background to BlueStandard
-                    ) {
-                        Text("Login", color = Color.White) // White text for contrast
-                    }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = BlueStandard)
+                ) {
+                    Text("Login", color = Color.White)
+                }
 
-                    // Forgot Password Button
-                    TextButton(
-                        onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            "Forgot Password?",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                // Forgot Password Button
+                TextButton(
+                    onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Forgot Password?", style = MaterialTheme.typography.bodyMedium)
+                }
 
-                    // Register Button for new users
-                    TextButton(
-                        onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            "Register",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                // Register Button
+                TextButton(
+                    onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Register", style = MaterialTheme.typography.bodyMedium)
                 }
             }
-        })
+        }
     }
 }

@@ -1,40 +1,17 @@
 package com.example.bot_lobby.ui.screens
 
+import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,40 +28,45 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.bot_lobby.MainActivity.Companion.loginService
 import com.example.bot_lobby.R
+import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.forms.SignUpForm
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.UserViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// Enum to handle screen mode
 enum class Mode {
     SignUp, ForgotPassword
 }
 
-// Main AccountScreen class with screen mode
-
 data class AccountScreen(
-    val mode: Mode // Determines whether it's SignUp or ForgotPassword mode
+    val mode: Mode
 ) : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val context = LocalContext.current
+        val context = LocalContext.current as AppCompatActivity
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
         val userViewModel = UserViewModel()
-//        val auth = remember { FirebaseAuth.getInstance() }
 
-        // Scaffold to provide the layout
+        var isBiometricEnabled by remember { mutableStateOf(false) }
+        var actionWasSuccessful by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
+
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
-                            if (mode == Mode.SignUp) "Register" else "Reset Password", // Dynamic title
+                            if (mode == Mode.SignUp) "Register" else "Reset Password",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.headlineSmall
@@ -97,29 +79,19 @@ data class AccountScreen(
                                 contentDescription = "Arrow Back"
                             )
                         }
-                    },
+                    }
                 )
             },
-            content = {
+            content = { paddingValues ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 25.dp)
-                        .padding(it)
+                        .padding(paddingValues)
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Title text
-//                    Text(
-//                        text = if (mode == Mode.SignUp) "Create Your Account" else "Reset Your Password",
-//                        fontSize = 26.sp,
-//                        fontWeight = FontWeight.Bold,
-//                        color = MaterialTheme.colorScheme.onBackground,
-//                        textAlign = TextAlign.Center
-//                    )
-
-                    // App logo
                     Image(
                         painter = painterResource(id = R.drawable.ic_bot_lobby_logo),
                         contentDescription = "App Logo",
@@ -128,7 +100,6 @@ data class AccountScreen(
                             .aspectRatio(16f / 9f)
                     )
 
-                    // App name text
                     Text(
                         text = "Bot Lobby",
                         fontSize = 20.sp,
@@ -136,116 +107,67 @@ data class AccountScreen(
                         textAlign = TextAlign.Center
                     )
 
-
-                    // Email Input Field
                     OutlinedTextField(
                         value = form.username.state.value ?: "",
-                        onValueChange = { value ->
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.username
-                            )
-                        },
+                        onValueChange = { value -> onFormValueChange(value, form, form.username) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("User Name") },
                         isError = form.username.hasError(),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Username Icon"
-                            )
-                        },
-                        singleLine = true,
-                        visualTransformation = VisualTransformation.None,
-                        trailingIcon = {
-                            if (form.username.hasError()) {
-                                Icon(
-                                    imageVector = Icons.Default.Error,
-                                    contentDescription = "Error Icon",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username Icon") },
+                        singleLine = true
                     )
 
-                    // Password Input Field with visibility toggle
                     var passwordVisible by remember { mutableStateOf(false) }
                     OutlinedTextField(
                         value = form.password.state.value ?: "",
-                        onValueChange = { value ->
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.password
-                            )
-                        },
+                        onValueChange = { value -> onFormValueChange(value, form, form.password) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text(if (mode == Mode.SignUp) "Password" else "New Password") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Password Icon"
-                            )
-                        },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible)
-                                Icons.Filled.Visibility
-                            else
-                                Icons.Filled.VisibilityOff
-
-                            val description =
-                                if (passwordVisible) "Hide password" else "Show password"
-
+                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, contentDescription = description)
+                                Icon(image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
                             }
                         },
                         singleLine = true,
                         isError = form.password.hasError()
                     )
 
-                    // Confirm Password Input Field
                     OutlinedTextField(
                         value = form.passwordConfirmation.state.value ?: "",
-                        onValueChange = { value ->
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.passwordConfirmation
-                            )
-                        },
+                        onValueChange = { value -> onFormValueChange(value, form, form.passwordConfirmation) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("Confirm Password") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Confirm Password Icon"
-                            )
-                        },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm Password Icon") },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible)
-                                Icons.Filled.Visibility
-                            else
-                                Icons.Filled.VisibilityOff
-
-                            val description =
-                                if (passwordVisible) "Hide password" else "Show password"
-
+                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, contentDescription = description)
+                                Icon(image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
                             }
                         },
                         singleLine = true,
                         isError = form.passwordConfirmation.hasError()
                     )
 
-                    Spacer(Modifier.height(20.dp)) // Spacer between form and button
+                    Spacer(Modifier.height(20.dp))
 
-                    // Buttons
-                    var actionWasSuccessful by remember { mutableStateOf(true) }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Register with Biometrics")
+                        Switch(
+                            checked = isBiometricEnabled,
+                            onCheckedChange = { isBiometricEnabled = it }
+                        )
+                    }
+
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -257,62 +179,92 @@ data class AccountScreen(
                                 textAlign = TextAlign.Center
                             )
                         }
-
-                        // Register/Reset Button with BlueStandard background
                         Button(
                             onClick = {
                                 form.validate(true)
                                 if (form.isValid) {
-                                    if (mode == Mode.SignUp) {
-//                                        createUser(
-//                                            email = form.email.state.value!!,
-//                                            password = form.password.state.value!!,
-////                                            auth = auth,
-//                                            context = context
-//                                        )
-
-                                        userViewModel.createUser(
-                                            User(
-                                                username = form.username.state.value!!,
-                                                password = form.password.state.value!!
-                                            )
-                                        ){
-                                            userViewModel.loginUser(
-                                                username = form.username.state.value!!,
-                                                password = form.password.state.value!!
-                                            ) { user ->
-                                                if(user == null){
-                                                    Toast.makeText(context,
-                                                        "Username or Password doesn't exist",
-                                                        Toast.LENGTH_SHORT)
-                                                        .show() // Toast message to indicate the process
-                                                } else{
-                                                    navigator.push(LandingScreen())
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        val newUser = User(
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!,
+                                            isBiometricEnabled = isBiometricEnabled
+                                        )
+                                            try {
+                                                // Updated user creation with callback
+                                                userViewModel.createUser(newUser) { registeredUser ->
+                                                    if(registeredUser == null){
+                                                        Toast.makeText(
+                                                            context,
+                                                            "User registration failed",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    }else if(isBiometricEnabled){
+                                                        userViewModel.registerBiometricsForUser(
+                                                            user = registeredUser,
+                                                            isBiometricEnabled = isBiometricEnabled,
+                                                            activity = context
+                                                        ) { updatedUser ->
+                                                            if (updatedUser != null) {
+                                                                GlobalScope.launch {
+                                                                    val loginResult =
+                                                                        loginService.login(
+                                                                            registeredUser.username,
+                                                                            ""
+                                                                        )
+                                                                    if (loginResult.isSuccessful) {
+                                                                        Log.d(
+                                                                            "GoogleSignInButton",
+                                                                            "Login successful."
+                                                                        )
+                                                                        navigator.push(
+                                                                            LandingScreen()
+                                                                        )
+                                                                    } else {
+                                                                        Log.e(
+                                                                            "GoogleSignInButton",
+                                                                            "Login failed."
+                                                                        )
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Biometric registration failed",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
+                                                        }
+                                                        navigator.push(LandingScreen())
+                                                    }else{ // regular login
+                                                        userViewModel.loginUser(
+                                                            username = form.username.state.value!!,
+                                                            password = form.password.state.value!!
+                                                        ) { user ->
+                                                            if (user == null) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Username or Password doesn't exist",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            } else {
+                                                                navigator.push(LandingScreen())
+                                                            }
+                                                        }
+                                                    }
                                                 }
+                                            }catch(ex: Exception){
+                                                Log.i("Caught the bastard", "Caught something : ")
                                             }
-                                        }
 
-
-
-                                    } else {
-                                        // Handle forgot password
-                                        Toast.makeText(
-                                            context,
-                                            "Password reset functionality is not yet implemented.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
                                     }
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = BlueStandard // Use BlueStandard from your theme
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = BlueStandard)
                         ) {
                             Text(if (mode == Mode.SignUp) "Register" else "Reset Password")
                         }
 
-                        // Show "Already have an account? Sign in here" only in SignUp mode
                         if (mode == Mode.SignUp) {
                             TextButton(
                                 modifier = Modifier.fillMaxWidth(),
@@ -321,11 +273,11 @@ data class AccountScreen(
                                 Text(
                                     buildAnnotatedString {
                                         append("Already have an account? ")
-                                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                                            append("Sign in here")
+                                        withStyle(style = SpanStyle(color = BlueStandard)) {
+                                            append("Log in")
                                         }
                                     },
-                                    style = MaterialTheme.typography.bodyMedium
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
@@ -335,37 +287,3 @@ data class AccountScreen(
         )
     }
 }
-
-// Function to handle user registration
-//fun createUser(
-//    email: String,
-//    password: String,
-//    auth: FirebaseAuth,
-//    context: android.content.Context
-//) {
-//    if (email.isNotEmpty() && password.isNotEmpty()) {
-//        auth.createUserWithEmailAndPassword(email, password)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    Toast.makeText(
-//                        context,
-//                        "Registration successful! Please log in.",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                } else {
-//                    val errorMessage = task.exception?.message
-//                    Toast.makeText(context, "Registration failed: $errorMessage", Toast.LENGTH_LONG)
-//                        .show()
-//                }
-//            }
-//            .addOnFailureListener { exception ->
-//                Toast.makeText(
-//                    context,
-//                    "Registration failed: ${exception.message}",
-//                    Toast.LENGTH_LONG
-//                ).show()
-//            }
-//    } else {
-//        Toast.makeText(context, "Email and password cannot be empty", Toast.LENGTH_SHORT).show()
-//    }
-//}

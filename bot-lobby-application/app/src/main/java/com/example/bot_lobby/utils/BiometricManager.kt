@@ -2,13 +2,14 @@ package com.example.bot_lobby.utils
 
 import android.content.Context
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import com.example.bot_lobby.models.User
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executor
 
 object BiometricAuthHelper {
@@ -18,9 +19,28 @@ object BiometricAuthHelper {
         val biometricManager = BiometricManager.from(context)
         return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
     }
+    // Register user biometrics data
+    fun registerBiometricData(user: User, activity: AppCompatActivity): User = runBlocking {
+        val supported = isBiometricSupported(activity)
+        if(!supported){
+            Log.d("BiometricAuthHelper", "Biometrics failed due to not supported")
+        }else{
+            Log.d("BiometricAuthHelper", "Biometrics supported")
+        }
+        val isAuthenticated = authenticate(activity).await()
 
+        if (isAuthenticated) {
+            // Placeholder identifier for biometric registration success
+            user.biometrics = "biometric_registered_${System.currentTimeMillis()}"
+            Log.d("BiometricAuthHelper", "Biometric data registered for user: ${user.username}")
+        } else {
+            Log.e("BiometricAuthHelper", "Biometric registration failed for user: ${user.username}")
+        }
+
+        user
+    }
     // Authenticate using biometric data
-    fun authenticate(activity: FragmentActivity): Deferred<Boolean> {
+    fun authenticate(activity: AppCompatActivity): Deferred<Boolean> {
         val deferred = CompletableDeferred<Boolean>()
 
         // Executor for UI thread
