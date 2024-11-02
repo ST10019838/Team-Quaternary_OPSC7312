@@ -189,73 +189,73 @@ data class AccountScreen(
                                             password = form.password.state.value!!,
                                             isBiometricEnabled = isBiometricEnabled
                                         )
-                                            try {
-                                                // Updated user creation with callback
-                                                userViewModel.createUser(newUser) { registeredUser ->
-                                                    if(registeredUser == null){
-                                                        Toast.makeText(
-                                                            context,
-                                                            "User registration failed",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    }else if(isBiometricEnabled){
-                                                        userViewModel.registerBiometricsForUser(
-                                                            user = registeredUser,
-                                                            isBiometricEnabled = isBiometricEnabled,
-                                                            activity = context
-                                                        ) { updatedUser ->
-                                                            if (updatedUser != null) {
-                                                                GlobalScope.launch {
-                                                                    val loginResult =
-                                                                        loginService.login(
-                                                                            registeredUser.username,
-                                                                            ""
-                                                                        )
-                                                                    if (loginResult.isSuccessful) {
-                                                                        Log.d(
-                                                                            "GoogleSignInButton",
-                                                                            "Login successful."
-                                                                        )
-                                                                        navigator.push(
-                                                                            LandingScreen()
-                                                                        )
-                                                                    } else {
-                                                                        Log.e(
-                                                                            "GoogleSignInButton",
-                                                                            "Login failed."
-                                                                        )
-                                                                    }
+                                        try {
+                                            // Updated user creation with callback
+                                            userViewModel.createUser(newUser) { registeredUser ->
+                                                if (registeredUser == null) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "User registration failed",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                } else if (isBiometricEnabled) {
+                                                    userViewModel.registerBiometricsForUser(
+                                                        user = registeredUser,
+                                                        isBiometricEnabled = isBiometricEnabled,
+                                                        activity = context
+                                                    ) { updatedUser ->
+                                                        if (updatedUser != null) {
+                                                            GlobalScope.launch {
+                                                                val loginResult =
+                                                                    loginService.login(
+                                                                        registeredUser.username,
+                                                                        ""
+                                                                    )
+                                                                if (loginResult.isSuccessful) {
+                                                                    Log.d(
+                                                                        "GoogleSignInButton",
+                                                                        "Login successful."
+                                                                    )
+                                                                    // Navigate to LoadingScreen
+                                                                    navigator.push(
+                                                                        LoginScreen()
+                                                                    )
+                                                                } else {
+                                                                    Log.e(
+                                                                        "GoogleSignInButton",
+                                                                        "Login failed."
+                                                                    )
                                                                 }
-                                                            } else {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Biometric registration failed",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
                                                             }
+                                                        } else {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Biometric registration failed",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
                                                         }
-                                                        navigator.push(LandingScreen())
-                                                    }else{ // regular login
-                                                        userViewModel.loginUser(
-                                                            username = form.username.state.value!!,
-                                                            password = form.password.state.value!!
-                                                        ) { user ->
-                                                            if (user == null) {
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Username or Password doesn't exist",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
-                                                            } else {
-                                                                navigator.push(LandingScreen())
-                                                            }
+                                                    }
+                                                } else { // regular login
+                                                    userViewModel.loginUser(
+                                                        username = form.username.state.value!!,
+                                                        password = form.password.state.value!!
+                                                    ) { user ->
+                                                        if (user == null) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Username or Password doesn't exist",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        } else {
+                                                            // Navigate to LoadingScreen
+                                                            navigator.push(LoginScreen())
                                                         }
                                                     }
                                                 }
-                                            }catch(ex: Exception){
-                                                Log.i("Caught the bastard", "Caught something : ")
                                             }
-
+                                        } catch (ex: Exception) {
+                                            Log.i("Caught the bastard", "Caught something : ")
+                                        }
                                     }
                                 }
                             },
