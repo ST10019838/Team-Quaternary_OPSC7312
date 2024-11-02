@@ -136,16 +136,18 @@ class SessionViewModel(context: Context) : ViewModel() {
     fun signOut(
 //        userViewModel: UserViewModel,
 //        teamViewModel: TeamViewModel,
-        callback: () -> Unit = {}
+        callback: (user: User?) -> Unit = {}
     ) {
         UserViewModel.clearData()
         TeamViewModel.clearData()
+
+        val userForCallback = session.value?.userLoggedIn
 
         viewModelScope.launch {
             session.value?.let { LocalDatabase.getDatabase(context).sessionDao.clearSession(it) }
         }
 
-        callback()
+        callback(userForCallback)
     }
 
 

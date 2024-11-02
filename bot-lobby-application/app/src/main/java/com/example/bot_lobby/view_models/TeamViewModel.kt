@@ -43,16 +43,21 @@ object TeamViewModel : ViewModel() {
 //    }
 
     fun getTeam(teamId: UUID, callback: (team: Team) -> Unit = {}) {
+        Log.i("TEAM ID", teamId.toString())
+
+
         viewModelScope.launch {
             try {
                 val response =
                     RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey, id = "eq.$teamId")
                 val body = response.body()
+                Log.i("BODY", body.toString())
+
                 if (body != null) {
-                    callback(response.body()!!.first())
+                    callback(body.first())
                 }
             } catch (exception: Exception) {
-                Log.i("ERROR", exception.message.toString())
+                Log.i("GET TEAM ERROR", exception.message.toString())
             }
         }
     }
@@ -118,7 +123,7 @@ object TeamViewModel : ViewModel() {
                     team
                 )
             } catch (exception: Exception) {
-                Log.i("ERROR", exception.message.toString())
+                Log.i("UPDATE TEAM ERROR", exception.message.toString())
             }
         }
     }
@@ -217,7 +222,6 @@ object TeamViewModel : ViewModel() {
 
 
     fun clearData() {
-        Log.i("MAN CLEAR!", _searchQuery.value)
         _searchQuery.value = ""
 
         _isSearching.value = false
@@ -225,8 +229,6 @@ object TeamViewModel : ViewModel() {
         _searchError.value = null
 
         _searchedTeams.value = null
-        Log.i("MAN CLEAR!", _searchQuery.value)
-
     }
 }
 

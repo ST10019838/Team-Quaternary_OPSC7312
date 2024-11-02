@@ -104,7 +104,7 @@ object UserViewModel : ViewModel() {
         return FetchResponse(users, errorMessage)
     }
 
-    suspend fun getOnlineProfile(localUser: User): FetchResponse<User?> {
+    suspend fun getOnlineProfile(userId: Int): FetchResponse<User?> {
         var user: User? = null
         var errorMessage: String? = null
 
@@ -112,7 +112,7 @@ object UserViewModel : ViewModel() {
         try {
             val response = UserApi.getUser(
                 RetrofitInstance.apiKey,
-                "eq.${localUser.id}",
+                "eq.${userId}",
             )
 
             if (response.isSuccessful) {
@@ -125,7 +125,10 @@ object UserViewModel : ViewModel() {
                     Log.e("ERROR!", "Response body is null")
                 }
             } else {
-                Log.e("ERROR", "Failed to fetch users: ${response.errorBody()?.string()}")
+                Log.e(
+                    "ONLINE PROFILE ERROR",
+                    "Failed to fetch users: ${response.errorBody()?.string()}"
+                )
             }
         } catch (exception: Exception) {
             errorMessage = exception.message.toString()
@@ -150,7 +153,10 @@ object UserViewModel : ViewModel() {
                     Log.i("SUCCESS", "User updated: ${response.body()}")
 //                    AuthViewModel.updateUsersDetails(updatedUser)
                 } else {
-                    Log.e("ERROR", "User update failed: ${response.errorBody()?.string()}")
+                    Log.e(
+                        "UPDATE USER ERROR",
+                        "User update failed: ${response.errorBody()?.string()}"
+                    )
                 }
             } catch (exception: Exception) {
                 Log.e("ERROR!", exception.message.toString())
@@ -159,7 +165,7 @@ object UserViewModel : ViewModel() {
     }
 
     // Function to delete a user
-    fun deleteUser(userId: Int) {
+    fun deleteUser(userId: Int, user: User? = null, callback: (User?) -> Unit = {}) {
         viewModelScope.launch {
             try {
                 val response = UserApi.deleteUser(
@@ -168,6 +174,7 @@ object UserViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     Log.i("SUCCESS", "User deleted")
+                    callback(user)
                 } else {
                     Log.e("ERROR", "User deletion failed: ${response.errorBody()?.string()}")
                 }

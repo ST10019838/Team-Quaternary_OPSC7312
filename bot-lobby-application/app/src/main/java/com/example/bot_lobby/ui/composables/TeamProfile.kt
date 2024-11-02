@@ -383,7 +383,7 @@ fun TeamProfile(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Delete Team", fontSize = 16.sp)
             }
-        } else if (canJoin && team.isOpen) {
+        } else if (canJoin && team.isOpen && team.userIdsAndRoles?.size!! < 10) {
             Button(
                 onClick = onJoin,
 //            colors = ButtonDefaults.buttonColors(

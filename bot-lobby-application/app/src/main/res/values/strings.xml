@@ -48,4 +48,7 @@
     <string name="starting_data_sync">Syncing to Online Database…</string>
     <string name="successful_data_sync">Successfully Synced Data</string>
 
+    <string name="delete_account_title">Delete Account</string>
+    <string name="delete_account_body">Are you sure you want to delete your account?</string>
+
 </resources>

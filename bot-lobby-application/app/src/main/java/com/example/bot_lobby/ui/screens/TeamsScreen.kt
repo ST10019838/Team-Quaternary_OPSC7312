@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,8 @@ import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 import com.google.android.gms.auth.api.Auth
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 
@@ -61,6 +64,7 @@ fun TeamsScreen() {
 
     var isDialogOpen by remember { mutableStateOf(false) }
     var teamToView by remember { mutableStateOf<Team?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
 
     // Main content area
@@ -187,13 +191,36 @@ fun TeamsScreen() {
                     teamToView = null
                 },
                 onDelete = {
-                    sessionViewModel.removeTeamFromUser(team = teamToView!!) {
-                        if (it != null) {
-                            userViewModel.updateUser(it)
-                        }
-                    }
+//                    Log.i("TEAM", )
+                    val teamToDelete = teamToView!!
 
-                    teamViewModel.deleteTeam(teamToView!!.id)
+                    coroutineScope.launch {
+                        // Remove the team ids from all other users
+                        teamToDelete.userIdsAndRoles?.forEach {
+                            val response = UserViewModel.getOnlineProfile(it.id)
+
+                            val updatedUser = response.data
+                            val updatedTeamIds = updatedUser?.teamIds?.toMutableList()
+
+                            if (updatedTeamIds != null) {
+                                updatedTeamIds -= teamToDelete.id
+                            }
+
+                            updatedUser?.teamIds = updatedTeamIds
+
+                            if (updatedUser != null) {
+                                userViewModel.updateUser(updatedUser)
+                            }
+                        }
+
+                        sessionViewModel.removeTeamFromUser(team = teamToDelete) {
+                            if (it != null) {
+                                userViewModel.updateUser(it)
+                            }
+                        }
+
+                        teamViewModel.deleteTeam(teamToDelete.id)
+                    }
                 },
                 sessionViewModel = sessionViewModel,
                 canLeave = !isOwner,
