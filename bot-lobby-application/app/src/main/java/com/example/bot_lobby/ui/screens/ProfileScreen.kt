@@ -146,7 +146,7 @@ fun ProfileScreen(
                             navigator.popUntilRoot()  // Navigate back to the root screen
                         }
                     }
-                    
+
                     Toast.makeText(context, R.string.account_sign_out_success, Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
                 },
