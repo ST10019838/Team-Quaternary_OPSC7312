@@ -64,8 +64,8 @@ fun PlayerProfile(
     user: User,
     isPersonalProfile: Boolean = false,
 ) {
-    val userViewModel = UserViewModel()
-    val teamViewModel = TeamViewModel()
+//    val userViewModel = UserViewModel()
+//    val teamViewModel = TeamViewModel()
 
     val context = LocalContext.current
 
@@ -88,7 +88,7 @@ fun PlayerProfile(
         LaunchedEffect(true) {
             isLoading = true
 
-            val response = teamViewModel.getUsersTeams(user)
+            val response = TeamViewModel.getUsersTeams(user)
 
             if (response.errors.isNullOrEmpty()) {
                 teams = response.data
@@ -308,7 +308,7 @@ fun PlayerProfile(
 
                     sessionViewModel.updateUsersDetails(updatedUser)
 
-                    userViewModel.updateUser(updatedUser)
+                    UserViewModel.updateUser(updatedUser)
 
                     Toast.makeText(context, "Successfully Saved Details", Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast

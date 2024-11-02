@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.db.LocalDatabase
 import com.example.bot_lobby.models.AuthResponse
 import com.example.bot_lobby.models.Session
@@ -132,18 +133,21 @@ class SessionViewModel(context: Context) : ViewModel() {
 
     }
 
-    fun signOut(callback: () -> Unit = {}) {
-        val userViewModel = UserViewModel()
-        userViewModel.clearData()
+    fun signOut(
+//        userViewModel: UserViewModel,
+//        teamViewModel: TeamViewModel,
+        callback: (user: User?) -> Unit = {}
+    ) {
+        UserViewModel.clearData()
+        TeamViewModel.clearData()
 
-        val teamViewModel = TeamViewModel()
-        teamViewModel.clearData()
+        val userForCallback = session.value?.userLoggedIn
 
         viewModelScope.launch {
             session.value?.let { LocalDatabase.getDatabase(context).sessionDao.clearSession(it) }
-
-            callback()
         }
+
+        callback(userForCallback)
     }
 
 
@@ -186,9 +190,11 @@ class SessionViewModel(context: Context) : ViewModel() {
             if (updatedSession != null) {
                 LocalDatabase.getDatabase(context).sessionDao.upsertSession(updatedSession)
             }
+
+            callback(updatedSession?.userLoggedIn)
         }
 
-        callback(session.value!!.userLoggedIn)
+
     }
 
 //

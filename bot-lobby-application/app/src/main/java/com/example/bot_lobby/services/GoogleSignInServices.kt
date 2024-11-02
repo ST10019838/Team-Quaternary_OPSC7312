@@ -75,14 +75,27 @@ fun GoogleSignInButton(
         when (result.resultCode) {
             Activity.RESULT_OK -> {
                 result.data?.let { data ->
-                    handleSignInResult(data, registerService, loginService, isReg, coroutineScope, context, navigator)
+                    handleSignInResult(
+                        data,
+                        registerService,
+                        loginService,
+                        isReg,
+                        coroutineScope,
+                        context,
+                        navigator
+                    )
                 } ?: Log.e("GoogleSignInButton", "Sign-in canceled or failed: No data returned.")
             }
+
             Activity.RESULT_CANCELED -> {
                 Log.e("GoogleSignInButton", "User canceled the sign-in.")
             }
+
             else -> {
-                Log.e("GoogleSignInButton", "Sign-in failed with unexpected result code: ${result.resultCode}")
+                Log.e(
+                    "GoogleSignInButton",
+                    "Sign-in failed with unexpected result code: ${result.resultCode}"
+                )
             }
         }
     }
@@ -94,7 +107,8 @@ fun GoogleSignInButton(
         Log.d("GoogleSignInButton", "Launching Google Sign-In Intent")
 
         // Provide feedback to the user
-        Toast.makeText(context, "Starting Google Sign-In...", Toast.LENGTH_SHORT).show() // Toast message to indicate the process
+        Toast.makeText(context, "Starting Google Sign-In...", Toast.LENGTH_SHORT)
+            .show() // Toast message to indicate the process
 
         signInLauncher.launch(signInIntent) // Launch the sign-in intent using the launcher
     }
@@ -103,9 +117,11 @@ fun GoogleSignInButton(
     // UI for the button
     Column {
         Button(onClick = onClick, enabled = enabled) {
-            Icon(painter = painterResource(id = R.drawable.ic_google_logo)
-                , contentDescription = "Google Icon"
-                , modifier = Modifier.size(16.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.ic_google_logo),
+                contentDescription = "Google Icon",
+                modifier = Modifier.size(16.dp)
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Text(if (isReg) "Register with Google" else "Sign in with Google")
         }
@@ -152,11 +168,12 @@ private fun handleSignInResult(
             // check if user exists. if they dont, register them, otherwise log them in
             val queryString = "eq.$userEmail"
 
-            val res = RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, email = queryString)
+            val res =
+                RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, email = queryString)
 
-            if(res.isSuccessful){
+            if (res.isSuccessful) {
                 // Register if nothing is found
-                if(res.body().isNullOrEmpty()){
+                if (res.body().isNullOrEmpty()) {
                     val registrationResult = registerService.register(newUser)
                     Log.d("GoogleSignInButton", "Registration Result: $registrationResult")
                 }
@@ -164,7 +181,7 @@ private fun handleSignInResult(
                 val loginResult = loginService.login(newUser.username, "")
                 Log.d("GoogleSignInButton", "Login Result: $loginResult")
 
-                if(loginResult.isSuccessful){
+                if (loginResult.isSuccessful) {
 //                    Log.d("LoginService", "Login successful!")
 ////
 //                    Log.d("LoginService 2", loginResult.body().toString())
@@ -184,9 +201,7 @@ private fun handleSignInResult(
 //
 //                    AuthViewModel.setUsersTeams(usersTeams)
 
-                    val userViewModel = UserViewModel()
-
-                    userViewModel.loginUser(newUser.username, "password", context){ user ->
+                    UserViewModel.loginUser(newUser.username, "password", context) { user ->
                         Log.d("LoginService 2", user.toString())
                     }
 

@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,8 @@ import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 import com.google.android.gms.auth.api.Auth
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 
@@ -61,6 +64,7 @@ fun TeamsScreen() {
 
     var isDialogOpen by remember { mutableStateOf(false) }
     var teamToView by remember { mutableStateOf<Team?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
 
     // Main content area
@@ -112,7 +116,12 @@ fun TeamsScreen() {
                         id = UUID.randomUUID(),
                         tag = "EDIT",
                         name = "${user?.username}'s Team ${session?.usersTeams?.size!! + 1}",
-                        userIdsAndRoles = listOf(IdAndRole(user?.id!!, "Owner")),//List<IdAndRole>
+                        userIdsAndRoles = listOf(
+                            IdAndRole(
+                                user?.id!!,
+                                isOwner = true
+                            )
+                        ),//List<IdAndRole>
                         isPublic = true,
                         maxNumberOfUsers = 10
                     )
@@ -170,19 +179,80 @@ fun TeamsScreen() {
             isDialogOpen = false
             teamToView = null
         }) {
+            val isOwner =
+                teamToView?.userIdsAndRoles?.find { it.id == session?.userLoggedIn?.id }?.isOwner == true
+
             // TODO: change ability to edit team details when more members join
-            TeamProfile(team = teamToView!!, canEdit = true, onClose = {
-                isDialogOpen = false
-                teamToView = null
-            }, onDelete = {
-                sessionViewModel.removeTeamFromUser(team = teamToView!!) {
-                    if (it != null) {
-                        userViewModel.updateUser(it)
+            TeamProfile(
+                team = teamToView!!,
+                canEdit = isOwner,
+                onClose = {
+                    isDialogOpen = false
+                    teamToView = null
+                },
+                onDelete = {
+//                    Log.i("TEAM", )
+                    val teamToDelete = teamToView!!
+
+                    coroutineScope.launch {
+                        // Remove the team ids from all other users
+                        teamToDelete.userIdsAndRoles?.forEach {
+                            val response = UserViewModel.getOnlineProfile(it.id)
+
+                            val updatedUser = response.data
+                            val updatedTeamIds = updatedUser?.teamIds?.toMutableList()
+
+                            if (updatedTeamIds != null) {
+                                updatedTeamIds -= teamToDelete.id
+                            }
+
+                            updatedUser?.teamIds = updatedTeamIds
+
+                            if (updatedUser != null) {
+                                userViewModel.updateUser(updatedUser)
+                            }
+                        }
+
+                        sessionViewModel.removeTeamFromUser(team = teamToDelete) {
+                            if (it != null) {
+                                userViewModel.updateUser(it)
+                            }
+                        }
+
+                        teamViewModel.deleteTeam(teamToDelete.id)
+                    }
+                },
+                sessionViewModel = sessionViewModel,
+                canLeave = !isOwner,
+                onLeave = {
+                    teamViewModel.getTeam(teamToView?.id!!) { teamToUpdate ->
+                        val updatedIdsAndRoles = teamToUpdate.userIdsAndRoles?.filter {
+                            it.id != session?.userLoggedIn?.id
+                        }
+
+                        val updatedTeam = Team(
+                            id = teamToUpdate.id,
+                            tag = teamToUpdate.tag,
+                            name = teamToUpdate.name,
+                            bio = teamToUpdate.bio,
+                            isPublic = teamToUpdate.isPublic,
+                            isLFM = teamToUpdate.isLFM,
+                            isOpen = teamToUpdate.isOpen,
+                            userIdsAndRoles = updatedIdsAndRoles,
+                            maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
+                        )
+
+                        teamViewModel.updateTeam(updatedTeam)
                     }
 
-                    teamViewModel.deleteTeam(teamToView!!.id)
-                }
-            }, sessionViewModel = sessionViewModel)
+                    sessionViewModel.removeTeamFromUser(team = teamToView!!) {
+                        if (it != null) {
+                            userViewModel.updateUser(it)
+                        }
+                    }
+                },
+
+                )
         }
     }
 }

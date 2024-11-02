@@ -1,5 +1,7 @@
 package com.example.bot_lobby.ui.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,10 +48,18 @@ import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
 import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
+import com.example.bot_lobby.view_models.UserViewModel
 
 @Composable
 fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
+    val context = LocalContext.current
+    val sessionViewModel = viewModel { SessionViewModel(context) }
+    val session by sessionViewModel.session.collectAsState()
+    val userViewModel = viewModel<UserViewModel>()
+
+
     // State variables observed from the TeamViewModel
     val searchQuery by teamViewModel.searchQuery.collectAsState()
     val isSearching by teamViewModel.isSearching.collectAsState()
@@ -170,7 +182,54 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             isDialogOpen = false
             teamToView = null
         }) {
-            TeamProfile(team = teamToView!!)
+//
+
+            TeamProfile(
+                team = teamToView!!,
+                canJoin = teamToView!!.userIdsAndRoles?.firstOrNull { it.id == session?.userLoggedIn?.id } === null,// true true can join if you are not already a member
+                onJoin = {
+                    teamViewModel.getTeam(teamToView?.id!!) { teamToUpdate ->
+                        val updatedIdsAndRoles = teamToUpdate.userIdsAndRoles?.plus(
+                            IdAndRole(
+                                id = session?.userLoggedIn?.id!!,
+                                isOwner = false
+                            )
+                        )
+
+                        val updatedTeam = Team(
+                            id = teamToUpdate.id,
+                            tag = teamToUpdate.tag,
+                            name = teamToUpdate.name,
+                            bio = teamToUpdate.bio,
+                            isPublic = teamToUpdate.isPublic,
+                            isLFM = teamToUpdate.isLFM,
+                            isOpen = teamToUpdate.isOpen,
+                            userIdsAndRoles = updatedIdsAndRoles,
+                            maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
+                        )
+
+
+                        teamViewModel.updateTeam(updatedTeam)
+
+                        sessionViewModel.addTeamToUser(updatedTeam) {
+                            if (it != null) {
+                                userViewModel.updateUser(it)
+                            }
+                        }
+
+
+                        isDialogOpen = false
+
+                        Toast.makeText(
+                            context,
+                            "Successfully Joined Team",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()  // Show a confirmation toast
+                    }
+                },
+
+                )
         }
     }
 }

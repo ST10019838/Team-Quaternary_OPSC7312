@@ -17,10 +17,10 @@ import com.example.bot_lobby.models.User
 
 @Database(
     entities = [Team::class, /*User::class,*/ Session::class],
-    version = 5
+    version = 6
 )
-@TypeConverters(IdAndRoleConverters::class , /*TeamIdsConverters::class,*/ SessionConverters::class)
-abstract class LocalDatabase: RoomDatabase() {
+@TypeConverters(IdAndRoleConverters::class, /*TeamIdsConverters::class,*/ SessionConverters::class)
+abstract class LocalDatabase : RoomDatabase() {
     abstract val teamDao: TeamDao
 
 //    abstract val userDao: UserDao

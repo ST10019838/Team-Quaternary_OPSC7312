@@ -109,7 +109,7 @@ fun TeamListItem(
                     },
                     label = {
                         Text(
-                            text = "${team.userIdsAndRoles.size} / 10", // Example for team count
+                            text = "${team.userIdsAndRoles?.size} / 10", // Example for team count
                             fontSize = 14.sp
                         )
                     },

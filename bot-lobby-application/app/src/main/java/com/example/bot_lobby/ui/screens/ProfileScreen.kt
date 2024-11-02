@@ -28,9 +28,14 @@ import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
+import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.UUID
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.system.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,8 +47,8 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val sessionViewModel = viewModel { SessionViewModel(context) }
-    val userViewModel = viewModel<UserViewModel>()
-    val teamViewModel = viewModel<TeamViewModel>()
+//    val userViewModel = viewModel<UserViewModel>()
+//    val teamViewModel = viewModel<TeamViewModel>()
 
 
     val session by sessionViewModel.session.collectAsState()
@@ -53,6 +58,71 @@ fun ProfileScreen(
         .collectAsState(ConnectivityObserver.Status.Unavailable)
     val isOffline = connectivity != ConnectivityObserver.Status.Available
     val coroutineScope = rememberCoroutineScope()
+
+    fun manageTeamDeletion(callback: () -> Unit = {}) = runBlocking {
+        async {
+            session?.userLoggedIn?.teamIds?.forEach { teamId ->
+                TeamViewModel.getTeam(teamId) { teamToDelete ->
+                    val isOwner = teamToDelete.userIdsAndRoles
+                        ?.find { (it.id == session!!.userLoggedIn.id) }
+                        ?.isOwner
+
+                    // If the user is the owner of a team, remove the team ids from each of the members
+                    // then delete the team
+                    if (isOwner == true) {
+                        coroutineScope.launch {
+                            // Remove each member from the team
+                            teamToDelete.userIdsAndRoles.forEach {
+                                val response = UserViewModel.getOnlineProfile(it.id)
+
+                                val updatedUser = response.data
+                                val updatedTeamIds =
+                                    updatedUser?.teamIds?.toMutableList()
+
+                                if (updatedTeamIds != null) {
+                                    updatedTeamIds -= teamToDelete.id
+                                }
+
+                                updatedUser?.teamIds = updatedTeamIds
+
+                                if (updatedUser != null) {
+                                    UserViewModel.updateUser(updatedUser)
+                                }
+                            }
+                        }
+
+                        TeamViewModel.deleteTeam(teamId)
+                    }
+                    // If the user is not the owner of the team, leave the team
+                    else if (isOwner == false) {
+                        TeamViewModel.getTeam(teamToDelete.id) { teamToUpdate ->
+                            val updatedIdsAndRoles =
+                                teamToUpdate.userIdsAndRoles?.filter {
+                                    it.id != session?.userLoggedIn?.id
+                                }
+
+                            val updatedTeam = Team(
+                                id = teamToUpdate.id,
+                                tag = teamToUpdate.tag,
+                                name = teamToUpdate.name,
+                                bio = teamToUpdate.bio,
+                                isPublic = teamToUpdate.isPublic,
+                                isLFM = teamToUpdate.isLFM,
+                                isOpen = teamToUpdate.isOpen,
+                                userIdsAndRoles = updatedIdsAndRoles,
+                                maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
+                            )
+
+                            TeamViewModel.updateTeam(updatedTeam)
+                        }
+                    }
+                }
+
+            }
+        }.await()
+
+        callback()
+    }
 
     LazyColumn {
         item {
@@ -69,26 +139,86 @@ fun ProfileScreen(
         item {
             PlayerSettings(isOffline = isOffline,
                 onSignOut = {
-                    sessionViewModel.signOut()
+                    sessionViewModel.signOut {
+                        runBlocking {
+                            delay(300L)
 
-                    runBlocking {
-                        delay(300L)
+                            navigator.popUntilRoot()  // Navigate back to the root screen
+                        }
                     }
-
-                    navigator.popUntilRoot()  // Navigate back to the root screen
 
                     Toast.makeText(context, R.string.account_sign_out_success, Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
-
-//                    navigator.popUntilRoot()  // Navigate back to the root screen again as the data hasn't updated
-
                 },
-                onDelete = {
-                    // Navigate back to the root screen
-                    userViewModel.deleteUser(sessionViewModel.session.value?.userLoggedIn?.id!!)
+                onDeleteAccount = {
+                    // Had to sign out first as the operations were not running in order, resulting in errors
+                    sessionViewModel.signOut { user ->
+                        if (user != null) {
+                            // loop through the users team ids
+                            user.teamIds?.forEach { teamId ->
+                                TeamViewModel.getTeam(teamId) { teamToModify ->
+                                    val isOwner = teamToModify.userIdsAndRoles
+                                        ?.find { (it.id == user.id) }
+                                        ?.isOwner
 
-                    sessionViewModel.signOut {
-                        navigator.popUntilRoot()
+                                    // If the user is the owner of a team, remove the team ids from each of the members
+                                    // then delete the team
+                                    if (isOwner == true) {
+                                        coroutineScope.launch {
+                                            teamToModify.userIdsAndRoles.forEach {
+                                                val response = UserViewModel.getOnlineProfile(it.id)
+
+                                                val updatedUser = response.data
+                                                val updatedTeamIds =
+                                                    updatedUser?.teamIds?.toMutableList()
+
+                                                if (updatedTeamIds != null) {
+                                                    updatedTeamIds -= teamToModify.id
+                                                }
+
+                                                updatedUser?.teamIds = updatedTeamIds
+
+                                                if (updatedUser != null) {
+                                                    UserViewModel.updateUser(updatedUser)
+                                                }
+                                            }
+                                        }
+
+                                        TeamViewModel.deleteTeam(teamId)
+                                    }
+                                    // If the user is not the owner of the team, leave the team
+                                    else if (isOwner == false) {
+                                        // If the user is not a member of the team and it is no longer there,
+                                        // the user has left the team
+                                        val updatedIdsAndRoles =
+                                            teamToModify.userIdsAndRoles.filter {
+                                                it.id != user.id
+                                            }
+
+                                        val updatedTeam = Team(
+                                            id = teamToModify.id,
+                                            tag = teamToModify.tag,
+                                            name = teamToModify.name,
+                                            bio = teamToModify.bio,
+                                            isPublic = teamToModify.isPublic,
+                                            isLFM = teamToModify.isLFM,
+                                            isOpen = teamToModify.isOpen,
+                                            userIdsAndRoles = updatedIdsAndRoles,
+                                            maxNumberOfUsers = teamToModify.maxNumberOfUsers
+                                        )
+
+                                        TeamViewModel.updateTeam(updatedTeam)
+                                    }
+                                }
+                            }
+
+
+                            UserViewModel.deleteUser(
+                                user.id!!,
+                            ) {
+                                navigator.popUntilRoot()
+                            }
+                        }
                     }
 
                     Toast.makeText(context, R.string.account_deleted_success, Toast.LENGTH_SHORT)
@@ -100,11 +230,10 @@ fun ProfileScreen(
                         .show()  // Show a confirmation toast
 
                     coroutineScope.launch {
-                        val response = userViewModel.getOnlineProfile(session?.userLoggedIn!!)
+                        val response = UserViewModel.getOnlineProfile(session?.userLoggedIn!!.id!!)
 
                         val remoteProfile = response.data
                         val localProfile = session?.userLoggedIn
-
 
                         // 1. Determine which teams will need to be updated, deleted or added
                         // - teams that are in the local db but not the remote db need to be added to the remote db
@@ -124,38 +253,108 @@ fun ProfileScreen(
                         // 2. Perform team actions
                         teamsToAdd?.forEach { teamId ->
                             val teamToAdd = session?.usersTeams?.find { team -> team.id == teamId }
+                            val isOwner = teamToAdd?.userIdsAndRoles
+                                ?.find { (it.id == session!!.userLoggedIn.id) }
+                                ?.isOwner
 
-                            if (teamToAdd != null) {
-                                teamViewModel.createTeam(teamToAdd) {
-
-                                }
+                            // the user needs to be the owner of the team to add it
+                            if (teamToAdd != null && isOwner == true) {
+                                TeamViewModel.createTeam(teamToAdd)
                             }
                         }
 
                         teamsToUpdate?.forEach { teamId ->
                             val team = session?.usersTeams?.find { team -> team.id == teamId }
 
-                            // TODO: need to exclude the userIdsAndRoles to ensure that everything else is updated,
-                            //  so that we don't override any users that may have joined the team
-//                            val updatedTeam = Team(
-//                                id = team.id,
-//                                tag = team.tag,
-//                                name = team.name,
-//                                isPublic = team.isPublic,
-//                                isOpen = team.isOpen,
-//                                isLFM = team.isLFM,
-//                                maxNumberOfUsers = team.maxNumberOfUsers,
-//                                bio = team.bio,
-//                                userIdsAndRoles = team.userIdsAndRoles,
-//                            )
+                            val isOwner = team?.userIdsAndRoles
+                                ?.find { (it.id == session!!.userLoggedIn.id) }
+                                ?.isOwner
 
-                            if (team != null) {
-                                teamViewModel.updateTeam(team)
+                            if (team != null && isOwner == true) {
+                                // The online data is fetched so that we can don't override the teams
+                                // userIdsAndRoles so that we don't accidentally remove a user that might
+                                // have joined team when the owner was offline.
+                                TeamViewModel.getTeam(teamId) { remoteTeam ->
+
+                                    val updatedTeam = Team(
+                                        id = team.id,
+                                        tag = team.tag,
+                                        name = team.name,
+                                        isPublic = team.isPublic,
+                                        isOpen = team.isOpen,
+                                        isLFM = team.isLFM,
+                                        maxNumberOfUsers = team.maxNumberOfUsers,
+                                        bio = team.bio,
+                                        userIdsAndRoles = remoteTeam.userIdsAndRoles,
+                                    )
+
+                                    TeamViewModel.updateTeam(updatedTeam)
+                                }
                             }
                         }
 
+
                         teamsToDelete?.forEach { teamId ->
-                            teamViewModel.deleteTeam(teamId)
+                            TeamViewModel.getTeam(teamId) { teamToModify ->
+                                val isOwner = teamToModify.userIdsAndRoles
+                                    ?.find { (it.id == session!!.userLoggedIn.id) }
+                                    ?.isOwner
+
+                                // the user needs to be the owner of the team to delete it
+                                if (isOwner == true) {
+                                    coroutineScope.launch {
+                                        teamToModify.userIdsAndRoles.forEach {
+                                            val response = UserViewModel.getOnlineProfile(it.id)
+
+                                            val updatedUser = response.data
+                                            val updatedTeamIds =
+                                                updatedUser?.teamIds?.toMutableList()
+
+                                            if (updatedTeamIds != null) {
+                                                updatedTeamIds -= teamToModify.id
+                                            }
+
+                                            updatedUser?.teamIds = updatedTeamIds
+
+                                            if (updatedUser != null) {
+                                                UserViewModel.updateUser(updatedUser)
+                                            }
+                                        }
+                                    }
+
+                                    TeamViewModel.deleteTeam(teamId)
+                                } else if (isOwner == false) {
+                                    // If the user is not a member of the team and it is no longer there,
+                                    // the user has left the team
+                                    val updatedIdsAndRoles =
+                                        teamToModify.userIdsAndRoles.filter {
+                                            it.id != session?.userLoggedIn?.id
+                                        }
+
+                                    val updatedTeam = Team(
+                                        id = teamToModify.id,
+                                        tag = teamToModify.tag,
+                                        name = teamToModify.name,
+                                        bio = teamToModify.bio,
+                                        isPublic = teamToModify.isPublic,
+                                        isLFM = teamToModify.isLFM,
+                                        isOpen = teamToModify.isOpen,
+                                        userIdsAndRoles = updatedIdsAndRoles,
+                                        maxNumberOfUsers = teamToModify.maxNumberOfUsers
+                                    )
+
+                                    TeamViewModel.updateTeam(updatedTeam)
+
+//                                    sessionViewModel.removeTeamFromUser(team = teamToUpdate) {
+//                                        if (it != null) {
+//                                            userViewModel.updateUser(it)
+//                                        }
+//                                    }
+
+
+                                }
+//                                teamViewModel.leaveTeam(teamId)
+                            }
                         }
 
 
@@ -163,9 +362,7 @@ fun ProfileScreen(
                         // - the sync requires the ids stored in player profile to determine what action to perform for a team,
                         // hence the profile will be updated last and not before
 
-                        userViewModel.updateUser(session?.userLoggedIn!!)
-
-                        Log.i("My response is: ", response.data.toString())
+                        UserViewModel.updateUser(session?.userLoggedIn!!)
                     }
 
 

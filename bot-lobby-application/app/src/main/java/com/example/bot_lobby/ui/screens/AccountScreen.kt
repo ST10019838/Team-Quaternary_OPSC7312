@@ -78,7 +78,7 @@ data class AccountScreen(
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
-        val userViewModel = UserViewModel()
+//        val userViewModel = UserViewModel()
 //        val auth = remember { FirebaseAuth.getInstance() }
 
         // Scaffold to provide the layout
@@ -274,28 +274,29 @@ data class AccountScreen(
 //                                            context = context
 //                                        )
 
-                                        userViewModel.createUser(
+                                        UserViewModel.createUser(
                                             User(
                                                 username = form.username.state.value!!,
                                                 password = form.password.state.value!!
                                             )
-                                        ){
-                                            userViewModel.loginUser(
+                                        ) {
+                                            UserViewModel.loginUser(
                                                 username = form.username.state.value!!,
                                                 password = form.password.state.value!!,
                                                 context
                                             ) { user ->
-                                                if(user == null){
-                                                    Toast.makeText(context,
+                                                if (user == null) {
+                                                    Toast.makeText(
+                                                        context,
                                                         "Username or Password doesn't exist",
-                                                        Toast.LENGTH_SHORT)
+                                                        Toast.LENGTH_SHORT
+                                                    )
                                                         .show() // Toast message to indicate the process
-                                                } else{
+                                                } else {
                                                     navigator.push(LandingScreen())
                                                 }
                                             }
                                         }
-
 
 
                                     } else {

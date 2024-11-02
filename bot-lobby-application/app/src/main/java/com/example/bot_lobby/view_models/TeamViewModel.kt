@@ -11,10 +11,11 @@ import com.example.bot_lobby.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class TeamViewModel : ViewModel() {
+object TeamViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
@@ -41,25 +42,24 @@ class TeamViewModel : ViewModel() {
 //        }
 //    }
 
-    fun getTeam(teamId: Int): FetchResponse<Team?> {
-        var team: Team? = null
-        var errorMessage: String? = null
+    fun getTeam(teamId: UUID, callback: (team: Team) -> Unit = {}) {
+        Log.i("TEAM ID", teamId.toString())
+
 
         viewModelScope.launch {
             try {
                 val response =
                     RetrofitInstance.TeamApi.getTeams(RetrofitInstance.apiKey, id = "eq.$teamId")
                 val body = response.body()
+                Log.i("BODY", body.toString())
+
                 if (body != null) {
-                    team = response.body()!!.first()
+                    callback(body.first())
                 }
             } catch (exception: Exception) {
-                errorMessage = exception.message.toString()
-                Log.i("ERROR!", exception.message.toString())
+                Log.i("GET TEAM ERROR", exception.message.toString())
             }
         }
-
-        return FetchResponse(team, errorMessage)
     }
 
     suspend fun getUsersTeams(user: User): FetchResponse<List<Team>> {
@@ -68,34 +68,34 @@ class TeamViewModel : ViewModel() {
 
 //        viewModelScope.launch {
         try {
-                // Create a query string that will be used to search for all teams based on their ids
-                var queryString = "in.("
+            // Create a query string that will be used to search for all teams based on their ids
+            var queryString = "in.("
 
-                user.teamIds?.forEach { id ->
-                    queryString += "$id"
+            user.teamIds?.forEach { id ->
+                queryString += "$id"
 
-                    queryString += if (user.teamIds!!.indexOf(id) == (user.teamIds!!.size - 1)) ")" else ","
-                }
-
-
-                // Fetch data
-                val response =
-                    RetrofitInstance.TeamApi.getTeams(key = RetrofitInstance.apiKey, id = queryString)
-                val body = response.body()
-                if (body != null) {
-                    teams = body
-                }
-            } catch (exception: Exception) {
-                errorMessage = exception.message.toString()
-                Log.i("ERROR!", exception.message.toString())
+                queryString += if (user.teamIds!!.indexOf(id) == (user.teamIds!!.size - 1)) ")" else ","
             }
+
+
+            // Fetch data
+            val response =
+                RetrofitInstance.TeamApi.getTeams(key = RetrofitInstance.apiKey, id = queryString)
+            val body = response.body()
+            if (body != null) {
+                teams = body
+            }
+        } catch (exception: Exception) {
+            errorMessage = exception.message.toString()
+            Log.i("ERROR!", exception.message.toString())
+        }
 //        }
 
         return FetchResponse(teams, errorMessage)
     }
 
 
-    fun createTeam(newTeam: Team, callback: () -> Unit) {
+    fun createTeam(newTeam: Team, callback: () -> Unit = {}) {
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.TeamApi.createTeam(RetrofitInstance.apiKey, newTeam)
@@ -118,6 +118,34 @@ class TeamViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 RetrofitInstance.TeamApi.updateTeam(
+                    RetrofitInstance.apiKey,
+                    "eq.${team.id}",
+                    team
+                )
+            } catch (exception: Exception) {
+                Log.i("UPDATE TEAM ERROR", exception.message.toString())
+            }
+        }
+    }
+
+    fun joinTeam(team: Team) {
+        viewModelScope.launch {
+            try {
+                val res = RetrofitInstance.TeamApi.updateTeam(
+                    RetrofitInstance.apiKey,
+                    "eq.${team.id}",
+                    team
+                )
+            } catch (exception: Exception) {
+                Log.i("ERROR!", exception.message.toString())
+            }
+        }
+    }
+
+    fun leaveTeam(team: Team) {
+        viewModelScope.launch {
+            try {
+                val res = RetrofitInstance.TeamApi.updateTeam(
                     RetrofitInstance.apiKey,
                     "eq.${team.id}",
                     team
@@ -193,7 +221,7 @@ class TeamViewModel : ViewModel() {
     }
 
 
-    fun clearData(){
+    fun clearData() {
         _searchQuery.value = ""
 
         _isSearching.value = false
