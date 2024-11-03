@@ -37,7 +37,6 @@ import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.UserViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -96,7 +95,7 @@ data class AccountScreen(
                         painter = painterResource(id = R.drawable.ic_bot_lobby_logo),
                         contentDescription = "App Logo",
                         modifier = Modifier
-                            .fillMaxWidth(1.0f)
+                            .fillMaxWidth()
                             .aspectRatio(16f / 9f)
                     )
 
@@ -182,79 +181,54 @@ data class AccountScreen(
                         Button(
                             onClick = {
                                 form.validate(true)
+
                                 if (form.isValid) {
-                                    coroutineScope.launch(Dispatchers.IO) {
-                                        val newUser = User(
-                                            username = form.username.state.value!!,
-                                            password = form.password.state.value!!,
-                                            isBiometricEnabled = isBiometricEnabled
-                                        )
-                                        try {
-                                            // Updated user creation with callback
-                                            userViewModel.createUser(newUser) { registeredUser ->
-                                                if (registeredUser == null) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "User registration failed",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                } else if (isBiometricEnabled) {
-                                                    userViewModel.registerBiometricsForUser(
-                                                        user = registeredUser,
-                                                        isBiometricEnabled = isBiometricEnabled,
-                                                        activity = context
-                                                    ) { updatedUser ->
-                                                        if (updatedUser != null) {
-                                                            GlobalScope.launch {
-                                                                val loginResult =
-                                                                    loginService.login(
-                                                                        registeredUser.username,
-                                                                        ""
-                                                                    )
-                                                                if (loginResult.isSuccessful) {
-                                                                    Log.d(
-                                                                        "GoogleSignInButton",
-                                                                        "Login successful."
-                                                                    )
-                                                                    // Navigate to LoadingScreen
-                                                                    navigator.push(
-                                                                        LoginScreen()
-                                                                    )
-                                                                } else {
-                                                                    Log.e(
-                                                                        "GoogleSignInButton",
-                                                                        "Login failed."
-                                                                    )
-                                                                }
-                                                            }
-                                                        } else {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "Biometric registration failed",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
+                                    val username = form.username.state.value!!
+                                    val password = form.password.state.value!!
+
+                                    if (username.isNullOrEmpty() || password.isNullOrEmpty()) {
+                                        Toast.makeText(context, "Username or password cannot be empty", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                    val newUser = User(
+                                        username = username,
+                                        password = password,
+                                        isBiometricEnabled = isBiometricEnabled
+                                    )
+
+                                    // User registration with callback
+                                    userViewModel.createUser(newUser) { createdUser ->
+                                        if (createdUser != null) {
+                                            // Successfully created user, now log in
+                                            coroutineScope.launch {
+                                                try {
+                                                    // Log the user in after registration
+                                                    val loginResult = withContext(Dispatchers.IO) {
+                                                        val usernameNonNull = createdUser.username ?: throw IllegalArgumentException("Username cannot be null")
+                                                        val passwordNonNull = createdUser.password ?: throw IllegalArgumentException("Password cannot be null")
+
+                                                        loginService.login(usernameNonNull, passwordNonNull)
+                                                    }
+
+                                                    if (loginResult.isSuccessful) {
+                                                        withContext(Dispatchers.Main) {
+                                                            Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                                                            navigator.push(LandingScreen())
+                                                        }
+                                                    } else {
+                                                        withContext(Dispatchers.Main) {
+                                                            Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
                                                         }
                                                     }
-                                                } else { // regular login
-                                                    userViewModel.loginUser(
-                                                        username = form.username.state.value!!,
-                                                        password = form.password.state.value!!
-                                                    ) { user ->
-                                                        if (user == null) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "Username or Password doesn't exist",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
-                                                        } else {
-                                                            // Navigate to LoadingScreen
-                                                            navigator.push(LoginScreen())
-                                                        }
+                                                } catch (loginException: Exception) {
+                                                    withContext(Dispatchers.Main) {
+                                                        Toast.makeText(context, "An error occurred during login: ${loginException.message}", Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             }
-                                        } catch (ex: Exception) {
-                                            Log.i("Caught the bastard", "Caught something : ")
+                                        } else {
+                                            // Handle registration failure
+                                            Toast.makeText(context, "User registration failed", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 }
@@ -264,7 +238,6 @@ data class AccountScreen(
                         ) {
                             Text(if (mode == Mode.SignUp) "Register" else "Reset Password")
                         }
-
                         if (mode == Mode.SignUp) {
                             TextButton(
                                 modifier = Modifier.fillMaxWidth(),
