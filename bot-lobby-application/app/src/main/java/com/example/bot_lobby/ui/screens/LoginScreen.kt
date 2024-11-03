@@ -65,16 +65,17 @@ import com.example.bot_lobby.view_models.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-class LoginScreen : Screen, AppCompatActivity() {
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
-import com.example.bot_lobby.view_models.UserViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class LoginScreen : Screen {
+
+//class LoginScreen : Screen, AppCompatActivity() {
+
+
+class LoginScreen : Screen, AppCompatActivity() {
     override val key = uniqueScreenKey
 
     @Composable
@@ -125,18 +126,30 @@ class LoginScreen : Screen {
                         val username = form.username.state.value ?: ""
                         Log.d("LoginScreen", "Attempting biometric login for user: $username")
 
-                        userViewModel.loginWithBiometrics(
+                        UserViewModel.loginWithBiometrics(
                             username = username,
-                            activity = context as AppCompatActivity // Pass the current activity context
+                            activity = context as AppCompatActivity, // Pass the current activity context
+                            context = context
                         ) { user ->
                             // Handle navigation and user session on successful biometric login
                             if (user != null) {
-                                Log.d("LoginScreen", "Biometric login successful for user: $username")
+                                Log.d(
+                                    "LoginScreen",
+                                    "Biometric login successful for user: $username"
+                                )
                                 navigator.push(LandingScreen()) // Ensure LandingScreen is defined appropriately
-                                Toast.makeText(context, "Successfully Logged In", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Successfully Logged In",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
                                 Log.e("LoginScreen", "Biometric login failed for user: $username")
-                                Toast.makeText(context, "Biometric login failed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Biometric login failed",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     } else {
@@ -145,7 +158,8 @@ class LoginScreen : Screen {
                 }
 
                 override fun onAuthenticationFailed() {
-                    Toast.makeText(context, "Biometric authentication failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Biometric authentication failed", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         )
@@ -210,7 +224,7 @@ class LoginScreen : Screen {
                     GoogleSignInButton(
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
-                      
+
                         isReg = false, // Registration,
                         navigator = navigator,
                         enabled = !isOffline
@@ -235,7 +249,10 @@ class LoginScreen : Screen {
                         placeholder = { Text("Username") },
                         isError = form.username.hasError(),
                         leadingIcon = {
-                            Icon(imageVector = Icons.Default.Person, contentDescription = "Username Icon")
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Username Icon"
+                            )
                         },
                         singleLine = true,
                         visualTransformation = VisualTransformation.None,
@@ -260,13 +277,20 @@ class LoginScreen : Screen {
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("Password") },
                         leadingIcon = {
-                            Icon(imageVector = Icons.Default.Lock, contentDescription = "Password Icon")
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = "Password Icon"
+                            )
                         },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val image =
+                                if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
+                                Icon(
+                                    imageVector = image,
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                )
                             }
                         },
                         singleLine = true,
@@ -290,7 +314,11 @@ class LoginScreen : Screen {
                                 if (isBiometricAvailable) {
                                     useBiometrics = checked
                                 } else {
-                                    Toast.makeText(context, "Biometric login not available", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Biometric login not available",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         )
@@ -301,70 +329,84 @@ class LoginScreen : Screen {
 
                 // Login Button
                 Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = BlueStandard),
                     onClick = {
                         if (useBiometrics) {
                             biometricPrompt.authenticate(biometricPromptInfo)
                         } else {
                             form.validate(true)
                             if (form.isValid) {
-                              
+
                                 // Launch the coroutine in the correct scope
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    userViewModel.loginUser(
+                                    UserViewModel.loginUser(
                                         username = form.username.state.value ?: "",
-                                        password = form.password.state.value ?: ""
+                                        password = form.password.state.value ?: "",
+                                        context
                                     ) { user ->
                                         if (user != null) {
                                             navigator.push(LandingScreen())
-                                            Toast.makeText(context, "Successfully Logged In", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Successfully Logged In",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         } else {
-                                            Toast.makeText(context, "Username or Password Incorrect", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Username or Password Incorrect",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
 
 //                                AuthViewModel.loginUser(
 //                                    email = form.email.state.value!!,
 //                                    password = form.password.state.value!!
 //                                )
 
-                                runBlocking {
-                                    launch {
-                                        UserViewModel.loginUser(
-                                            username = form.username.state.value!!,
-                                            password = form.password.state.value!!,
-                                            context
-                                        ) { user -> // Provide the callback here
-                                            Log.i("USER", user.toString())
+                                            runBlocking {
+                                                launch {
+                                                    UserViewModel.loginUser(
+                                                        username = form.username.state.value!!,
+                                                        password = form.password.state.value!!,
+                                                        context
+                                                    ) { user -> // Provide the callback here
+                                                        Log.i("USER", user.toString())
 
-                                            // Handle successful user login
-                                            if (user != null) {
-                                                // Navigate to LandingScreen if login is successful
-                                                navigator.push(LandingScreen())
+                                                        // Handle successful user login
+                                                        if (user != null) {
+                                                            // Navigate to LandingScreen if login is successful
+                                                            navigator.push(LandingScreen())
 
-                                                Toast.makeText(
-                                                    context,
-                                                    "Successfully Logged In",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                    .show()  // Show a confirmation toast
-                                            } else {
-                                                Log.i("USER", "Login failed or user is null")
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Successfully Logged In",
+                                                                Toast.LENGTH_SHORT
+                                                            )
+                                                                .show()  // Show a confirmation toast
+                                                        } else {
+                                                            Log.i(
+                                                                "USER",
+                                                                "Login failed or user is null"
+                                                            )
 
-                                                Toast.makeText(
-                                                    context,
-                                                    "Username or Password Incorrect",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                    .show()  // Show a confirmation toast
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Username or Password Incorrect",
+                                                                Toast.LENGTH_SHORT
+                                                            )
+                                                                .show()  // Show a confirmation toast
+                                                        }
+
+                                                    }
+                                                }
                                             }
-
                                         }
                                     }
                                 }
                             }
-
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = BlueStandard)
                 ) {
                     Text("Login", color = Color.White)
                 }
@@ -373,51 +415,53 @@ class LoginScreen : Screen {
                 TextButton(
                     onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = false /*!isOffline*/
+                    // as the forgot password functionality is not yet added, there's not really a point in having users access the page
                 ) {
-                    Text("Forgot Password?", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "Forgot Password?",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
 
-                // Register Button
+                // Register Button for new users
                 TextButton(
                     onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = !isOffline
                 ) {
-                    Text("Register", style = MaterialTheme.typography.bodyMedium)
-
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard),// Set button background to BlueStandard
-                        enabled = !isOffline
-                    ) {
-                        Text("Login", color = Color.White) // White text for contrast
-                    }
-
-                    // Forgot Password Button
-                    TextButton(
-                        onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = false /*!isOffline*/
-                        // as the forgot password functionality is not yet added, there's not really a point in having users access the page
-                    ) {
-                        Text(
-                            "Forgot Password?",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-
-                    // Register Button for new users
-                    TextButton(
-                        onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isOffline
-                    ) {
-                        Text(
-                            "Register",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-
+                    Text(
+                        "Register",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+
+                // Forgot Password Button
+//                TextButton(
+//                    onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
+//                    modifier = Modifier.fillMaxWidth(),
+//                ) {
+//                    Text("Forgot Password?", style = MaterialTheme.typography.bodyMedium)
+//                }
+//
+//                // Register Button
+//                TextButton(
+//                    onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
+//                    modifier = Modifier.fillMaxWidth(),
+//                ) {
+//                    Text("Register", style = MaterialTheme.typography.bodyMedium)
+//
+//                        },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard),// Set button background to BlueStandard
+//                        enabled = !isOffline
+//                    ) {
+//                        Text("Login", color = Color.White) // White text for contrast
+//                    }
+//
+//
+//
+//                }
             }
         }
     }

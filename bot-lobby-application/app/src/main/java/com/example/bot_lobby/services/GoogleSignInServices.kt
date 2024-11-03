@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
@@ -78,10 +79,23 @@ fun GoogleSignInButton(
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.let { data ->
-                handleSignInResult(data, registerService, loginService,userModel, isReg, coroutineScope, context, navigator, activity)
+                handleSignInResult(
+                    data,
+                    registerService,
+                    loginService,
+                    userModel,
+                    isReg,
+                    coroutineScope,
+                    context,
+                    navigator,
+                    activity
+                )
             } ?: Log.e("GoogleSignInButton", "Sign-in canceled or failed: No data returned.")
         } else {
-            Log.e("GoogleSignInButton", "Sign-in intent failed with result code ${result.resultCode}")
+            Log.e(
+                "GoogleSignInButton",
+                "Sign-in intent failed with result code ${result.resultCode}"
+            )
         }
     }
 
@@ -97,53 +111,8 @@ fun GoogleSignInButton(
                 } catch (e: Exception) {
                     Log.e("GoogleSignInButton", "Error launching sign-in intent: ${e.message}")
                 }
-            }
+            }, enabled = enabled
         ) {
-        when (result.resultCode) {
-            Activity.RESULT_OK -> {
-                result.data?.let { data ->
-                    handleSignInResult(
-                        data,
-                        registerService,
-                        loginService,
-                        isReg,
-                        coroutineScope,
-                        context,
-                        navigator
-                    )
-                } ?: Log.e("GoogleSignInButton", "Sign-in canceled or failed: No data returned.")
-            }
-
-            Activity.RESULT_CANCELED -> {
-                Log.e("GoogleSignInButton", "User canceled the sign-in.")
-            }
-
-            else -> {
-                Log.e(
-                    "GoogleSignInButton",
-                    "Sign-in failed with unexpected result code: ${result.resultCode}"
-                )
-            }
-        }
-    }
-
-    // Define the button's click logic
-    val onClick: () -> Unit = {
-        // Launch Google Sign-In Intent
-        val signInIntent = googleSignInClient.signInIntent
-        Log.d("GoogleSignInButton", "Launching Google Sign-In Intent")
-
-        // Provide feedback to the user
-        Toast.makeText(context, "Starting Google Sign-In...", Toast.LENGTH_SHORT)
-            .show() // Toast message to indicate the process
-
-        signInLauncher.launch(signInIntent) // Launch the sign-in intent using the launcher
-    }
-
-
-    // UI for the button
-    Column {
-        Button(onClick = onClick, enabled = enabled) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_google_logo),
                 contentDescription = "Google Icon",
@@ -153,6 +122,34 @@ fun GoogleSignInButton(
 
             Text(if (isReg) "Register with Google" else "Sign in with Google")
         }
+
+        // Define the button's click logic
+//        val onClick: () -> Unit = {
+//            // Launch Google Sign-In Intent
+//            val signInIntent = googleSignInClient.signInIntent
+//            Log.d("GoogleSignInButton", "Launching Google Sign-In Intent")
+//
+//            // Provide feedback to the user
+//            Toast.makeText(context, "Starting Google Sign-In...", Toast.LENGTH_SHORT)
+//                .show() // Toast message to indicate the process
+//
+//            signInLauncher.launch(signInIntent) // Launch the sign-in intent using the launcher
+//        }
+//
+//
+//        // UI for the button
+//        Column {
+//            Button(onClick = onClick, enabled = enabled) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.ic_google_logo),
+//                    contentDescription = "Google Icon",
+//                    modifier = Modifier.size(16.dp)
+//                )
+//                Spacer(modifier = Modifier.width(8.dp))
+//
+//                Text(if (isReg) "Register with Google" else "Sign in with Google")
+//            }
+//        }
     }
 }
 
@@ -193,17 +190,23 @@ private fun handleSignInResult(
         )
         Log.d("GoogleSignInButton", "New User Object Created: $newUser")
 
-        
+
         GlobalScope.launch {
             try {
                 val queryString = "eq.$userEmail"
 
                 // Wrap `getUsers` in a coroutine to handle suspension
-                val res = RetrofitInstance.UserApi.getUsers(RetrofitInstance.apiKey, email = queryString)
+                val res = RetrofitInstance.UserApi.getUsers(
+                    RetrofitInstance.apiKey,
+                    email = queryString
+                )
 
                 if (res.isSuccessful) {
                     if (res.body().isNullOrEmpty()) {
-                        Log.d("GoogleSignInButton", "User does not exist. Proceeding to register.")
+                        Log.d(
+                            "GoogleSignInButton",
+                            "User does not exist. Proceeding to register."
+                        )
                         newUser.isBiometricEnabled = true
 
                         // Register the user within the same coroutine scope
@@ -213,16 +216,26 @@ private fun handleSignInResult(
                                 GlobalScope.launch {
                                     val loginResult = loginService.login(newUser.username, "")
                                     if (loginResult.isSuccessful) {
-                                        Log.d("GoogleSignInButton", "Login successful for newly registered user.")
+                                        Log.d(
+                                            "GoogleSignInButton",
+                                            "Login successful for newly registered user."
+                                        )
                                         // Navigate to the next screen
                                         navigator.push(LandingScreen())
                                     } else {
-                                        val errorMessage = loginResult.errorBody()?.string() ?: "Unknown error"
-                                        Log.e("GoogleSignInButton", "Login failed for newly registered user: $errorMessage")
+                                        val errorMessage =
+                                            loginResult.errorBody()?.string() ?: "Unknown error"
+                                        Log.e(
+                                            "GoogleSignInButton",
+                                            "Login failed for newly registered user: $errorMessage"
+                                        )
                                     }
                                 }
                             } else {
-                                Log.e("GoogleSignInButton", "Registration failed or returned null user.")
+                                Log.e(
+                                    "GoogleSignInButton",
+                                    "Registration failed or returned null user."
+                                )
                             }
                         }
                     } else {
@@ -235,7 +248,8 @@ private fun handleSignInResult(
                             // Navigate to the next screen
                             navigator.push(LandingScreen())
                         } else {
-                            val errorMessage = loginResult.errorBody()?.string() ?: "Unknown error"
+                            val errorMessage =
+                                loginResult.errorBody()?.string() ?: "Unknown error"
                             Log.e("GoogleSignInButton", "Login failed: $errorMessage")
                         }
 
@@ -279,15 +293,22 @@ private fun handleSignInResult(
 
 //                     UserViewModel.loginUser(newUser.username, "password", context) { user ->
 //                         Log.d("LoginService 2", user.toString())
-                      
+
                     }
                 } else {
                     val errorMessage = res.errorBody()?.string() ?: "Unknown error"
                     Log.e("GoogleSignInButton", "Failed to check if user exists: $errorMessage")
-                    Log.e("GoogleSignInButton", "Check user existence failed with status code: ${res.code()}")
+                    Log.e(
+                        "GoogleSignInButton",
+                        "Check user existence failed with status code: ${res.code()}"
+                    )
                 }
             } catch (exception: Exception) {
-                Log.e("GoogleSignInButton", "Exception occurred: ${exception.message}", exception)
+                Log.e(
+                    "GoogleSignInButton",
+                    "Exception occurred: ${exception.message}",
+                    exception
+                )
             }
         }
     } catch (e: ApiException) {

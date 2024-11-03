@@ -56,7 +56,6 @@ data class AccountScreen(
         val context = LocalContext.current as AppCompatActivity
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
-        val userViewModel = UserViewModel()
 //        val userViewModel = UserViewModel()
 //        val auth = remember { FirebaseAuth.getInstance() }
 
@@ -116,7 +115,12 @@ data class AccountScreen(
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("User Name") },
                         isError = form.username.hasError(),
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username Icon") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = "Username Icon"
+                            )
+                        },
                         singleLine = true
                     )
 
@@ -126,12 +130,21 @@ data class AccountScreen(
                         onValueChange = { value -> onFormValueChange(value, form, form.password) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text(if (mode == Mode.SignUp) "Password" else "New Password") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = "Password Icon"
+                            )
+                        },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val image =
+                                if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
+                                Icon(
+                                    image,
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                )
                             }
                         },
                         singleLine = true,
@@ -140,15 +153,30 @@ data class AccountScreen(
 
                     OutlinedTextField(
                         value = form.passwordConfirmation.state.value ?: "",
-                        onValueChange = { value -> onFormValueChange(value, form, form.passwordConfirmation) },
+                        onValueChange = { value ->
+                            onFormValueChange(
+                                value,
+                                form,
+                                form.passwordConfirmation
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("Confirm Password") },
-                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm Password Icon") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = "Confirm Password Icon"
+                            )
+                        },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val image =
+                                if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
+                                Icon(
+                                    image,
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                )
                             }
                         },
                         singleLine = true,
@@ -192,7 +220,11 @@ data class AccountScreen(
 
 
                                     if (username.isNullOrEmpty() || password.isNullOrEmpty()) {
-                                        Toast.makeText(context, "Username or password cannot be empty", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Username or password cannot be empty",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
 
                                     val newUser = User(
@@ -200,73 +232,94 @@ data class AccountScreen(
                                         password = password,
                                         isBiometricEnabled = isBiometricEnabled
                                     )
-                                        UserViewModel.createUser(
-                                            User(
-                                                username = form.username.state.value!!,
-                                                password = form.password.state.value!!
-                                            )
-                                        ) {
-                                            UserViewModel.loginUser(
-                                                username = form.username.state.value!!,
-                                                password = form.password.state.value!!,
-                                                context
-                                            ) { user ->
-                                                if (user == null) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Username or Password doesn't exist",
-                                                        Toast.LENGTH_SHORT
-                                                    )
-                                                        .show() // Toast message to indicate the process
-                                                } else {
-                                                    navigator.push(LandingScreen())
-                                                }
+
+                                    UserViewModel.createUser(
+                                        User(
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!
+                                        )
+                                    ) {
+                                        UserViewModel.loginUser(
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!,
+                                            context
+                                        ) { user ->
+                                            if (user == null) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Username or Password doesn't exist",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show() // Toast message to indicate the process
+                                            } else {
+                                                navigator.push(LandingScreen())
                                             }
                                         }
+                                    }
 
                                     // User registration with callback
-                                    userViewModel.createUser(newUser) { createdUser ->
+                                    UserViewModel.createUser(newUser) { createdUser ->
                                         if (createdUser != null) {
                                             // Successfully created user, now log in
                                             coroutineScope.launch {
                                                 try {
                                                     // Log the user in after registration
                                                     val loginResult = withContext(Dispatchers.IO) {
-                                                        val usernameNonNull = createdUser.username ?: throw IllegalArgumentException("Username cannot be null")
-                                                        val passwordNonNull = createdUser.password ?: throw IllegalArgumentException("Password cannot be null")
+                                                        val usernameNonNull = createdUser.username
+                                                        val passwordNonNull = createdUser.password
+                                                            ?: throw IllegalArgumentException("Password cannot be null")
 
-                                                        loginService.login(usernameNonNull, passwordNonNull)
+                                                        loginService.login(
+                                                            usernameNonNull,
+                                                            passwordNonNull
+                                                        )
                                                     }
 
                                                     if (loginResult.isSuccessful) {
                                                         withContext(Dispatchers.Main) {
-                                                            Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Login successful",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
                                                             navigator.push(LandingScreen())
                                                         }
                                                     } else {
                                                         withContext(Dispatchers.Main) {
-                                                            Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Login failed",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
                                                         }
                                                     }
                                                 } catch (loginException: Exception) {
                                                     withContext(Dispatchers.Main) {
-                                                        Toast.makeText(context, "An error occurred during login: ${loginException.message}", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(
+                                                            context,
+                                                            "An error occurred during login: ${loginException.message}",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
                                                     }
                                                 }
                                             }
                                         } else {
                                             // Handle registration failure
-                                            Toast.makeText(context, "User registration failed", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "User registration failed",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
 
-                                    } else {
-                                        // Handle forgot password
-                                        Toast.makeText(
-                                            context,
-                                            "Password reset functionality is not yet implemented.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
                                     }
+                                } else {
+                                    // Handle forgot password
+                                    Toast.makeText(
+                                        context,
+                                        "Password reset functionality is not yet implemented.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),

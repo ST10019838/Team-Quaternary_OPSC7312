@@ -73,14 +73,15 @@ import kotlinx.coroutines.runBlocking
 //     companion object {
 //         val userApi: UserApi = RetrofitInstance.UserApi
 //         // Declare loginService without instantiation here
-//         lateinit var loginService: LoginService
-//         lateinit var registerService: RegisterService
-
-class MainActivity :  ComponentActivity(), AppCompatActivity() {
+//
+class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
     companion object {
         val userApi: UserApi = RetrofitInstance.UserApi
-        val loginService = LoginService(userApi)
-        val registerService = RegisterService(userApi)
+
+
+        lateinit var loginService: LoginService
+        lateinit var registerService: RegisterService
+
 
         lateinit var connectivityObserver: ConnectivityObserver
 
@@ -93,6 +94,9 @@ class MainActivity :  ComponentActivity(), AppCompatActivity() {
 
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         enableEdgeToEdge()
+
+        loginService = LoginService(userApi)
+        registerService = RegisterService(userApi, this)
 
         // Check and request notification permission
         if (!isNotificationPermissionGranted()) {

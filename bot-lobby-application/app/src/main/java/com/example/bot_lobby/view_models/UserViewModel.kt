@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.LocalContext
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
@@ -65,7 +64,7 @@ object UserViewModel : ViewModel() {
         if (searchQuery.isNotEmpty()) {
             try {
                 response = UserApi.getUsersByName(
-                    RetrofitInstance.apiKey,
+                    apiKey,
                     username = usernameQuery,
                     isPublic = isPublicQuery
                 )
@@ -113,7 +112,7 @@ object UserViewModel : ViewModel() {
 
 
             val response =
-                UserApi.getUsers(RetrofitInstance.apiKey, queryString)
+                UserApi.getUsers(apiKey, queryString)
 
             if (response.isSuccessful) {
                 val body = response.body()
@@ -135,8 +134,14 @@ object UserViewModel : ViewModel() {
 
         return FetchResponse(users, errorMessage)
     }
+
     //Register User Biometrics
-    fun registerBiometricsForUser(user: User, isBiometricEnabled: Boolean, activity: AppCompatActivity, callback: (User?) -> Unit) {
+    fun registerBiometricsForUser(
+        user: User,
+        isBiometricEnabled: Boolean,
+        activity: AppCompatActivity,
+        callback: (User?) -> Unit
+    ) {
         if (isBiometricEnabled) {
             viewModelScope.launch {
                 val updatedUser = BiometricAuthHelper.registerBiometricData(user, activity)
@@ -159,21 +164,29 @@ object UserViewModel : ViewModel() {
 //    }
 
     // Function to handle biometric login and fetch the user
-    fun loginWithBiometrics(username: String, activity: AppCompatActivity, callback: (User?) -> Unit) {
+    fun loginWithBiometrics(
+        username: String,
+        activity: AppCompatActivity,
+        context: Context,
+        callback: (User?) -> Unit
+    ) {
         viewModelScope.launch {
             Log.d("UserViewModel", "Attempting to login with biometrics for user: $username")
 
             try {
                 // Log API Key for debugging purposes
-                Log.d("UserViewModel", "API Key: ${RetrofitInstance.apiKey}")
+                Log.d("UserViewModel", "API Key: $apiKey")
 
                 // Use the Retrofit instance to fetch user data with API key in headers
-                val response = UserApi.getUsersByUsername(RetrofitInstance.apiKey, "eq.$username")
+                val response = UserApi.getUsersByUsername(apiKey, "eq.$username")
 
                 Log.d("UserViewModel", "API Response Status: ${response.code()}")
 
-                if (response.isSuccessful && response.body() != null && response.body()!!.isNotEmpty()) {
-                    val user = response.body()!![0] // Assuming the username is unique and you get a single user
+                if (response.isSuccessful && response.body() != null && response.body()!!
+                        .isNotEmpty()
+                ) {
+                    val user =
+                        response.body()!![0] // Assuming the username is unique and you get a single user
 
                     // Check if biometrics are enabled
                     if (user.isBiometricEnabled) {
@@ -181,7 +194,27 @@ object UserViewModel : ViewModel() {
                         val isAuthenticated = BiometricAuthHelper.authenticate(activity).await()
 
                         if (isAuthenticated) {
-                            AuthViewModel.updateUsersDetails(user)
+                            val sessionViewModel = SessionViewModel(context)
+
+                            // save user to state
+//                AuthViewModel.updateUsersDetails(user)
+
+                            // get and save users teams
+                            var usersTeams = emptyList<Team>()
+                            val response = TeamViewModel.getUsersTeams(user)
+
+                            if (response.errors.isNullOrEmpty()) {
+                                usersTeams = response.data!!
+                            }
+
+                            val newSession = Session(
+                                userLoggedIn = user,
+                                usersTeams = usersTeams
+                            )
+
+                            sessionViewModel.upsertSession(newSession)
+//                            TODO: convert to session updation
+//                            AuthViewModel.updateUsersDetails(user)
                             callback(user) // Successful login
                         } else {
                             Log.e("UserViewModel", "Biometric authentication failed")
@@ -192,7 +225,12 @@ object UserViewModel : ViewModel() {
                         callback(null) // Biometrics not enabled
                     }
                 } else {
-                    Log.e("UserViewModel", "User not found or API request failed. Response: ${response.errorBody()?.string()}")
+                    Log.e(
+                        "UserViewModel",
+                        "User not found or API request failed. Response: ${
+                            response.errorBody()?.string()
+                        }"
+                    )
                     callback(null) // User retrieval failed
                 }
             } catch (e: Exception) {
@@ -209,7 +247,7 @@ object UserViewModel : ViewModel() {
 //        viewModelScope.launch {
         try {
             val response = UserApi.getUser(
-                RetrofitInstance.apiKey,
+                apiKey,
                 "eq.${userId}",
             )
 
@@ -243,7 +281,7 @@ object UserViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = UserApi.updateUser(
-                    RetrofitInstance.apiKey,
+                    apiKey,
                     "eq.${updatedUser.id}",
                     updatedUser
                 )
@@ -269,7 +307,7 @@ object UserViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = UserApi.deleteUser(
-                    RetrofitInstance.apiKey,
+                    apiKey,
                     "eq.${userId}"
                 )
                 if (response.isSuccessful) {
@@ -299,7 +337,7 @@ object UserViewModel : ViewModel() {
         Log.i("USER TO CREATE", newUser.toString())
         viewModelScope.launch {
             try {
-                val response = UserApi.createUser(RetrofitInstance.apiKey, newUser)
+                val response = UserApi.createUser(apiKey, newUser)
 
                 if (response.isSuccessful && response.body() != null) {
                     Log.d("UserViewModel", "User registered successfully: $newUser")
@@ -359,7 +397,7 @@ object UserViewModel : ViewModel() {
     fun getUserData() {
         viewModelScope.launch {
             try {
-                val response = UserApi.getUsers(RetrofitInstance.apiKey)
+                val response = UserApi.getUsers(apiKey)
                 if (response.isSuccessful) {
                     response.body()?.let {
                         _userData.value = it
