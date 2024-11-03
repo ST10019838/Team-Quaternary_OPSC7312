@@ -51,6 +51,23 @@ jobs:
         run: ./gradlew assembleDebug
         working-directory: bot-lobby-application
 
+      # Check if the debug outputs directory exists after building
+      - name: Check if debug outputs directory exists
+        run: |
+          if [ -d build/outputs/apk/debug/ ]; then
+            echo "Debug outputs directory exists."
+          else
+            echo "Debug outputs directory does not exist."
+          fi
+        working-directory: bot-lobby-application
+
+      # List debug outputs to verify files are created
+      - name: List debug outputs
+        run: |
+          echo "Attempting to list debug outputs:"
+          ls -la build/outputs/apk/debug/ || echo "Debug outputs directory does not exist."
+        working-directory: bot-lobby-application
+
       # Create APK Release
       - name: Build apk release project (APK) - ${{ env.main_project_module }} module
         run: ./gradlew assembleRelease --info
@@ -61,30 +78,28 @@ jobs:
         run: ./gradlew bundleRelease
         working-directory: bot-lobby-application
 
-        # Check if the debug outputs directory exists after building
-      - name: Check if debug outputs directory exists
+      # Check if the release outputs directory exists after building
+      - name: Check if release outputs directory exists
         run: |
-          if [ -d build/outputs/apk/debug/ ]; then
-           echo "Debug outputs directory exists."
+          if [ -d build/outputs/apk/release/ ]; then
+            echo "Release outputs directory exists."
           else
-           echo "Debug outputs directory does not exist."
+            echo "Release outputs directory does not exist."
           fi
-        working-directory: bot-lobby-application
-
-
-      # List debug outputs to verify files are created
-      - name: List debug outputs
-        run: ls -la build/outputs/apk/debug/
         working-directory: bot-lobby-application
 
       # List release outputs to verify files are created
       - name: List release outputs
-        run: ls -la build/outputs/apk/release/
+        run: |
+          echo "Attempting to list release outputs:"
+          ls -la build/outputs/apk/release/ || echo "Release outputs directory does not exist."
         working-directory: bot-lobby-application
 
       # List AAB outputs to verify files are created
       - name: List AAB outputs
-        run: ls -la build/outputs/bundle/release/
+        run: |
+          echo "Attempting to list AAB outputs:"
+          ls -la build/outputs/bundle/release/ || echo "AAB outputs directory does not exist."
         working-directory: bot-lobby-application
 
       # Upload Artifact Build
