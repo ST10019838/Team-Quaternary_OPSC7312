@@ -7,12 +7,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
+import com.example.bot_lobby.models.Session
+import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.formFields.Select
 import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.ui.composables.formFields.TextField
 
 @Composable
 fun NewAnnouncementScreen(
+    session: Session,
     viewModel: AnnouncementViewModel,
     onCancel: () -> Unit,
     onPostAnnouncement: () -> Unit,
@@ -20,8 +23,10 @@ fun NewAnnouncementScreen(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var selectedTeam by remember { mutableStateOf("") }
+    var selectedTeam: Team? by remember { mutableStateOf(null) }
     val teamList = listOf("Team A", "Team B", "Team C")
+
+
     var teamDropdownExpanded by remember { mutableStateOf(false) }
 
     Column(
@@ -38,10 +43,10 @@ fun NewAnnouncementScreen(
         )
 
         Spacer(modifier = Modifier.height(1.dp))
-        Select<String?>(
+        Select<Team?>(
             label = "Team",
             value = selectedTeam,
-            options = teamList,
+            options = session.usersTeams,
 //                itemFormatter = form.category.optionItemFormatter,
             isRequired = true,
             onSelect = {
@@ -58,6 +63,9 @@ fun NewAnnouncementScreen(
 //                hasError = form.category.hasError(),
 //                errorText = form.category.errorText,
             placeholderText = "Select a Team",
+            itemFormatter = { team ->
+                team?.tag!!
+            }
 //                canCreateIfEmpty = true,
 //                creationContent = {
 //                    var isDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -154,12 +162,14 @@ fun NewAnnouncementScreen(
         Column {
             Button(
                 onClick = {
-                    viewModel.saveAnnouncement(
-                        title = title,
-                        content = description,
-                        team = selectedTeam,
-                        currentUserId = currentUserId
-                    )
+                    selectedTeam?.let {
+                        viewModel.saveAnnouncement(
+                            title = title,
+                            content = description,
+                            team = it,
+                            currentUserId = session.userLoggedIn
+                        )
+                    }
                     onPostAnnouncement()  // Trigger callback to close or refresh the screen
                 },
                 modifier = Modifier.fillMaxWidth(),

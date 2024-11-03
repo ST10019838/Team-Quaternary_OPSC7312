@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.models.Announcement
+import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.models.User
 import com.example.bot_lobby.services.PushNotificationService
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
@@ -13,7 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class AnnouncementViewModel(private val context: Context) : ViewModel() {
+class AnnouncementViewModel(context: Context) : ViewModel() {
+    private val context by lazy { context }
 
     // List to store announcements
     private val _announcements = mutableListOf<Announcement>()
@@ -43,7 +46,7 @@ class AnnouncementViewModel(private val context: Context) : ViewModel() {
     }
 
     // Save an announcement and trigger a push notification
-    fun saveAnnouncement(title: String, content: String, team: String, currentUserId: String) {
+    fun saveAnnouncement(title: String, content: String, team: Team, currentUserId: User) {
         val newAnnouncement = Announcement(
             team = team,
             title = title,
@@ -78,7 +81,10 @@ class AnnouncementViewModel(private val context: Context) : ViewModel() {
                     context = context,
                     title = "New Announcement: ${announcement.title}",
                     message = notificationContent,
-                    dateCreated = "${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(announcement.dateCreated)}",  // Avoid duplication in the notification
+                    dateCreated = SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss",
+                        Locale.getDefault()
+                    ).format(announcement.dateCreated),  // Avoid duplication in the notification
                     createdByUserId = "${announcement.createdByUserId}"
                 )
             }

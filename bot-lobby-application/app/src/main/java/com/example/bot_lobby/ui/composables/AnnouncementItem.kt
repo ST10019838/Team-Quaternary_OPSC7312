@@ -111,7 +111,7 @@ fun AnnouncementItem(
                     ) {
                         // Header with title and dropdown icon
                         Text(
-                            text = "${announcement.content}",
+                            text = announcement.content,
 //                            style = MaterialTheme.typography.subtitle1
                         )
                     }
@@ -141,7 +141,7 @@ fun AnnouncementItem(
                         )
 
                         Text(
-                            text = "${announcement.team}",
+                            text = announcement.team.tag,
 //                            style = MaterialTheme.typography.subtitle1
                         )
                     }
@@ -162,7 +162,7 @@ fun AnnouncementItem(
 
                         // Created By (on a new line)
                         Text(
-                            text = "Created By: ${announcement.createdByUserId}",
+                            text = "Created By: ${announcement.createdByUserId.username}",
                             style = MaterialTheme.typography.caption,
                             color = Color.Gray
                         )

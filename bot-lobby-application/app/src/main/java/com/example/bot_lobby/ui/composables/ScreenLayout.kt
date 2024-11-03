@@ -59,7 +59,8 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
     val tabNavigator = LocalTabNavigator.current
     val isSelected = tabNavigator.current == tab
 
-    val connectivity by MainActivity.connectivityObserver.observe().collectAsState(initial = ConnectivityObserver.Status.Unavailable)
+    val connectivity by MainActivity.connectivityObserver.observe()
+        .collectAsState(initial = ConnectivityObserver.Status.Unavailable)
     val offlineCapablePages = listOf(HomeTab, ProfileTab, TeamsTab)
     val canWorkOffline = offlineCapablePages.contains(tab)
 
@@ -70,8 +71,6 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
         enabled = canWorkOffline || connectivity == ConnectivityObserver.Status.Available /* connectivity != ConnectivityObserver.Status.Available || */,
         onClick = { tabNavigator.current = tab }, // Handle click events for the tab
 
-        onClick = { tabNavigator.current = tab }, // Handle click announcements for the tab
-        
         icon = {
             // Display the icon for the tab
             Icon(

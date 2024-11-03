@@ -70,8 +70,9 @@ fun <T> Select(
 
     canCreateIfEmpty: Boolean = false,
     onCreate: () -> Unit = {},
-    creationContent: @Composable () -> Unit = {}
-) {
+    creationContent: @Composable () -> Unit = {},
+
+    ) {
 
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -133,9 +134,12 @@ fun <T> Select(
         ExposedDropdownMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false },
-            modifier = Modifier.heightIn(0.dp, 200.dp).fillMaxWidth().padding(horizontal = 10.dp)
+            modifier = Modifier
+                .heightIn(0.dp, 200.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
         ) {
-            if(options.isEmpty() && canCreateIfEmpty){
+            if (options.isEmpty() && canCreateIfEmpty) {
                 onCreate()
                 creationContent()
             }

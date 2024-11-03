@@ -44,7 +44,8 @@ class PushNotificationService : FirebaseMessagingService() {
                 ).apply {
                     description = "Notifications for new announcements"
                 }
-                val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val manager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 manager.createNotificationChannel(channel)
             }
 
@@ -70,10 +71,12 @@ class PushNotificationService : FirebaseMessagingService() {
             """.trimIndent()
 
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_announcement)
+                .setSmallIcon(R.drawable.ic_bot_lobby_logo)
                 .setContentTitle(title)
                 .setContentText(notificationContent)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(notificationContent)) // Expands for full content
+                .setStyle(
+                    NotificationCompat.BigTextStyle().bigText(notificationContent)
+                ) // Expands for full content
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -90,7 +93,10 @@ class PushNotificationService : FirebaseMessagingService() {
         remoteMessage.data.let { data ->
             val title = data["title"] ?: "New Announcement"
             val message = data["message"] ?: "A new announcement has been added."
-            val dateCreated = data["dateCreated"] ?: SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(System.currentTimeMillis())
+            val dateCreated = data["dateCreated"] ?: SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.getDefault()
+            ).format(System.currentTimeMillis())
             val createdByUserId = data["createdByUserId"] ?: "Unknown User"
 
             sendNotification(title, message, dateCreated, createdByUserId)
@@ -98,7 +104,12 @@ class PushNotificationService : FirebaseMessagingService() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun sendNotification(title: String, message: String, dateCreated: String, createdByUserId: String) {
+    private fun sendNotification(
+        title: String,
+        message: String,
+        dateCreated: String,
+        createdByUserId: String
+    ) {
         showLocalNotification(
             context = this,
             title = title,

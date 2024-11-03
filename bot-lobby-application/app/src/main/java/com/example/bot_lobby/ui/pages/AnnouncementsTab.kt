@@ -12,6 +12,7 @@ import com.example.bot_lobby.ui.screens.AnnouncementsScreen
 import com.example.bot_lobby.ui.screens.NewAnnouncementScreen
 import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.AnnouncementViewModelFactory
+import com.example.bot_lobby.view_models.SessionViewModel
 
 object AnnouncementsTab : Tab {
     override val options: TabOptions
@@ -34,22 +35,28 @@ object AnnouncementsTab : Tab {
         var showNewAnnouncementScreen by remember { mutableStateOf(false) }
 
         val context = LocalContext.current
-        val announcementViewModel: AnnouncementViewModel = viewModel(factory = AnnouncementViewModelFactory(context))
+        val announcementViewModel: AnnouncementViewModel =
+            viewModel(factory = AnnouncementViewModelFactory(context))
+        val sessionViewModel = viewModel { SessionViewModel(context) }
+        val session by sessionViewModel.session.collectAsState()
 
         // Retrieve the current user's ID (replace with actual retrieval method)
         val currentUserId = "user_id_example" // Replace with actual logic to get the user ID
 
         if (showNewAnnouncementScreen) {
-            NewAnnouncementScreen(
-                viewModel = announcementViewModel,
-                onCancel = {
-                    showNewAnnouncementScreen = false
-                },
-                onPostAnnouncement = {
-                    showNewAnnouncementScreen = false
-                },
-                currentUserId = currentUserId // Passing the required user ID here
-            )
+            session?.let {
+                NewAnnouncementScreen(
+                    session = it,
+                    viewModel = announcementViewModel,
+                    onCancel = {
+                        showNewAnnouncementScreen = false
+                    },
+                    onPostAnnouncement = {
+                        showNewAnnouncementScreen = false
+                    },
+                    currentUserId = currentUserId // Passing the required user ID here
+                )
+            }
         } else {
             AnnouncementsScreen(
                 announcements = announcementViewModel.announcements,
