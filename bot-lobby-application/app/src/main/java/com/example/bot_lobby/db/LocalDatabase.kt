@@ -5,12 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+
 import com.example.bot_lobby.dao.SessionDao
 import com.example.bot_lobby.dao.TeamDao
 import com.example.bot_lobby.dao.UserDao
 import com.example.bot_lobby.models.IdAndRoleConverters
 import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.SessionConverters
+
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.TeamIdsConverters
 import com.example.bot_lobby.models.User
@@ -27,7 +29,6 @@ abstract class LocalDatabase : RoomDatabase() {
 
     abstract val sessionDao: SessionDao
 
-
     companion object {
         // Singleton prevents multiple instances of database opening at the
         // same time.
@@ -42,8 +43,10 @@ abstract class LocalDatabase : RoomDatabase() {
                     context.applicationContext,
                     LocalDatabase::class.java,
                     name = "local-db"
+
                 ).fallbackToDestructiveMigration()
                     .build()
+                    
                 INSTANCE = instance
                 // return instance
                 instance
