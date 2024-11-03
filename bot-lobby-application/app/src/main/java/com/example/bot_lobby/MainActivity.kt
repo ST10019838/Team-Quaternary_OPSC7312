@@ -11,7 +11,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
+
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -64,8 +71,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 
-class MainActivity : ComponentActivity() {
+// class MainActivity : ComponentActivity(), AppCompatActivity() {
+//     companion object {
+//         val userApi: UserApi = RetrofitInstance.UserApi
+//         // Declare loginService without instantiation here
+//         lateinit var loginService: LoginService
+//         lateinit var registerService: RegisterService
 
+class MainActivity :  ComponentActivity(), AppCompatActivity() {
     companion object {
         val userApi: UserApi = RetrofitInstance.UserApi
         val loginService = LoginService(userApi)
