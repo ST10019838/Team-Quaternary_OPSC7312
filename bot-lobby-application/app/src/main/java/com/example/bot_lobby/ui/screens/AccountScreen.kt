@@ -87,9 +87,9 @@ data class AccountScreen(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_bot_lobby_logo),
-                        contentDescription = stringResource(R.string.app_logo),
+                        contentDescription = "App Logo",
                         modifier = Modifier
-                            .fillMaxWidth(1.0f)
+                            .fillMaxWidth()
                             .aspectRatio(16f / 9f)
                     )
 
@@ -234,7 +234,7 @@ data class AccountScreen(
                                             ) { user ->
                                                 if(user == null){
                                                     Toast.makeText(context,
-                                                        stringResource(R.string.error_invalid_login),
+                                                       R.string.error_invalid_login,
                                                         Toast.LENGTH_SHORT)
                                                         .show()
                                                 } else{
@@ -245,7 +245,7 @@ data class AccountScreen(
                                     } else {
                                         Toast.makeText(
                                             context,
-                                            stringResource(R.string.password_reset_unimplemented),
+                                            (R.string.password_reset_unimplemented),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }

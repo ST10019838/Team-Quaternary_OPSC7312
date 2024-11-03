@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -118,37 +119,40 @@ fun ScoutingPlayersScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Player List within LazyColumn for scrolling through players
-        when {
-            searchedUsers == null -> {
-                Text(stringResource(id = R.string.enter_player_name))
-            }
-            !searchError.isNullOrEmpty() -> {
-                Text(searchError ?: "")
-            }
-            isSearching -> {
+            if (isSearching) {
                 Text(stringResource(id = R.string.searching))
-            }
-            searchedUsers.isEmpty() -> {
+            } else if (searchQuery.isEmpty()) {
+                Text(stringResource(id = R.string.enter_player_name))
+            } else if (!searchError.isNullOrEmpty()) {
+                searchError?.let { Text(it) }
+            } else if (searchedUsers!!.isEmpty()) {
                 Text(stringResource(id = R.string.no_players_found))
-            }
-            else -> {
+            } else {
                 Box(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
                 ) {
+
                     LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(searchedUsers) { user ->
-                            PlayerListItem(user = user, teams = teams, canView = true, onView = {
-                                isDialogOpen = true
-                                userToView = user
-                            })
+                        items(searchedUsers!!) { user ->
+                            // Pass navController to PlayerListItem to enable navigation
+                            PlayerListItem(
+                                user = user,
+                                teams = session?.usersTeams,
+                                canView = true,
+                                onView = {
+                                    isDialogOpen = true
+                                    userToView = user
+                                })
                         }
                     }
                 }
             }
-        }
+
     }
 
     if (isDialogOpen) {

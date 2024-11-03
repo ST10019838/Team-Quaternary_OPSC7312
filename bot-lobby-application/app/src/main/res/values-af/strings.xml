@@ -54,4 +54,19 @@
     <!-- TeamsScreen -->
     <string name="team_created_success">Suksesvol \'n span geskep</string>
     <string name="teams_header">Spankopskrif</string>
+
+    <!-- Misc -->
+    <string name="arrow_back"> Back Arrow </string>
+    <string name="username_icon"> Username Icon </string>
+    <string name="error_icon"> Error Icon</string>
+    <string name="password_icon"> Password Icon </string>
+    <string name="hide_password"> Hide Password </string>
+    <string name="show_password"> Show Password </string>
+    <string name="confirm_password_icon"> Confirm Password Icon </string>
+    <string name="password_reset_unimplemented"> Password Reset </string>
+    <string name="sign_in_here"> Sign In Here </string>
+    <string name="login_success"> Succesfully Logged In </string>
+    <string name="search_team_placeholder"> </string>
+    <string name="search_team_icon"> Search team icon</string>
+    <string name="enter_team_name_to_search"> Enter team name to search </string>
 </resources>

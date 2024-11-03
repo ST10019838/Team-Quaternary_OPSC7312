@@ -118,7 +118,7 @@ fun TeamsScreen() {
 
                     Toast.makeText(
                         context,
-                        stringResource(id = R.string.team_created_success),
+                        R.string.team_created_success,
                         Toast.LENGTH_SHORT
                     ).show()
                 },

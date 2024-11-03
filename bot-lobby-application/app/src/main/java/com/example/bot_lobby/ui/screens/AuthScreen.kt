@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.bot_lobby.R
+import com.example.bot_lobby.models.User
 import com.example.bot_lobby.services.LoginService
 import com.example.bot_lobby.services.RegisterService
 import kotlinx.coroutines.launch
@@ -79,19 +80,24 @@ fun AuthScreen(
             )
         }
 
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    result = if (isLoginMode) {
-                        loginService.login(username, password)
-                    } else {
-                        val ageInt = age.toIntOrNull() ?: 0
-                        registerService.register(username, password, firstName, lastName, ageInt)
+        androidx.compose.material.Button(onClick = {
+            coroutineScope.launch {
+                if (!isLoginMode) {
+                    val newUser = User(username = username, password = password)
+                    if (enableBiometrics) {
+                        registerBiometricData(newUser, activity) // Pass activity here
                     }
+                    val response = registerService.register(newUser)
+                    result =
+                        if (response.isSuccessful) "Registration successful!" else "Registration failed!"
                 }
             }
-        ) {
-            Text(text = if (isLoginMode) stringResource(id = R.string.login_title) else stringResource(id = R.string.register))
+        }) {
+            Text(
+                text = if (isLoginMode) stringResource(id = R.string.login_title) else stringResource(
+                    id = R.string.register
+                )
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

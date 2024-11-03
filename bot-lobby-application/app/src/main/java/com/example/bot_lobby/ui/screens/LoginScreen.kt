@@ -109,7 +109,7 @@ class LoginScreen : Screen {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Row(
+                /*Row(
                     horizontalArrangement = Arrangement.spacedBy(20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -133,7 +133,7 @@ class LoginScreen : Screen {
                             .weight(1f),
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                }
+                }*/
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -243,14 +243,14 @@ class LoginScreen : Screen {
                                                 navigator.push(LandingScreen())
                                                 Toast.makeText(
                                                     context,
-                                                    stringResource(R.string.login_success),
+                                                    R.string.login_success,
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                             } else {
                                                 Log.i("USER", "Login failed or user is null")
                                                 Toast.makeText(
                                                     context,
-                                                    stringResource(R.string.error_invalid_login),
+                                                    R.string.error_invalid_login,
                                                     Toast.LENGTH_SHORT
                                                 ).show()
                                             }
