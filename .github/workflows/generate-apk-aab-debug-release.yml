@@ -37,45 +37,55 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      # Change directory to Bot-lobby-application to access gradlew
+      - name: Change directory to Bot-lobby-application
+        run: cd Bot-lobby-application
+
       # Adjust path for gradlew located in the Bot-lobby-application directory
       - name: Change wrapper permissions
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
+        working-directory: Bot-lobby-application
 
       # Run Tests Build
       - name: Run gradle tests
         run: ./gradlew test
+        working-directory: Bot-lobby-application
 
       # Run Build Project
       - name: Build gradle project
         run: ./gradlew build
+        working-directory: Bot-lobby-application
 
       # Create APK Debug
       - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
         run: ./gradlew assembleDebug
+        working-directory: Bot-lobby-application
 
       # Create APK Release
       - name: Build apk release project (APK) - ${{ env.main_project_module }} module
         run: ./gradlew assembleRelease
+        working-directory: Bot-lobby-application
 
       # Create Bundle AAB Release
       - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
         run: ./gradlew bundleRelease
+        working-directory: Bot-lobby-application
 
       # Upload Artifact Build
       - name: Upload APK Debug - ${{ env.repository_name }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
-          path: ./build/outputs/apk/debug/
+          path: Bot-lobby-application/build/outputs/apk/debug/
 
       - name: Upload APK Release - ${{ env.repository_name }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
-          path: ./build/outputs/apk/release/
+          path: Bot-lobby-application/build/outputs/apk/release/
 
       - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
-          path: ./build/outputs/bundle/release/
+          path: Bot-lobby-application/build/outputs/bundle/release/
