@@ -22,47 +22,50 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.bot_lobby.models.Announcement
+import com.example.bot_lobby.models.Event
 
-// Composable function to display a single announcement item
 @Composable
-fun AnnouncementItem(announcement: Announcement) {
-    var expanded by remember { mutableStateOf(false) }  // State to track whether the announcement details are expanded
+fun EventItem(event: Event) {
+    var expanded by remember { mutableStateOf(false) }  // State to track whether the event details are expanded
 
-    // Create a surface with a border for each announcement
+    // Create a surface with a border for each event
     Surface(
         modifier = Modifier
             .fillMaxWidth()  // Fill available width
-            .padding(vertical = 4.dp),  // Add vertical padding between announcement items
-        border = BorderStroke(1.dp, Color.Gray),  // Add a grey border around the announcement box
+            .padding(vertical = 4.dp),  // Add vertical padding between event items
+        border = BorderStroke(1.dp, Color.Gray),  // Add a grey border around the event box
         shape = MaterialTheme.shapes.small,  // Apply small rounded corners to the box
     ) {
-        // Column to arrange announcement content vertically
+        // Column to arrange event content vertically
         Column(
-            modifier = Modifier.padding(8.dp)  // Add padding inside the announcement box
+            modifier = Modifier.padding(8.dp)  // Add padding inside the event box
         ) {
-            // First row contains the team and player tag, along with a dropdown arrow
+            // First row contains the event date and title and a dropdown arrow to expand the details
             Row(
                 modifier = Modifier.fillMaxWidth(),  // Fill available width
                 verticalAlignment = Alignment.CenterVertically  // Center the content vertically
             ) {
-                // Display the team and player tag
-                Text(text = "${announcement.teamTag} - ${announcement.playerTag}")
+                // Display the event date first, then title
+                Text(text = "${event.startDate} - ${event.title}")  // Display start date first and then title
                 Spacer(modifier = Modifier.weight(1f))  // Push the arrow to the right side
-                // Dropdown arrow to expand/collapse announcement details
+                // Dropdown arrow to expand/collapse event details
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Expand announcement details"
+                        contentDescription = "Expand event details"
                     )  // Dropdown icon
                 }
             }
 
-            // If expanded is true, display the full announcement details
+            // If expanded is true, display the event details
             if (expanded) {
                 Column {
-                    // Display the announcement description
-                    Text("Announcement: ${announcement.description}")
+                    // Display additional event details like description, start date, end date, team, and team members
+                    Text("Description: ${event.description}")
+                    Text("Start Date: ${event.startDate}")
+                    Text("End Date: ${event.endDate}")
+                    Text("Team: ${event.team}")
+                    Text("Team Members: ${event.teamMembers.joinToString()}")
                 }
             }
         }

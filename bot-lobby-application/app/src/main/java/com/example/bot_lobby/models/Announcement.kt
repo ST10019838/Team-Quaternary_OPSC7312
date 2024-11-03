@@ -1,14 +1,8 @@
 package com.example.bot_lobby.models
 
-import java.time.LocalDate
-import java.util.Date
-
 // Data class representing an announcement
 data class Announcement(
-    val team: Team,           // Team associated with the announcement
-    val title: String,
-    val content: String,
-    val dateCreated: Date,
-    val createdByUserId: User
+    val teamTag: String,        // Tag for the team
+    val playerTag: String,      // Tag for the player (based on Player model)
+    val description: String     // Description of the announcement
 )
-

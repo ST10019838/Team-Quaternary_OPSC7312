@@ -1,54 +1,72 @@
 <resources>
     <string name="app_name">Bot-Lobby</string>
-    <string name="confirm_action">Confirm</string>
-    <string name="dismiss_action">Dismiss</string>
 
+    <!-- AccountScreen -->
+    <string name="register">Register</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="create_account">Create Your Account</string>
+    <string name="reset_your_password">Reset Your Password</string>
+    <string name="username_placeholder">User Name</string>
+    <string name="password_placeholder_signup">Password</string>
+    <string name="password_placeholder_reset">New Password</string>
+    <string name="confirm_password_placeholder">Confirm Password</string>
+    <string name="error_something_wrong">Something went wrong, please try again</string>
+    <string name="error_invalid_login">Username or Password doesn\'t exist</string>
+    <string name="already_have_account">Already have an account? Sign in here</string>
 
-    <!-- MainActivity -->
-    <string name="student_notice_title">Student Notice!</string>
-    <string name="student_notice_body" translatable="false">
-        This is a student application that was developed to complete a university course
-        and is not intended, optimized, or secured for consumption. \n\n
-        But who knows, one day the application might gain popularity resulting in a better more optimized version ;)
-    </string>
+    <!-- AuthScreen -->
+    <string name="login_title">Login</string>
+    <string name="first_name_placeholder">First Name</string>
+    <string name="last_name_placeholder">Last Name</string>
+    <string name="age_placeholder">Age</string>
+    <string name="no_account_register">Don\'t have an account? Register</string>
+    <string name="already_have_account_login">Already have an account? Login</string>
 
-    <string name="offline_notice_title">You are now in Offline Mode</string>
-    <string name="offline_notice_body">
-        No internet connection detected.
-        Some features will be disabled until an internet connection is found.
-        \n\nThese features include: \n
-            - Logging In / Registering\n
-            - Announcement Creation\n
-            - Scouting\n
-            - Account Deleting\n
-            - Syncing to the Online Database\n \n
-        Ps: Don\'t forget to Sync when online :)
-    </string>
+    <!-- EventsScreen -->
+    <string name="coming_soon">Coming soon...</string>
 
-    <!-- TeamProfile -->
-    <string name="team_profile_offline">
-        You are currently in Offline Mode.
-        Connect to the internet then close and re-open the team to see the members.
-    </string>
-    <string name="left_team_success">Successfully Left The Team</string>
-    <string name="delete_team_success">Successfully Deleted The Team</string>
-    <string name="leave_team_title">Leave Team</string>
-    <string name="leave_team_confirmation">Are you sure you want to leave this team?</string>
-    <string name="delete_team_title">Delete Team</string>
-    <string name="delete_team_confirmation">Are you sure you want to delete this team?</string>
+    <!-- HomeScreen -->
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="upcoming_events">Upcoming Events</string>
+    <string name="announcements">Announcements</string>
 
+    <!-- LoginScreen -->
+    <string name="sign_in_title">Sign in Your Account</string>
+    <string name="username_placeholder_login">Username</string>
+    <string name="password_placeholder_login">Password</string>
+    <string name="error_incorrect_credentials">Incorrect Email or Password</string>
+    <string name="forgot_password">Forgot Password?</string>
 
-    <!-- PlayerListItem -->
-    <string name="team_role_owner">Owner</string>
+    <!-- ScoutingPlayersScreen -->
+    <string name="search_player_tag">Search a Player\'s Tag</string>
+    <string name="players_found">Players found: %1$d</string>
+    <string name="enter_player_name">Enter a Player\'s Name to Search.</string>
+    <string name="no_players_found">No Players Found</string>
+    <string name="searching">Searching...</string>
 
+    <!-- ScoutingTeamsScreen -->
+    <string name="search_team_name">Search a Team\'s Name</string>
+    <string name="teams_found">Teams found: %1$d</string>
+    <string name="enter_team_name">Enter a Team\'s Name to Search.</string>
+    <string name="no_teams_found">No Teams Found</string>
 
-    <!-- ProfileScreen -->
-    <string name="account_sign_out_success">Successfully Signed Out</string>
-    <string name="account_deleted_success">Successfully Deleted Account</string>
-    <string name="starting_data_sync">Syncing to Online Database…</string>
-    <string name="successful_data_sync">Successfully Synced Data</string>
+    <!-- TeamsScreen -->
+    <string name="team_created_success">Successfully Created a Team</string>
+    <string name="teams_header">Teams Header</string>
 
-    <string name="delete_account_title">Delete Account</string>
-    <string name="delete_account_body">Are you sure you want to delete your account?</string>
+    <!-- Misc -->
+    <string name="arrow_back"> Back Arrow </string>
+    <string name="username_icon"> Username Icon </string>
+    <string name="error_icon"> Error Icon</string>
+    <string name="password_icon"> Password Icon </string>
+    <string name="hide_password"> Hide Password </string>
+    <string name="show_password"> Show Password </string>
+    <string name="confirm_password_icon"> Confirm Password Icon </string>
+    <string name="password_reset_unimplemented"> Password Reset </string>
+    <string name="sign_in_here"> Sign In Here </string>
+    <string name="login_success"> Succesfully Logged In </string>
+    <string name="search_team_placeholder"> </string>
+    <string name="search_team_icon"> Search team icon</string>
+    <string name="enter_team_name_to_search"> Enter team name to search </string>
 
 </resources>
