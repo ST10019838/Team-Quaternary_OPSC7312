@@ -43,43 +43,45 @@ object BiometricAuthHelper {
     fun authenticate(activity: AppCompatActivity): Deferred<Boolean> {
         val deferred = CompletableDeferred<Boolean>()
 
-        // Executor for UI thread
+        // Use the main thread executor
         val executor: Executor = ContextCompat.getMainExecutor(activity)
 
+        // Ensure biometric authentication runs on the main thread
+        activity.runOnUiThread {
+            // Create BiometricPrompt instance with the main thread executor
+            val biometricPrompt = BiometricPrompt(
+                activity,
+                executor,
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        deferred.complete(true) // Authentication succeeded
+                    }
 
+                    override fun onAuthenticationFailed() {
+                        super.onAuthenticationFailed()
+                        deferred.complete(false) // Authentication failed
+                    }
 
-        // Create BiometricPrompt instance
-        val biometricPrompt = BiometricPrompt(
-            activity,
-            executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    deferred.complete(true) // Success
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        super.onAuthenticationError(errorCode, errString)
+                        deferred.complete(false) // Authentication error occurred
+                    }
                 }
+            )
 
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    deferred.complete(false) // Failed
-                }
+            // Build prompt info for the biometric dialog
+            val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric Login")
+                .setSubtitle("Authenticate using your biometric credential")
+                .setNegativeButtonText("Use account password")
+                .build()
 
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    deferred.complete(false) // Error
-                }
-            }
-        )
+            // Start biometric authentication
+            biometricPrompt.authenticate(promptInfo)
+        }
 
-        // Prompt info for biometric dialog
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric Login")
-            .setSubtitle("Authenticate using your biometric credential")
-            .setNegativeButtonText("Use account password")
-            .build()
-
-        // Start biometric authentication
-        biometricPrompt.authenticate(promptInfo)
-
-        return deferred
+        return deferred // Return the Deferred result
     }
+
 }
