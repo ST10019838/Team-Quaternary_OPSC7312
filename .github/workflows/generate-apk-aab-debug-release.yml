@@ -53,13 +53,24 @@ jobs:
 
       # Create APK Release
       - name: Build apk release project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --info
         working-directory: bot-lobby-application
 
       # Create Bundle AAB Release
       - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
         run: ./gradlew bundleRelease
         working-directory: bot-lobby-application
+
+        # Check if the debug outputs directory exists after building
+      - name: Check if debug outputs directory exists
+        run: |
+          if [ -d build/outputs/apk/debug/ ]; then
+           echo "Debug outputs directory exists."
+          else
+           echo "Debug outputs directory does not exist."
+          fi
+        working-directory: bot-lobby-application
+
 
       # List debug outputs to verify files are created
       - name: List debug outputs
