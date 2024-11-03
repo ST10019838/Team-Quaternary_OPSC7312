@@ -38,38 +38,53 @@ jobs:
           cache: 'gradle'
 
       # Change directory to Bot-lobby-application to access gradlew
-      - name: Change directory to bot-lobby-application
-        run: cd bot-lobby-application
+      - name: Change directory to Bot-lobby-application
+        run: cd Bot-lobby-application
 
       # Adjust path for gradlew located in the Bot-lobby-application directory
       - name: Change wrapper permissions
         run: chmod +x gradlew
-        working-directory: bot-lobby-application
+        working-directory: Bot-lobby-application
 
       # Run Tests Build
       - name: Run gradle tests
         run: ./gradlew test
-        working-directory: bot-lobby-application
+        working-directory: Bot-lobby-application
 
       # Run Build Project
       - name: Build gradle project
         run: ./gradlew build
-        working-directory: bot-lobby-application
+        working-directory: Bot-lobby-application
 
       # Create APK Debug
       - name: Build apk debug project (APK) - ${{ env.main_project_module }} module
         run: ./gradlew assembleDebug
-        working-directory: bot-lobby-application
+        working-directory: Bot-lobby-application
 
       # Create APK Release
       - name: Build apk release project (APK) - ${{ env.main_project_module }} module
         run: ./gradlew assembleRelease
-        working-directory: bot-lobby-application
+        working-directory: Bot-lobby-application
 
       # Create Bundle AAB Release
       - name: Build app bundle release (AAB) - ${{ env.main_project_module }} module
         run: ./gradlew bundleRelease
-        working-directory: bot-lobby-application
+        working-directory: Bot-lobby-application
+
+      # List debug outputs to verify files are created
+      - name: List debug outputs
+        run: ls -la Bot-lobby-application/build/outputs/apk/debug/
+        working-directory: Bot-lobby-application
+
+      # List release outputs to verify files are created
+      - name: List release outputs
+        run: ls -la Bot-lobby-application/build/outputs/apk/release/
+        working-directory: Bot-lobby-application
+
+      # List AAB outputs to verify files are created
+      - name: List AAB outputs
+        run: ls -la Bot-lobby-application/build/outputs/bundle/release/
+        working-directory: Bot-lobby-application
 
       # Upload Artifact Build
       - name: Upload APK Debug - ${{ env.repository_name }}
