@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,11 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.composables.FullScreenModal
@@ -49,6 +52,7 @@ import com.example.bot_lobby.ui.composables.PlayerListItem
 import com.example.bot_lobby.ui.composables.PlayerProfile
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -59,13 +63,13 @@ fun ScoutingPlayersScreen(
     teamViewModel: TeamViewModel = viewModel() // Initialize TeamViewModel
 ) {
     // Collect searchQuery and filtered players from the PlayerViewModel
-    val searchQuery by userViewModel.searchQuery.collectAsState()
-    val isSearching by userViewModel.isSearching.collectAsState()
-    val searchedUsers by userViewModel.searchedUsers.collectAsState()
-    val searchError by userViewModel.searchError.collectAsState()
+    val searchQuery by UserViewModel.searchQuery.collectAsState()
+    val isSearching by UserViewModel.isSearching.collectAsState()
+    val searchedUsers by UserViewModel.searchedUsers.collectAsState()
+    val searchError by UserViewModel.searchError.collectAsState()
 
-    // Collect teams from the TeamViewModel
-    val teams by AuthViewModel.usersTeams.collectAsState()
+    val sessionViewModel = SessionViewModel(LocalContext.current)
+    val session by sessionViewModel.session.collectAsState()
 
     // Focus manager for clearing the focus when search is triggered
     val focusManager = LocalFocusManager.current
@@ -80,6 +84,7 @@ fun ScoutingPlayersScreen(
             .fillMaxSize()
             .padding(2.dp)
     ) {
+
         // Row for the Search Bar, Search Icon, and Refresh Button
         Row(
             modifier = Modifier
@@ -120,12 +125,12 @@ fun ScoutingPlayersScreen(
                 focusManager.clearFocus() // Clears focus when search button is clicked
                 Log.d("PlayersTab", "Search triggered")
 
-
-                userViewModel.searchForUsers()
+//                userViewModel.searchForUsers()
+                UserViewModel.clearSearchQuery()
             }, enabled = searchQuery.isNotEmpty()) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon" // Describes the search button
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear Search" // Describes the search button
                 )
             }
 
@@ -152,13 +157,12 @@ fun ScoutingPlayersScreen(
 
 
         // Player List within LazyColumn for scrolling through players
-        if (searchedUsers == null) {
+        if (isSearching) {
+            Text("Searching...")
+        } else if (searchQuery.isEmpty()) {
             Text("Enter a Player's Name to Search.")
         } else if (!searchError.isNullOrEmpty()) {
             searchError?.let { Text(it) }
-        } else if (isSearching) {
-            Text("Searching...")
-
         } else if (searchedUsers!!.isEmpty()) {
             Text("No Players Found")
         } else {
@@ -174,10 +178,14 @@ fun ScoutingPlayersScreen(
                 ) {
                     items(searchedUsers!!) { user ->
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, teams = teams, canView = true, onView = {
-                            isDialogOpen = true
-                            userToView = user
-                        })
+                        PlayerListItem(
+                            user = user,
+                            teams = session?.usersTeams,
+                            canView = true,
+                            onView = {
+                                isDialogOpen = true
+                                userToView = user
+                            })
                     }
                 }
             }

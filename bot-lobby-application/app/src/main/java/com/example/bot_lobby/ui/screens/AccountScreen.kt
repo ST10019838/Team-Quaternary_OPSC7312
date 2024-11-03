@@ -26,6 +26,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.MainActivity.Companion.loginService
@@ -47,6 +48,7 @@ enum class Mode {
 data class AccountScreen(
     val mode: Mode
 ) : Screen {
+    override val key = uniqueScreenKey
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -55,6 +57,8 @@ data class AccountScreen(
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
         val userViewModel = UserViewModel()
+//        val userViewModel = UserViewModel()
+//        val auth = remember { FirebaseAuth.getInstance() }
 
         var isBiometricEnabled by remember { mutableStateOf(false) }
         var actionWasSuccessful by remember { mutableStateOf(true) }
@@ -186,6 +190,7 @@ data class AccountScreen(
                                     val username = form.username.state.value!!
                                     val password = form.password.state.value!!
 
+
                                     if (username.isNullOrEmpty() || password.isNullOrEmpty()) {
                                         Toast.makeText(context, "Username or password cannot be empty", Toast.LENGTH_SHORT).show()
                                     }
@@ -195,6 +200,29 @@ data class AccountScreen(
                                         password = password,
                                         isBiometricEnabled = isBiometricEnabled
                                     )
+                                        UserViewModel.createUser(
+                                            User(
+                                                username = form.username.state.value!!,
+                                                password = form.password.state.value!!
+                                            )
+                                        ) {
+                                            UserViewModel.loginUser(
+                                                username = form.username.state.value!!,
+                                                password = form.password.state.value!!,
+                                                context
+                                            ) { user ->
+                                                if (user == null) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Username or Password doesn't exist",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                        .show() // Toast message to indicate the process
+                                                } else {
+                                                    navigator.push(LandingScreen())
+                                                }
+                                            }
+                                        }
 
                                     // User registration with callback
                                     userViewModel.createUser(newUser) { createdUser ->
@@ -230,6 +258,14 @@ data class AccountScreen(
                                             // Handle registration failure
                                             Toast.makeText(context, "User registration failed", Toast.LENGTH_SHORT).show()
                                         }
+
+                                    } else {
+                                        // Handle forgot password
+                                        Toast.makeText(
+                                            context,
+                                            "Password reset functionality is not yet implemented.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
                             },

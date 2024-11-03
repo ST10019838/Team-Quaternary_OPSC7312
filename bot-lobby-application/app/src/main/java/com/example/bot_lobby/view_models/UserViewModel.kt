@@ -4,10 +4,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.LocalContext
+
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
-import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.models.FetchResponse
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
@@ -22,7 +24,13 @@ import com.example.bot_lobby.utils.BiometricAuthHelper
 import com.google.android.gms.common.api.Response
 import kotlinx.coroutines.runBlocking
 
-class UserViewModel : ViewModel() {
+import com.example.bot_lobby.models.Session
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+
+
+object UserViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
@@ -32,8 +40,56 @@ class UserViewModel : ViewModel() {
     private val _searchError: MutableStateFlow<String?> = MutableStateFlow(null)
     val searchError: StateFlow<String?> = _searchError.asStateFlow()
 
-    private val _searchedUsers: MutableStateFlow<List<User>?> = MutableStateFlow(null)
-    val searchedUsers: StateFlow<List<User>?> = _searchedUsers.asStateFlow()
+    //    private val _searchedUsers: MutableStateFlow<List<User>?> = MutableStateFlow(null)
+//    val searchedUsers: StateFlow<List<User>?> = _searchedUsers.asStateFlow()
+    private val _refreshSearch: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    val searchedUsers = combine(_searchQuery, _refreshSearch) { searchQuery, refreshSearch ->
+        if (refreshSearch) {
+            _refreshSearch.value = false
+        }
+
+        _isSearching.value = true
+
+        // The following query was adapted from stackoverflow.com
+        // Author: bgs (https://stackoverflow.com/users/2298058/bgs)
+        // Link: https://stackoverflow.com/questions/17322228/check-if-a-column-contains-text-using-sql
+        // Create a query string that will be used to search for all teams based on their ids
+        val usernameQuery = "like.*${searchQuery}*"
+        val isPublicQuery = "eq.true"
+
+
+        // Fetch data
+        val response: Any
+
+        if (searchQuery.isNotEmpty()) {
+            try {
+                response = UserApi.getUsersByName(
+                    RetrofitInstance.apiKey,
+                    username = usernameQuery,
+                    isPublic = isPublicQuery
+                )
+
+                _isSearching.value = false
+                response.body()?.toList()
+
+            } catch (exception: Exception) {
+                _searchError.value = exception.message.toString()
+                Log.i("ERROR!", exception.message.toString())
+
+                _isSearching.value = false
+                emptyList()
+            }
+        } else {
+            _isSearching.value = false
+            emptyList()
+        }
+
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun refreshSearch() {
+        _refreshSearch.value = true
+    }
 
     private val _userData: MutableStateFlow<List<User>> = MutableStateFlow(listOf())
     val userData: StateFlow<List<User>> = _userData
@@ -48,7 +104,7 @@ class UserViewModel : ViewModel() {
             // Create a query string that will be used to search for all users based on their ids
             var queryString = "in.("
 
-            team.userIdsAndRoles.forEach { item ->
+            team.userIdsAndRoles?.forEach { item ->
                 // The first item in the pair is the user id
                 queryString += "${item.id}"
 
@@ -146,6 +202,42 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    suspend fun getOnlineProfile(userId: Int): FetchResponse<User?> {
+        var user: User? = null
+        var errorMessage: String? = null
+
+//        viewModelScope.launch {
+        try {
+            val response = UserApi.getUser(
+                RetrofitInstance.apiKey,
+                "eq.${userId}",
+            )
+
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    user = body.first()
+
+                    Log.i("DATA!", body.toString())
+                } else {
+                    Log.e("ERROR!", "Response body is null")
+                }
+            } else {
+                Log.e(
+                    "ONLINE PROFILE ERROR",
+                    "Failed to fetch users: ${response.errorBody()?.string()}"
+                )
+            }
+        } catch (exception: Exception) {
+            errorMessage = exception.message.toString()
+            Log.e("ERROR!", exception.message.toString())
+        }
+//        }
+
+        return FetchResponse(user, errorMessage)
+    }
+
+
     // Function to update an existing user
     fun updateUser(updatedUser: User) {
         viewModelScope.launch {
@@ -157,18 +249,23 @@ class UserViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     Log.i("SUCCESS", "User updated: ${response.body()}")
-                    AuthViewModel.updateUsersDetails(updatedUser)
+//                    AuthViewModel.updateUsersDetails(updatedUser)
                 } else {
-                    Log.e("ERROR", "User update failed: ${response.errorBody()?.string()}")
+                    Log.e(
+                        "UPDATE USER ERROR",
+                        "User update failed: ${response.errorBody()?.string()}"
+                    )
                 }
             } catch (exception: Exception) {
                 Log.e("ERROR!", exception.message.toString())
             }
         }
+
+        refreshSearch()
     }
 
     // Function to delete a user
-    fun deleteUser(userId: Int) {
+    fun deleteUser(userId: Int, user: User? = null, callback: (User?) -> Unit = {}) {
         viewModelScope.launch {
             try {
                 val response = UserApi.deleteUser(
@@ -177,6 +274,7 @@ class UserViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     Log.i("SUCCESS", "User deleted")
+                    callback(user)
                 } else {
                     Log.e("ERROR", "User deletion failed: ${response.errorBody()?.string()}")
                 }
@@ -184,57 +282,16 @@ class UserViewModel : ViewModel() {
                 Log.e("ERROR!", exception.message.toString())
             }
         }
+
+        refreshSearch()
     }
 
     fun clearSearchQuery() {
         _searchQuery.value = ""
-        _searchedUsers.value = null
     }
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
-    }
-
-    fun searchForUsers() {
-        _isSearching.value = true
-
-        if (searchQuery.value.isEmpty()) {
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                // The following query was adapted from stackoverflow.com
-                // Author: bgs (https://stackoverflow.com/users/2298058/bgs)
-                // Link: https://stackoverflow.com/questions/17322228/check-if-a-column-contains-text-using-sql
-                // Create a query string that will be used to search for all teams based on their ids
-                val queryString = "like.*${searchQuery.value}*"
-
-
-                // Fetch data
-                val response =
-                    UserApi.getUsersByName(
-                        RetrofitInstance.apiKey,
-                        queryString
-                    )
-                val body = response.body()
-
-                Log.i("RESPONSE", response.toString())
-                if (body != null) {
-                    _searchedUsers.value = body
-
-                    Log.i("DATA", body.toString())
-                }
-            } catch (exception: Exception) {
-                _searchError.value = exception.message.toString()
-                Log.i("ERROR!", exception.message.toString())
-            }
-
-
-            _isSearching.value = false
-
-        }
-
     }
 
     // Create a new user
@@ -259,14 +316,37 @@ class UserViewModel : ViewModel() {
     }
 
     // Login user
-    fun loginUser(username: String, password: String, callback: (User?) -> Unit) {
+    fun loginUser(username: String, password: String, context: Context, callback: (User?) -> Unit) {
         viewModelScope.launch {
             val response = LoginService(UserApi).login(username, password)
 
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 val user = response.body()!![0] // Get the first user from the list
+
+                val sessionViewModel = SessionViewModel(context)
+
                 // save user to state
-                AuthViewModel.updateUsersDetails(user)
+//                AuthViewModel.updateUsersDetails(user)
+
+                // get and save users teams
+                var usersTeams = emptyList<Team>()
+                val response = TeamViewModel.getUsersTeams(user)
+
+                if (response.errors.isNullOrEmpty()) {
+                    usersTeams = response.data!!
+                }
+
+                val newSession = Session(
+                    userLoggedIn = user,
+                    usersTeams = usersTeams
+                )
+
+                sessionViewModel.upsertSession(newSession)
+
+//                AuthViewModel.setUsersTeams(usersTeams)
+
+                Log.d("USER LOGGED IN AS", sessionViewModel.session.value?.userLoggedIn.toString())
+
                 callback(user) // Return the user via the callback
             } else {
                 Log.e("UserViewModel", "Login failed: ${response.errorBody()?.string()}")
@@ -294,14 +374,14 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    fun clearData(){
+    fun clearData() {
         _searchQuery.value = ""
 
         _isSearching.value = false
 
-       _searchError.value = null
+        _searchError.value = null
 
-        _searchedUsers.value = null
+//        _searchedUsers.value = null
 
         _userData.value = emptyList()
     }

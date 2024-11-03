@@ -16,6 +16,23 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,13 +46,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.MainActivity
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
 import com.example.bot_lobby.forms.LoginForm
 import com.example.bot_lobby.services.GoogleSignInButton
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.BiometricAuthHelper
 import com.example.bot_lobby.utils.onFormValueChange
@@ -45,13 +67,42 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginScreen : Screen, AppCompatActivity() {
+import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
+import com.example.bot_lobby.view_models.UserViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+class LoginScreen : Screen {
+    override val key = uniqueScreenKey
 
     @Composable
     override fun Content() {
-        val userViewModel = UserViewModel()
-        val navigator = LocalNavigator.currentOrThrow
-        val form = LoginForm() // Form that manages the login state
         val context = LocalContext.current
+        val sessionViewModel = viewModel { SessionViewModel(context) }
+        val session by sessionViewModel.session.collectAsStateWithLifecycle()
+        val navigator = LocalNavigator.currentOrThrow
+
+        val connectivity by connectivityObserver.observe()
+            .collectAsState(ConnectivityObserver.Status.Unavailable)
+        val isOffline = connectivity != ConnectivityObserver.Status.Available
+
+
+        var isDeterminingLogin by remember { mutableStateOf(true) }
+
+        LaunchedEffect(true) {
+            delay(300L)
+            isDeterminingLogin = false
+        }
+
+        if (session != null && !isDeterminingLogin) {
+            navigator.push(LandingScreen())
+        }
+
+//        val userViewModel = UserViewModel()
+
+        val form = LoginForm() // Form that manages the login state
 
         var useBiometrics by remember { mutableStateOf(false) }
         val isBiometricAvailable = BiometricAuthHelper.isBiometricSupported(context)
@@ -98,6 +149,8 @@ class LoginScreen : Screen, AppCompatActivity() {
                 }
             }
         )
+        // Initialize areCredentialsValid state
+        val areCredentialsValid by remember { mutableStateOf(true) }
 
         // Check if biometric login is enabled and available
         if (useBiometrics && isBiometricAvailable) {
@@ -157,9 +210,10 @@ class LoginScreen : Screen, AppCompatActivity() {
                     GoogleSignInButton(
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
-                        //activity = context as AppCompatActivity,
-                        isReg = false, // Registration
+                      
+                        isReg = false, // Registration,
                         navigator = navigator,
+                        enabled = !isOffline
                     )
                 }
 
@@ -253,6 +307,7 @@ class LoginScreen : Screen, AppCompatActivity() {
                         } else {
                             form.validate(true)
                             if (form.isValid) {
+                              
                                 // Launch the coroutine in the correct scope
                                 CoroutineScope(Dispatchers.Main).launch {
                                     userViewModel.loginUser(
@@ -264,10 +319,48 @@ class LoginScreen : Screen, AppCompatActivity() {
                                             Toast.makeText(context, "Successfully Logged In", Toast.LENGTH_SHORT).show()
                                         } else {
                                             Toast.makeText(context, "Username or Password Incorrect", Toast.LENGTH_SHORT).show()
+
+//                                AuthViewModel.loginUser(
+//                                    email = form.email.state.value!!,
+//                                    password = form.password.state.value!!
+//                                )
+
+                                runBlocking {
+                                    launch {
+                                        UserViewModel.loginUser(
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!,
+                                            context
+                                        ) { user -> // Provide the callback here
+                                            Log.i("USER", user.toString())
+
+                                            // Handle successful user login
+                                            if (user != null) {
+                                                // Navigate to LandingScreen if login is successful
+                                                navigator.push(LandingScreen())
+
+                                                Toast.makeText(
+                                                    context,
+                                                    "Successfully Logged In",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()  // Show a confirmation toast
+                                            } else {
+                                                Log.i("USER", "Login failed or user is null")
+
+                                                Toast.makeText(
+                                                    context,
+                                                    "Username or Password Incorrect",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()  // Show a confirmation toast
+                                            }
+
                                         }
                                     }
                                 }
                             }
+
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -290,6 +383,40 @@ class LoginScreen : Screen, AppCompatActivity() {
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Register", style = MaterialTheme.typography.bodyMedium)
+
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = BlueStandard),// Set button background to BlueStandard
+                        enabled = !isOffline
+                    ) {
+                        Text("Login", color = Color.White) // White text for contrast
+                    }
+
+                    // Forgot Password Button
+                    TextButton(
+                        onClick = { navigator.push(AccountScreen(mode = Mode.ForgotPassword)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false /*!isOffline*/
+                        // as the forgot password functionality is not yet added, there's not really a point in having users access the page
+                    ) {
+                        Text(
+                            "Forgot Password?",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    // Register Button for new users
+                    TextButton(
+                        onClick = { navigator.push(AccountScreen(mode = Mode.SignUp)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isOffline
+                    ) {
+                        Text(
+                            "Register",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
                 }
             }
         }

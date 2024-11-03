@@ -1,5 +1,7 @@
 package com.example.bot_lobby.ui.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +16,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,15 +49,23 @@ import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
 import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
+import com.example.bot_lobby.view_models.UserViewModel
 
 @Composable
 fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
+    val context = LocalContext.current
+    val sessionViewModel = viewModel { SessionViewModel(context) }
+    val session by sessionViewModel.session.collectAsState()
+    val userViewModel = viewModel<UserViewModel>()
+
+
     // State variables observed from the TeamViewModel
-    val searchQuery by teamViewModel.searchQuery.collectAsState()
-    val isSearching by teamViewModel.isSearching.collectAsState()
-    val searchedTeams by teamViewModel.searchedTeams.collectAsState()
-    val searchError by teamViewModel.searchError.collectAsState()
+    val searchQuery by TeamViewModel.searchQuery.collectAsState()
+    val isSearching by TeamViewModel.isSearching.collectAsState()
+    val searchedTeams by TeamViewModel.searchedTeams.collectAsState()
+    val searchError by TeamViewModel.searchError.collectAsState()
 
     var isDialogOpen by remember { mutableStateOf(false) }
     var teamToView by remember { mutableStateOf<Team?>(null) }
@@ -73,7 +86,7 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             // Search TextField for scouting team search
             TextField(
                 value = searchQuery,  // Bind the search query state to the input field
-                onValueChange = { teamViewModel.updateSearchQuery(it) },  // Update the search query
+                onValueChange = { TeamViewModel.updateSearchQuery(it) },  // Update the search query
                 placeholder = { Text(text = "Search a Team's Name") },  // Placeholder for the search bar
                 modifier = Modifier
                     .weight(1f)  // Use available width
@@ -95,11 +108,11 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
 
             // Search Icon
             IconButton(onClick = {
-                teamViewModel.searchForTeams()
+                TeamViewModel.clearSearchQuery()
             }, enabled = searchQuery.isNotEmpty()) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Scout Team Icon"
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear Search"
                 )
             }
 
@@ -135,12 +148,12 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
 
 
         // Player List within LazyColumn for scrolling through players
-        if (searchQuery.isEmpty()) {
+        if (isSearching) {
+            Text("Searching...")
+        } else if (searchQuery.isEmpty()) {
             Text("Enter a Team's Name to Search.")
         } else if (!searchError.isNullOrEmpty()) {
             searchError?.let { Text(it) }
-        } else if (isSearching) {
-            Text("Searching...")
         } else if (searchedTeams?.isEmpty() == true) {
             Text("No Teams Found")
         } else if (searchedTeams?.isNotEmpty() == true) {
@@ -170,7 +183,54 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
             isDialogOpen = false
             teamToView = null
         }) {
-            TeamProfile(team = teamToView!!)
+//
+
+            TeamProfile(
+                team = teamToView!!,
+                canJoin = teamToView!!.userIdsAndRoles?.firstOrNull { it.id == session?.userLoggedIn?.id } === null,// true true can join if you are not already a member
+                onJoin = {
+                    teamViewModel.getTeam(teamToView?.id!!) { teamToUpdate ->
+                        val updatedIdsAndRoles = teamToUpdate.userIdsAndRoles?.plus(
+                            IdAndRole(
+                                id = session?.userLoggedIn?.id!!,
+                                isOwner = false
+                            )
+                        )
+
+                        val updatedTeam = Team(
+                            id = teamToUpdate.id,
+                            tag = teamToUpdate.tag,
+                            name = teamToUpdate.name,
+                            bio = teamToUpdate.bio,
+                            isPublic = teamToUpdate.isPublic,
+                            isLFM = teamToUpdate.isLFM,
+                            isOpen = teamToUpdate.isOpen,
+                            userIdsAndRoles = updatedIdsAndRoles,
+                            maxNumberOfUsers = teamToUpdate.maxNumberOfUsers
+                        )
+
+
+                        teamViewModel.updateTeam(updatedTeam)
+
+                        sessionViewModel.addTeamToUser(updatedTeam) {
+                            if (it != null) {
+                                userViewModel.updateUser(it)
+                            }
+                        }
+
+
+                        isDialogOpen = false
+
+                        Toast.makeText(
+                            context,
+                            "Successfully Joined Team",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()  // Show a confirmation toast
+                    }
+                },
+
+                )
         }
     }
 }
