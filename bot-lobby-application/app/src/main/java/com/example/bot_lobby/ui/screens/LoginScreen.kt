@@ -224,7 +224,7 @@ class LoginScreen : Screen, AppCompatActivity() {
                     GoogleSignInButton(
                         registerService = MainActivity.registerService,
                         loginService = MainActivity.loginService,
-
+                        PassedActivity = MainActivity.PassedActivity,
                         isReg = false, // Registration,
                         navigator = navigator,
                         enabled = !isOffline

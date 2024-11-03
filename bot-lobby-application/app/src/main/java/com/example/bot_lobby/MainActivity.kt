@@ -75,14 +75,12 @@ import kotlinx.coroutines.runBlocking
 //         // Declare loginService without instantiation here
 //
 class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
+
     companion object {
         val userApi: UserApi = RetrofitInstance.UserApi
-
-
+        lateinit var PassedActivity: MainActivity // Declare an instance reference
         lateinit var loginService: LoginService
         lateinit var registerService: RegisterService
-
-
         lateinit var connectivityObserver: ConnectivityObserver
 
         const val REQUEST_NOTIFICATION_PERMISSION_CODE = 1001 // Declare constant here
@@ -91,7 +89,7 @@ class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
     @SuppressLint("StateFlowValueCalledInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        PassedActivity = this
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         enableEdgeToEdge()
 

@@ -233,29 +233,29 @@ data class AccountScreen(
                                         isBiometricEnabled = isBiometricEnabled
                                     )
 
-                                    UserViewModel.createUser(
-                                        User(
-                                            username = form.username.state.value!!,
-                                            password = form.password.state.value!!
-                                        )
-                                    ) {
-                                        UserViewModel.loginUser(
-                                            username = form.username.state.value!!,
-                                            password = form.password.state.value!!,
-                                            context
-                                        ) { user ->
-                                            if (user == null) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Username or Password doesn't exist",
-                                                    Toast.LENGTH_SHORT
-                                                )
-                                                    .show() // Toast message to indicate the process
-                                            } else {
-                                                navigator.push(LandingScreen())
-                                            }
-                                        }
-                                    }
+//                                    UserViewModel.createUser(
+//                                        User(
+//                                            username = form.username.state.value!!,
+//                                            password = form.password.state.value!!
+//                                        )
+//                                    ) {
+//                                        UserViewModel.loginUser(
+//                                            username = form.username.state.value!!,
+//                                            password = form.password.state.value!!,
+//                                            context
+//                                        ) { user ->
+//                                            if (user == null) {
+//                                                Toast.makeText(
+//                                                    context,
+//                                                    "Username or Password doesn't exist",
+//                                                    Toast.LENGTH_SHORT
+//                                                )
+//                                                    .show() // Toast message to indicate the process
+//                                            } else {
+//                                                navigator.push(LandingScreen())
+//                                            }
+//                                        }
+//                                    }
 
                                     // User registration with callback
                                     UserViewModel.createUser(newUser) { createdUser ->

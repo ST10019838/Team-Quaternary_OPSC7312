@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -45,6 +46,7 @@ import kotlinx.coroutines.GlobalScope
 import org.json.JSONObject
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
+import com.example.bot_lobby.utils.BiometricAuthHelper
 import kotlin.reflect.jvm.internal.impl.types.checker.TypeRefinementSupport.Enabled
 
 
@@ -52,6 +54,7 @@ import kotlin.reflect.jvm.internal.impl.types.checker.TypeRefinementSupport.Enab
 fun GoogleSignInButton(
     registerService: RegisterService,
     loginService: LoginService,
+    PassedActivity : AppCompatActivity,
     viewModel: SupabaseAuthViewModel = viewModel(),
     userModel: UserViewModel = viewModel(),
     isReg: Boolean, // Determines if it's a registration or login,
@@ -88,6 +91,7 @@ fun GoogleSignInButton(
                     coroutineScope,
                     context,
                     navigator,
+                    PassedActivity,
                     activity
                 )
             } ?: Log.e("GoogleSignInButton", "Sign-in canceled or failed: No data returned.")
@@ -162,6 +166,7 @@ private fun handleSignInResult(
     coroutineScope: CoroutineScope,
     context: Context,
     navigator: Navigator,
+    MainPassedActivity: AppCompatActivity,
     activity: Activity
 ) {
     val accountTask: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -180,7 +185,7 @@ private fun handleSignInResult(
             role = 1,
             bio = null,
             username = userEmail,
-            password = "password", // Consider using a better method to manage user passwords
+            password = null, // Consider using a better method to manage user passwords
             biometrics = null,
             teamIds = listOf(),
             isPublic = true,
@@ -195,7 +200,7 @@ private fun handleSignInResult(
             try {
                 val queryString = "eq.$userEmail"
 
-                // Wrap `getUsers` in a coroutine to handle suspension
+                // Fetch the user data from the database
                 val res = RetrofitInstance.UserApi.getUsers(
                     RetrofitInstance.apiKey,
                     email = queryString
@@ -203,55 +208,94 @@ private fun handleSignInResult(
 
                 if (res.isSuccessful) {
                     if (res.body().isNullOrEmpty()) {
-                        Log.d(
-                            "GoogleSignInButton",
-                            "User does not exist. Proceeding to register."
-                        )
+                        // If the user does not exist, register them and enable biometrics
+                        Log.d("GoogleSignInButton", "User does not exist. Proceeding to register.")
                         newUser.isBiometricEnabled = true
 
                         // Register the user within the same coroutine scope
                         userviewmodel.createUser(newUser) { registeredUser ->
                             if (registeredUser != null) {
-                                // Proceed to login after successful registration
+                                // Proceed with login after successful registration
                                 GlobalScope.launch {
                                     val loginResult = loginService.login(newUser.username, "")
                                     if (loginResult.isSuccessful) {
-                                        Log.d(
-                                            "GoogleSignInButton",
-                                            "Login successful for newly registered user."
-                                        )
-                                        // Navigate to the next screen
+                                        Log.d("GoogleSignInButton", "Login successful for newly registered user.")
                                         navigator.push(LandingScreen())
                                     } else {
-                                        val errorMessage =
-                                            loginResult.errorBody()?.string() ?: "Unknown error"
-                                        Log.e(
-                                            "GoogleSignInButton",
-                                            "Login failed for newly registered user: $errorMessage"
-                                        )
+                                        val errorMessage = loginResult.errorBody()?.string() ?: "Unknown error"
+                                        Log.e("GoogleSignInButton", "Login failed for newly registered user: $errorMessage")
                                     }
                                 }
                             } else {
-                                Log.e(
-                                    "GoogleSignInButton",
-                                    "Registration failed or returned null user."
-                                )
+                                Log.e("GoogleSignInButton", "Registration failed or returned null user.")
                             }
                         }
                     } else {
-                        Log.d("GoogleSignInButton", "User exists. Proceeding to log in.")
-
-                        // Proceed with login within coroutine
-                        val loginResult = loginService.login(userEmail, "")
-                        if (loginResult.isSuccessful) {
-                            Log.d("GoogleSignInButton", "Login successful.")
-                            // Navigate to the next screen
-                            navigator.push(LandingScreen())
+                        // User exists, check if biometric authentication is enabled
+                        val existingUser = res.body()?.firstOrNull()
+                        if (existingUser != null && existingUser.isBiometricEnabled == true) {
+                            // Check if biometrics are supported before proceeding
+                            if (BiometricAuthHelper.isBiometricSupported(activity)) {
+                                // Trigger biometric authentication
+                                val isAuthenticated = BiometricAuthHelper.authenticate(MainPassedActivity).await()
+                                if (isAuthenticated) {
+                                    // Proceed with login after successful biometric authentication
+                                    GlobalScope.launch {
+                                        val loginResult = loginService.login(userEmail, "")
+                                        if (loginResult.isSuccessful) {
+                                            Log.d("GoogleSignInButton", "Biometric login successful.")
+                                            navigator.push(LandingScreen())
+                                        } else {
+                                            val errorMessage = loginResult.errorBody()?.string() ?: "Unknown error"
+                                            Log.e("GoogleSignInButton", "Biometric login failed: $errorMessage")
+                                        }
+                                    }
+                                } else {
+                                    Log.e("GoogleSignInButton", "Biometric authentication failed.")
+                                }
+                            } else {
+                                Log.e("GoogleSignInButton", "Device does not support biometric authentication.")
+                            }
                         } else {
-                            val errorMessage =
-                                loginResult.errorBody()?.string() ?: "Unknown error"
-                            Log.e("GoogleSignInButton", "Login failed: $errorMessage")
+                            // If biometrics are not enabled, proceed directly to login
+                            Log.d("GoogleSignInButton", "User exists without biometric requirement. Proceeding to log in.")
+                            val loginResult = loginService.login(userEmail, "")
+                            if (loginResult.isSuccessful) {
+                                Log.d("GoogleSignInButton", "Login successful.")
+                                navigator.push(LandingScreen())
+                            } else {
+                                val errorMessage = loginResult.errorBody()?.string() ?: "Unknown error"
+                                Log.e("GoogleSignInButton", "Login failed: $errorMessage")
+                            }
                         }
+                    }
+                } else {
+                    val errorMessage = res.errorBody()?.string() ?: "Unknown error"
+                    Log.e("GoogleSignInButton", "Failed to check if user exists: $errorMessage")
+                }
+            } catch (exception: Exception) {
+                Log.e("GoogleSignInButton", "Exception occurred: ${exception.message}", exception)
+            }
+        }
+
+
+    } catch (e: ApiException) {
+        Log.e("GoogleSignInButton", "Sign-in failed: ${e.statusCode}, Message: ${e.message}")
+    } catch (e: Exception) {
+        Log.e("GoogleSignInButton", "Error: ${e.message}")
+    }
+}
+
+// Function to decode the Google ID Token (if needed)
+fun parseIdToken(idToken: String): JSONObject {
+    val parts = idToken.split(".")
+    if (parts.size != 3) throw IllegalArgumentException("Invalid ID token format.")
+    val payload = parts[1] // The payload is the second part of the token
+    val decodedBytes = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP)
+    val json = String(decodedBytes)
+    return JSONObject(json)
+
+}
 
 //         // Check if the user is registering or logging in
 //         coroutineScope.launch {
@@ -293,37 +337,3 @@ private fun handleSignInResult(
 
 //                     UserViewModel.loginUser(newUser.username, "password", context) { user ->
 //                         Log.d("LoginService 2", user.toString())
-
-                    }
-                } else {
-                    val errorMessage = res.errorBody()?.string() ?: "Unknown error"
-                    Log.e("GoogleSignInButton", "Failed to check if user exists: $errorMessage")
-                    Log.e(
-                        "GoogleSignInButton",
-                        "Check user existence failed with status code: ${res.code()}"
-                    )
-                }
-            } catch (exception: Exception) {
-                Log.e(
-                    "GoogleSignInButton",
-                    "Exception occurred: ${exception.message}",
-                    exception
-                )
-            }
-        }
-    } catch (e: ApiException) {
-        Log.e("GoogleSignInButton", "Sign-in failed: ${e.statusCode}, Message: ${e.message}")
-    } catch (e: Exception) {
-        Log.e("GoogleSignInButton", "Error: ${e.message}")
-    }
-}
-
-// Function to decode the Google ID Token (if needed)
-fun parseIdToken(idToken: String): JSONObject {
-    val parts = idToken.split(".")
-    if (parts.size != 3) throw IllegalArgumentException("Invalid ID token format.")
-    val payload = parts[1] // The payload is the second part of the token
-    val decodedBytes = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP)
-    val json = String(decodedBytes)
-    return JSONObject(json)
-}
