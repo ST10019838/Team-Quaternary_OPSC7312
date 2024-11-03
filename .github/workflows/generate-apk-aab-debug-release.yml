@@ -1,18 +1,13 @@
 name: Generated APK AAB (Upload - Create Artifact To Github Action)
 
 env:
-  # The name of the main module repository
   main_project_module: app
-
-  # The name of the Play Store
   playstore_name: Frogobox ID
 
 on:
   push:
     branches:
       - 'release/**'
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -33,18 +28,13 @@ jobs:
       - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
+          distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
 
-      # Change directory to Bot-lobby-application to access gradlew
-      - name: Change directory to Bot-lobby-application
-        run: cd bot-lobby-application
-
-      # Adjust path for gradlew located in the Bot-lobby-application directory
+      # Change permissions for gradlew
       - name: Change wrapper permissions
-        run: chmod +x gradlew
-        working-directory: bot-lobby-application
+        run: chmod +x bot-lobby-application/gradlew
 
       # Run Tests Build
       - name: Run gradle tests
@@ -73,17 +63,17 @@ jobs:
 
       # List debug outputs to verify files are created
       - name: List debug outputs
-        run: ls -la bot-lobby-application/build/outputs/apk/debug/
+        run: ls -la build/outputs/apk/debug/
         working-directory: bot-lobby-application
 
       # List release outputs to verify files are created
       - name: List release outputs
-        run: ls -la bot-lobby-application/build/outputs/apk/release/
+        run: ls -la build/outputs/apk/release/
         working-directory: bot-lobby-application
 
       # List AAB outputs to verify files are created
       - name: List AAB outputs
-        run: ls -la bot-lobby-application/build/outputs/bundle/release/
+        run: ls -la build/outputs/bundle/release/
         working-directory: bot-lobby-application
 
       # Upload Artifact Build
