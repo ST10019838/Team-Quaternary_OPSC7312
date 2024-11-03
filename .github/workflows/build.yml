@@ -45,8 +45,9 @@ jobs:
         run: ./gradlew test
 
       # Automated build using the specified GitHub Action
-      - name: Automated build android app
-        uses: amirisback/automated-build-android-app-with-github-action@latest  # Consider updating to the latest version
+      - name: automated-build-android-app-with-github-action
+        uses: amirisback/automated-build-android-app-with-github-action@2.2.4
+            
 
       # Build project and generate APKs and AAB
       - name: Build gradle project
