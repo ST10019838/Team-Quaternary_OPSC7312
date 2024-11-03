@@ -3,19 +3,41 @@ package com.example.bot_lobby
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.services.LoginService
 import com.example.bot_lobby.services.RegisterService
-
+import com.example.bot_lobby.ui.pages.AnnouncementsTab
+import com.example.bot_lobby.ui.pages.HomeTab
+import com.example.bot_lobby.ui.pages.ProfileTab
+import com.example.bot_lobby.ui.pages.ScoutingTab
+import com.example.bot_lobby.ui.pages.TeamsTab
 import com.example.bot_lobby.ui.screens.LoginScreen
 import com.example.bot_lobby.ui.theme.BotLobbyTheme
 import androidx.compose.material.icons.Icons
@@ -43,11 +65,15 @@ import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : ComponentActivity() {
+
     companion object {
         val userApi: UserApi = RetrofitInstance.UserApi
         val loginService = LoginService(userApi)
         val registerService = RegisterService(userApi)
+
         lateinit var connectivityObserver: ConnectivityObserver
+
+        const val REQUEST_NOTIFICATION_PERMISSION_CODE = 1001 // Declare constant here
     }
 
     @SuppressLint("StateFlowValueCalledInComposition")
@@ -56,6 +82,12 @@ class MainActivity : ComponentActivity() {
 
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         enableEdgeToEdge()
+
+        // Check and request notification permission
+        if (!isNotificationPermissionGranted()) {
+            requestNotificationPermission()
+        }
+
         setContent {
             val connectivity by connectivityObserver.observe()
                 .collectAsState(ConnectivityObserver.Status.Unavailable)
@@ -127,224 +159,42 @@ class MainActivity : ComponentActivity() {
 //            }
 
             BotLobbyTheme {
-//                Column {
-//                    if (isLoading) {
-//                        Text(isLoading.toString())
-//                    } else {
-//
-//                    }
-//
-//                    Text(session.toString())
-//                }
-
-                Navigator(
-////                    if (auth.currentUser != null)
-////                        LandingScreen()
-////                    else
-//
-//                    if (session != null)
-//                        LandingScreen()
-//                    else
-                    LoginScreen()
-//                                screenToDisplay
-                ) {
+                Navigator(LoginScreen()) {
                     SlideTransition(it)
                 }
-
-
-//
-
-//if(sessionViewModel.session.value !== null){
-//    Text("LOG ME IN")
-//} else Text("DONT LOG ME IN")
-
-
-//                Box{
-//                    LazyColumn {
-//                        items(state){ model ->
-//                            Text(model.toString())
-//                        }
-//                    }
-
-//                    Row (modifier = Modifier.padding(bottom = 100.dp, top = 100.dp).align(Alignment.BottomCenter)){
-//                        Button(onClick = {
-//                            val newTeam = Team(
-//                                tag = "D1",
-//                                name = "Damian Team 1",
-//                                userIdsAndRoles = listOf(IdAndRole(21, "Owner"), IdAndRole(20, "Member")),
-//                                isPublic = false,
-//                                isOpen = false,
-//                                isLFM = false,
-//                                maxNumberOfUsers = 10,
-//                                bio = "This is our bio"
-//                            )
-//                            vm.upsertTeam(newTeam)
-//
-//                        }) { Text("Add") }
-//
-//                        Button(
-//                            onClick = {
-//                                val teamToUpdate = Team(
-//                                    id = state.first().id,
-//                                    tag = "UR MOM",
-//                                    name = "Damian Team 1",
-//                                    userIdsAndRoles = listOf(IdAndRole(21, "Owner"), IdAndRole(20, "Member")),
-//                                    isPublic = false,
-//                                    isOpen = true,
-//                                    isLFM = false,
-//                                    maxNumberOfUsers = 10,
-//                                    bio = "This is our bio"
-//                                )
-//
-//                                vm.upsertTeam(teamToUpdate)
-//                            },
-//                        ) { Text("Update") }
-
-
-//                        Button(
-//                            onClick = {
-//                                vm.deleteTeams()
-//                            },
-//                        ) { Text("Delete") }
-
-//                        Button(onClick = {
-//                            val newUser = User(
-//                                id = 1,
-//                                role = 1,
-//                                bio = "this is the bio",
-//                                username = "Dare",
-//                                password = "password",
-//                                teamIds = listOf(UUID.randomUUID(), UUID.randomUUID()),
-//                                isPublic = false,
-//                                isLFT = false,
-//                                email = "myemail"
-//                            )
-//                            vm.upsertUser(newUser)
-//
-//                        }) { Text("Add User") }
-
-//                        Button(onClick = {
-//                            val newUser = User(
-//                                id = 1,
-//                                role = 1,
-//                                bio = "this is not the bio",
-//                                username = "Dare",
-//                                password = "password",
-//                                teamIds = listOf(UUID.randomUUID(), UUID.randomUUID()),
-//                                isPublic = false,
-//                                isLFT = false,
-//                                email = "myemail"
-//                            )
-//                            vm.upsertSession(Session(userLoggedIn = newUser))
-//
-//                        }) { Text("Add Session") }
-//
-//                    }
-//
-//                    if(state.isNotEmpty()){
-//                        Text(state.first().userLoggedIn.bio.toString())
-//                    }
-
-
             }
+        }
+    }
 
+    private fun isNotificationPermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
 
-//                TabNavigator(HomeTab) {
-//                    Scaffold(
-//                        content = { innerPadding ->
-////                            AuthScreen(
-////                                modifier = Modifier.padding(innerPadding),
-////                                loginService = loginService,
-////                                registerService = registerService
-////                            )
-//
-//                            Box(
-//                                modifier = Modifier
-//                                    .padding(innerPadding)
-//                                    .padding(horizontal = 25.dp, vertical = 15.dp)
-//                            ) {
-//                                CurrentTab()
-//                            }
-//
-//                        },
-//                        bottomBar = {
-//                            NavigationBar {
-//                                TabNavigationItem(EventsTab)
-//                                TabNavigationItem(TeamsTab)
-//                                TabNavigationItem(HomeTab)
-//                                TabNavigationItem(ProfileTab)
-//                                TabNavigationItem(ScoutingTab)
-//                            }
-//                        }
-//                    )
-//                }
-//            }
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATION_PERMISSION_CODE
+            )
+        }
+    }
 
-            if (showOfflineDialog) {
-                AlertDialog(
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.SignalWifiStatusbarConnectedNoInternet4,
-                            contentDescription = "Offline Mode"
-                        )
-                    },
-                    title = {
-                        Text(
-                            text = stringResource(R.string.offline_notice_title),
-                            textAlign = TextAlign.Center
-                        )
-                    },
-                    text = {
-                        Text(stringResource(R.string.offline_notice_body))
-                    },
-                    onDismissRequest = {
-                        dismissedOfflineDialog = true
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                dismissedOfflineDialog = true
-                            }
-                        ) {
-                            Text(stringResource(R.string.confirm_action))
-                        }
-                    },
-                )
-            }
-
-            if (showStudentNotice) {
-                AlertDialog(
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Student Alert"
-                        )
-                    },
-                    title = {
-                        Text(
-                            text = stringResource(R.string.student_notice_title),
-                            textAlign = TextAlign.Center
-                        )
-                    },
-                    text = {
-                        Text(
-                            stringResource(R.string.student_notice_body),
-                            textAlign = TextAlign.Justify
-                        )
-                    },
-                    onDismissRequest = {
-                        showStudentNotice = false
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showStudentNotice = false
-                            }
-                        ) {
-                            Text(stringResource(R.string.confirm_action))
-                        }
-                    },
-                )
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>, // Changed type here
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION_CODE) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
             }
         }
     }
