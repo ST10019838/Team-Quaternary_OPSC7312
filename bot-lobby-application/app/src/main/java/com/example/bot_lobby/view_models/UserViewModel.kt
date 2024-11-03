@@ -3,12 +3,9 @@ package com.example.bot_lobby.view_models
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bot_lobby.api.RetrofitInstance
-import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.models.FetchResponse
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
@@ -19,11 +16,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.bot_lobby.api.RetrofitInstance.UserApi
 import com.example.bot_lobby.models.Session
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
 
 object UserViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
@@ -35,8 +30,56 @@ object UserViewModel : ViewModel() {
     private val _searchError: MutableStateFlow<String?> = MutableStateFlow(null)
     val searchError: StateFlow<String?> = _searchError.asStateFlow()
 
-    private val _searchedUsers: MutableStateFlow<List<User>?> = MutableStateFlow(null)
-    val searchedUsers: StateFlow<List<User>?> = _searchedUsers.asStateFlow()
+    //    private val _searchedUsers: MutableStateFlow<List<User>?> = MutableStateFlow(null)
+//    val searchedUsers: StateFlow<List<User>?> = _searchedUsers.asStateFlow()
+    private val _refreshSearch: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    val searchedUsers = combine(_searchQuery, _refreshSearch) { searchQuery, refreshSearch ->
+        if (refreshSearch) {
+            _refreshSearch.value = false
+        }
+
+        _isSearching.value = true
+
+        // The following query was adapted from stackoverflow.com
+        // Author: bgs (https://stackoverflow.com/users/2298058/bgs)
+        // Link: https://stackoverflow.com/questions/17322228/check-if-a-column-contains-text-using-sql
+        // Create a query string that will be used to search for all teams based on their ids
+        val usernameQuery = "like.*${searchQuery}*"
+        val isPublicQuery = "eq.true"
+
+
+        // Fetch data
+        val response: Any
+
+        if (searchQuery.isNotEmpty()) {
+            try {
+                response = UserApi.getUsersByName(
+                    RetrofitInstance.apiKey,
+                    username = usernameQuery,
+                    isPublic = isPublicQuery
+                )
+
+                _isSearching.value = false
+                response.body()?.toList()
+
+            } catch (exception: Exception) {
+                _searchError.value = exception.message.toString()
+                Log.i("ERROR!", exception.message.toString())
+
+                _isSearching.value = false
+                emptyList()
+            }
+        } else {
+            _isSearching.value = false
+            emptyList()
+        }
+
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun refreshSearch() {
+        _refreshSearch.value = true
+    }
 
     private val _userData: MutableStateFlow<List<User>> = MutableStateFlow(listOf())
     val userData: StateFlow<List<User>> = _userData
@@ -162,6 +205,8 @@ object UserViewModel : ViewModel() {
                 Log.e("ERROR!", exception.message.toString())
             }
         }
+
+        refreshSearch()
     }
 
     // Function to delete a user
@@ -182,57 +227,16 @@ object UserViewModel : ViewModel() {
                 Log.e("ERROR!", exception.message.toString())
             }
         }
+
+        refreshSearch()
     }
 
     fun clearSearchQuery() {
         _searchQuery.value = ""
-        _searchedUsers.value = null
     }
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
-    }
-
-    fun searchForUsers() {
-        _isSearching.value = true
-
-        if (searchQuery.value.isEmpty()) {
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                // The following query was adapted from stackoverflow.com
-                // Author: bgs (https://stackoverflow.com/users/2298058/bgs)
-                // Link: https://stackoverflow.com/questions/17322228/check-if-a-column-contains-text-using-sql
-                // Create a query string that will be used to search for all teams based on their ids
-                val queryString = "like.*${searchQuery.value}*"
-
-
-                // Fetch data
-                val response =
-                    UserApi.getUsersByName(
-                        RetrofitInstance.apiKey,
-                        queryString
-                    )
-                val body = response.body()
-
-                Log.i("RESPONSE", response.toString())
-                if (body != null) {
-                    _searchedUsers.value = body
-
-                    Log.i("DATA", body.toString())
-                }
-            } catch (exception: Exception) {
-                _searchError.value = exception.message.toString()
-                Log.i("ERROR!", exception.message.toString())
-            }
-
-
-            _isSearching.value = false
-
-        }
-
     }
 
     // Create a new user
@@ -322,7 +326,7 @@ object UserViewModel : ViewModel() {
 
         _searchError.value = null
 
-        _searchedUsers.value = null
+//        _searchedUsers.value = null
 
         _userData.value = emptyList()
     }

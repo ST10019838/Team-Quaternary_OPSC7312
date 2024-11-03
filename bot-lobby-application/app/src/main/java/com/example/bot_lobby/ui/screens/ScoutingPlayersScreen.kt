@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.composables.FullScreenModal
@@ -61,10 +63,10 @@ fun ScoutingPlayersScreen(
     teamViewModel: TeamViewModel = viewModel() // Initialize TeamViewModel
 ) {
     // Collect searchQuery and filtered players from the PlayerViewModel
-    val searchQuery by userViewModel.searchQuery.collectAsState()
-    val isSearching by userViewModel.isSearching.collectAsState()
-    val searchedUsers by userViewModel.searchedUsers.collectAsState()
-    val searchError by userViewModel.searchError.collectAsState()
+    val searchQuery by UserViewModel.searchQuery.collectAsState()
+    val isSearching by UserViewModel.isSearching.collectAsState()
+    val searchedUsers by UserViewModel.searchedUsers.collectAsState()
+    val searchError by UserViewModel.searchError.collectAsState()
 
     val sessionViewModel = SessionViewModel(LocalContext.current)
     val session by sessionViewModel.session.collectAsState()
@@ -82,6 +84,7 @@ fun ScoutingPlayersScreen(
             .fillMaxSize()
             .padding(2.dp)
     ) {
+
         // Row for the Search Bar, Search Icon, and Refresh Button
         Row(
             modifier = Modifier
@@ -122,12 +125,12 @@ fun ScoutingPlayersScreen(
                 focusManager.clearFocus() // Clears focus when search button is clicked
                 Log.d("PlayersTab", "Search triggered")
 
-
-                userViewModel.searchForUsers()
+//                userViewModel.searchForUsers()
+                UserViewModel.clearSearchQuery()
             }, enabled = searchQuery.isNotEmpty()) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon" // Describes the search button
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear Search" // Describes the search button
                 )
             }
 
@@ -154,13 +157,12 @@ fun ScoutingPlayersScreen(
 
 
         // Player List within LazyColumn for scrolling through players
-        if (searchedUsers == null) {
+        if (isSearching) {
+            Text("Searching...")
+        } else if (searchQuery.isEmpty()) {
             Text("Enter a Player's Name to Search.")
         } else if (!searchError.isNullOrEmpty()) {
             searchError?.let { Text(it) }
-        } else if (isSearching) {
-            Text("Searching...")
-
         } else if (searchedUsers!!.isEmpty()) {
             Text("No Players Found")
         } else {
@@ -176,10 +178,14 @@ fun ScoutingPlayersScreen(
                 ) {
                     items(searchedUsers!!) { user ->
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, teams = session?.usersTeams, canView = true, onView = {
-                            isDialogOpen = true
-                            userToView = user
-                        })
+                        PlayerListItem(
+                            user = user,
+                            teams = session?.usersTeams,
+                            canView = true,
+                            onView = {
+                                isDialogOpen = true
+                                userToView = user
+                            })
                     }
                 }
             }
