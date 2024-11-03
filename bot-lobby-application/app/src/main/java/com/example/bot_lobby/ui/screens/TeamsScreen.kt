@@ -100,7 +100,7 @@ fun TeamsScreen() {
         if (teams.value.size < 10) {
             FloatingActionButton(
                 onClick = {
-                    // Handle the button click event here
+                    // Handle the button click announcement here
                     val user = AuthViewModel.userLoggedIn.value
 
                     val newTeam = Team(

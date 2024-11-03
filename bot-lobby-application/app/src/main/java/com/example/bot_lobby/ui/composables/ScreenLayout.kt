@@ -27,7 +27,7 @@ fun ScreenLayout(tabNavigator: TabNavigator) {
         // Bottom navigation bar with tab items
         bottomBar = {
             NavigationBar {
-                TabNavigationItem(EventsTab)  // Events tab
+                TabNavigationItem(AnnouncementsTab)  // announcements tab
                 TabNavigationItem(TeamsTab)   // Teams tab
                 TabNavigationItem(HomeTab)    // Home tab
                 TabNavigationItem(ProfileTab) // Profile tab
@@ -56,7 +56,7 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
     // Define the appearance and behavior of a navigation item
     NavigationBarItem(
         selected = isSelected, // Whether the item is selected
-        onClick = { tabNavigator.current = tab }, // Handle click events for the tab
+        onClick = { tabNavigator.current = tab }, // Handle click announcements for the tab
         icon = {
             // Display the icon for the tab
             Icon(
