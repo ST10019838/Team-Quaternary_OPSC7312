@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation("com.google.firebase:firebase-common:20.3.1")
+    implementation(libs.firebase.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -129,7 +130,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
     implementation("io.github.jan-tennert.supabase:compose-auth:1.3.2")
     implementation("io.github.jan-tennert.supabase:compose-auth-ui:1.3.2")
-    
+
     // Google Identity and Credentials
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
@@ -137,7 +138,10 @@ dependencies {
 //    implementation("com.google.android.gms:play-services-auth:16.0.0")
 
     //Firebase messaging
-    implementation("com.google.firebase:firebase-messaging:23.1.2")
+//    implementation("com.google.firebase:firebase-messaging:24.0.3")
+    implementation(libs.firebase.messaging)
+//    implementation("com.google.firebase:firebase-common-ktx")
+    implementation(libs.google.firebase.common.ktx)
 
 
     implementation("io.github.jan-tennert.supabase:postgrest-kt:1.3.2")
@@ -146,7 +150,6 @@ dependencies {
 
 //    implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
     implementation(libs.supabase.gotrue.kt)
-
 
 
 //    implementation(libs.supabase.auth.kt)

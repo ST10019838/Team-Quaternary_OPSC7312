@@ -30,54 +30,72 @@ fun AnnouncementsScreen(
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(4.dp)
     ) {
-
-        Text(
-            text = "Announcements",
-            style = MaterialTheme.typography.headlineSmall.copy( // Changed h5 to headlineSmall
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            ),
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            textAlign = TextAlign.Center
-        )
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(vertical = 8.dp)
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            items(announcements) { announcement ->
-                AnnouncementItem(
-                    announcement = announcement,
-                    onClick = { onAnnouncementClick(announcement) }
-                )
-                Spacer(modifier = Modifier.height(8.dp)) // Spacer between items
-            }
-        }
+            Text(
+                text = "Announcements",
+                style = MaterialTheme.typography.headlineMedium.copy( // Changed h5 to headlineSmall
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center
+            )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            contentAlignment = Alignment.BottomEnd // Changed to BottomEnd for full compatibility
-        ) {
-            FloatingActionButton(
-                onClick = onAddAnnouncement,
-                modifier = Modifier.padding(16.dp),
-                shape = MaterialTheme.shapes.medium,
-                containerColor = BlueStandard,
-                contentColor = Color.White
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(22.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add announcement", tint = Color.White)
+                items(announcements) { announcement ->
+                    AnnouncementItem(
+                        announcement = announcement,
+                        onClick = { onAnnouncementClick(announcement) }
+                    )
+//                    Spacer(modifier = Modifier.height(8.dp)) // Spacer between items
+                }
             }
+
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(16.dp),
+//                contentAlignment = Alignment.BottomEnd // Changed to BottomEnd for full compatibility
+//            ) {
+
+//            }
         }
+
+        FloatingActionButton(
+            onClick = onAddAnnouncement,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            // Align to bottom-right corner
+//            shape = MaterialTheme.shapes.medium,
+            containerColor = BlueStandard,
+            contentColor = Color.White
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Add announcement",
+                tint = Color.White
+            )
+        }
+
     }
+
+
 }
