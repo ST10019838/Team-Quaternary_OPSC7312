@@ -73,17 +73,17 @@ jobs:
 
       # List debug outputs to verify files are created
       - name: List debug outputs
-        run: ls -la Bot-lobby-application/build/outputs/apk/debug/
+        run: ls -la bot-lobby-application/build/outputs/apk/debug/
         working-directory: bot-lobby-application
 
       # List release outputs to verify files are created
       - name: List release outputs
-        run: ls -la Bot-lobby-application/build/outputs/apk/release/
+        run: ls -la bot-lobby-application/build/outputs/apk/release/
         working-directory: bot-lobby-application
 
       # List AAB outputs to verify files are created
       - name: List AAB outputs
-        run: ls -la Bot-lobby-application/build/outputs/bundle/release/
+        run: ls -la bot-lobby-application/build/outputs/bundle/release/
         working-directory: bot-lobby-application
 
       # Upload Artifact Build
@@ -91,16 +91,16 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) debug generated
-          path: Bot-lobby-application/build/outputs/apk/debug/
+          path: bot-lobby-application/build/outputs/apk/debug/
 
       - name: Upload APK Release - ${{ env.repository_name }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - APK(s) release generated
-          path: Bot-lobby-application/build/outputs/apk/release/
+          path: bot-lobby-application/build/outputs/apk/release/
 
       - name: Upload AAB (App Bundle) Release - ${{ env.repository_name }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.date_today }} - ${{ env.playstore_name }} - ${{ env.repository_name }} - App bundle(s) AAB release generated
-          path: Bot-lobby-application/build/outputs/bundle/release/
+          path: bot-lobby-application/build/outputs/bundle/release/
