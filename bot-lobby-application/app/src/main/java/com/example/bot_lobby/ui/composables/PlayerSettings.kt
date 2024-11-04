@@ -4,7 +4,6 @@ import android.app.LocaleManager
 import android.content.Context
 import android.os.Build
 import android.os.LocaleList
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,7 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -53,15 +50,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.R
-import com.example.bot_lobby.view_models.AuthViewModel
-import com.example.bot_lobby.view_models.SessionViewModel
-import com.example.bot_lobby.view_models.UserViewModel
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +68,6 @@ fun PlayerSettings(
     var isDarkModeEnabled by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
 
-
     // List of supported languages
     val languages = listOf("English", "Afrikaans")
 
@@ -85,6 +76,14 @@ fun PlayerSettings(
 
     var isDeleteDialogOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val locale = Locale.getDefault().language
+
+
+    selectedLanguage = if(locale == "en"){
+        "English"
+    } else {
+        "Afrikaans"
+    }
 
     // Scrollable Column for the settings content
     Column(
@@ -231,10 +230,8 @@ fun PlayerSettings(
                             onClick = {
                                 if(language == "English"){
                                     changeLocales(context,"en")
-
                                 } else{
                                     changeLocales(context,"af")
-
                                 }
 
 
