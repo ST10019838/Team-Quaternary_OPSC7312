@@ -3,10 +3,15 @@ package com.example.bot_lobby.ui.screens
 import android.util.Log
 import androidx.compose.foundation.layout.*
 
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
+import com.example.bot_lobby.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +27,7 @@ import com.example.bot_lobby.models.Announcement
 import com.example.bot_lobby.utils.onFormValueChange
 import java.util.UUID
 
+
 @Composable
 fun NewAnnouncementScreen(
     session: Session,
@@ -33,7 +39,6 @@ fun NewAnnouncementScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedTeam: Team? by remember { mutableStateOf(null) }
-
     val context = LocalContext.current
     val sessionViewModel = viewModel { SessionViewModel(context) }
 
@@ -44,6 +49,7 @@ fun NewAnnouncementScreen(
         sessionViewModel.refreshUsersTeams()
     }
 
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,7 +57,7 @@ fun NewAnnouncementScreen(
         verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
         Text(
-            text = "New Announcement",
+            text = stringResource(id = R.string.new_announcment),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -59,7 +65,7 @@ fun NewAnnouncementScreen(
 
         Spacer(modifier = Modifier.height(1.dp))
         Select<Team?>(
-            label = "Team",
+            label = stringResource(id =R.string.team),
             value = selectedTeam,
             options = session.usersTeams,
 //                itemFormatter = form.category.optionItemFormatter,
@@ -67,8 +73,8 @@ fun NewAnnouncementScreen(
             onSelect = {
                 if (it != null) {
                     selectedTeam = it
-
                 }
+
 
 //                teamDropdownExpanded = false
 //                    onFormValueChange(
@@ -77,9 +83,9 @@ fun NewAnnouncementScreen(
 //                        fieldState = form.category
 //                    )
             },
-//            hasError = form.team.hasError(),
-//            errorText = form.team.errorText,
-            placeholderText = "Select a Team",
+//                hasError = form.category.hasError(),
+//                errorText = form.category.errorText,
+            placeholderText = stringResource(id =R.string.select_team),
             itemFormatter = { team ->
                 team?.tag!!
             }
@@ -114,23 +120,20 @@ fun NewAnnouncementScreen(
 
         TextField(
             value = title,
-            label = "Title",
+            label = stringResource(id =R.string.title),
             isRequired = true,
             onChange = {
                 title = it
-
 //                onFormValueChange(title, form, form.title)
-
-
 //                onFormValueChange(
 //                    value = it,
 //                    form = form,
 //                    fieldState = form.description
 //                )
             },
-//            hasError = form.title.hasError(),
-//            errorText = form.title.errorText,
-            placeholderText = "Add a Title"
+//            hasError = form.description.hasError(),
+//            errorText = form.description.errorText,
+            placeholderText = stringResource(id =R.string.add_title)
         )
 
 //        Text(text = "Title *")
@@ -159,26 +162,21 @@ fun NewAnnouncementScreen(
 //        )
 
         TextField(
-            value = /*form.body.state.value ?: "new"*/ description,
-            label = "Description",
-            isRequired = true,
+            value = description,
+            label = stringResource(id =R.string.description),
+            isRequired = false,
             onChange = {
                 description = it
-
-//                onFormValueChange(description, form, form.body)
-
+              
 //                onFormValueChange(
 //                    value = it,
 //                    form = form,
 //                    fieldState = form.description
 //                )
             },
-//            hasError = form.body.hasError(),
-//            errorText = form.body.errorText,
-//            hasError = form.password.hasError(),
-//            errorText = form.password.errorText,
-
-            placeholderText = "Add a Description",
+//            hasError = form.description.hasError(),
+//            errorText = form.description.errorText,
+            placeholderText = stringResource(id =R.string.add_description),
             singleLine = false,
             maxLines = 3,
             useTextArea = true
@@ -216,7 +214,7 @@ fun NewAnnouncementScreen(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
             ) {
-                Text("Post Announcement")
+                Text(stringResource(id =R.string.post_announcement))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -225,7 +223,7 @@ fun NewAnnouncementScreen(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancel")
+                Text(stringResource(id =R.string.cancel))
             }
         }
 

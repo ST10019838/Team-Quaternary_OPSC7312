@@ -1,6 +1,19 @@
 package com.example.bot_lobby.view_models
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.bot_lobby.models.Announcement
+import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.models.User
+import com.example.bot_lobby.services.PushNotificationService
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -40,8 +53,6 @@ class AnnouncementViewModel(context: Context) : ViewModel() {
 
     // List to store announcements
     private val _announcements = mutableListOf<Announcement>()
-//    val announcements: List<Announcement> get() = _announcements
-
 
     private val _isFetching = MutableStateFlow(false)
     val isFetching: StateFlow<Boolean> = _isFetching
@@ -135,6 +146,7 @@ class AnnouncementViewModel(context: Context) : ViewModel() {
         initializeFirebase()
     }
 
+
     fun postAnnouncement(announcement: Announcement) {
         viewModelScope.launch {
             try {
@@ -216,6 +228,7 @@ class AnnouncementViewModel(context: Context) : ViewModel() {
                 // Adding extra spaces to approximate centering
                 val notificationContent = """
                 ${announcement.body}
+
                 """.trimIndent()
 
                 PushNotificationService.showLocalNotification(
@@ -287,5 +300,4 @@ class AnnouncementViewModel(context: Context) : ViewModel() {
 
         return token
     }
-
 }

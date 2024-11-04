@@ -40,7 +40,6 @@ object AnnouncementsTab : Tab {
         val sessionViewModel = viewModel { SessionViewModel(context) }
         val session by sessionViewModel.session.collectAsState()
 
-
         // Retrieve the current user's ID (replace with actual retrieval method)
         val currentUserId = "user_id_example" // Replace with actual logic to get the user ID
 

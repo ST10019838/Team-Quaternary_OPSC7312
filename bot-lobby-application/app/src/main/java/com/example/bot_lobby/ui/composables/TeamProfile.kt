@@ -1,5 +1,6 @@
 package com.example.bot_lobby.ui.composables
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -19,21 +20,29 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.GroupAdd
+import androidx.compose.material.icons.filled.JoinFull
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.PublicOff
 import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material.icons.outlined.DoorBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +52,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.MainActivity
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.models.User
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
@@ -57,10 +74,17 @@ import com.example.bot_lobby.view_models.UserViewModel
 fun TeamProfile(
     team: Team,
     canEdit: Boolean = false,
+    onClose: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    sessionViewModel: SessionViewModel? = null,
+    canJoin: Boolean = false,
+    onJoin: () -> Unit = {},
+    canLeave: Boolean = false,
+    onLeave: () -> Unit = {},
 ) {
     // Retrieve the teams players
-    val userViewModel = UserViewModel()
-    val teamViewModel = TeamViewModel()
+    val userViewModel = viewModel<UserViewModel>()
+    val teamViewModel = viewModel<TeamViewModel>()
 
     val context = LocalContext.current
 
@@ -70,8 +94,8 @@ fun TeamProfile(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLeaveDialog by remember { mutableStateOf(false) }
 
-    var teamToDisplay by remember { mutableStateOf(team) }
 
+    var teamToDisplay by remember { mutableStateOf(team) }
     val connectivity by connectivityObserver.observe()
         .collectAsStateWithLifecycle(ConnectivityObserver.Status.Unavailable)
 
@@ -105,9 +129,9 @@ fun TeamProfile(
                 teamIsLFM = it.isLFM
             }
 
-
             // Get the members for the user
             val response = userViewModel.getTeamsUsers(team)
+
 
             if (response.errors.isNullOrEmpty()) {
                 users = response.data
@@ -337,11 +361,11 @@ fun TeamProfile(
                         isPublic = teamIsPublic,
                         isLFM = teamIsLFM,
                         isOpen = teamIsOpen,
-                        userIdsAndRoles = teamToDisplay.userIdsAndRoles, // TODO fix this to accomodate for multiple users
+                        userIdsAndRoles = teamToDisplay.userIdsAndRoles, 
                         maxNumberOfUsers = teamToDisplay.maxNumberOfUsers
                     )
 
-                    AuthViewModel.updateUsersTeam(updatedTeam)
+                    sessionViewModel!!.updateUsersTeam(updatedTeam)
 
                     teamViewModel.updateTeam(updatedTeam)
 
@@ -362,8 +386,50 @@ fun TeamProfile(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Save Changes", style = MaterialTheme.typography.bodyLarge)
             }
-        }
 
+            Button(
+                onClick = {
+                    showDeleteDialog = true
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red,
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Delete Team", fontSize = 16.sp)
+            }
+        } else if (canJoin && team.isOpen && team.userIdsAndRoles?.size!! < 10) {
+            Button(
+                onClick = onJoin,
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.Red,
+//                contentColor = Color.White
+//            ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Default.GroupAdd, contentDescription = "Join Team")
+                Spacer(modifier = Modifier.width(8.dp))
+                // TODO: Convert string to Resource
+                Text("Join Team", style = MaterialTheme.typography.bodyLarge)
+            }
+        } else if (canLeave) {
+            Button(
+                onClick = { showLeaveDialog = true },
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.Red,
+//                contentColor = Color.White
+//            ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(imageVector = Icons.Outlined.DoorBack, contentDescription = "Leave Team")
+                Spacer(modifier = Modifier.width(8.dp))
+                // TODO: Convert string to Resource
+                Text("Leave Team", style = MaterialTheme.typography.bodyLarge)
+            }
+        }
 
         Spacer(Modifier.height(25.dp))
 
@@ -389,7 +455,11 @@ fun TeamProfile(
 
         // Player List within LazyColumn for scrolling through players
 
-        if (isLoading) {
+//        val isOffline by remember { mutableStateOf() }
+        if (connectivity != ConnectivityObserver.Status.Available) {
+            // The following code executes when the user is offline
+            Text(stringResource(R.string.team_profile_offline))
+        } else if (isLoading) {
             Text("Loading...")
         } else if (!error.isNullOrEmpty()) {
             error?.let { Text(it) }
@@ -403,12 +473,17 @@ fun TeamProfile(
 
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(users!!) { user ->
-
+                        val isOwner =
+                            if (team.userIdsAndRoles?.find { it.id == user.id }?.isOwner == true)
+                                true
+                            else
+                                null
                         // Pass navController to PlayerListItem to enable navigation
-                        PlayerListItem(user = user, canView = false)
+                        PlayerListItem(user = user, canView = false, isRoleOwner = isOwner)
                     }
                 }
             }
@@ -426,5 +501,99 @@ fun TeamProfile(
 //            })
 //            Spacer(modifier = Modifier.height(8.dp))
 //        }
+    }
+
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            icon = {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            },
+            title = {
+                Text(text = stringResource(R.string.delete_team_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.delete_team_confirmation))
+            },
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+
+                        showDeleteDialog = false
+
+                        onClose()
+
+                        Toast.makeText(
+                            context,
+                            R.string.delete_team_success,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()  // Show a confirmation toast
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm_action))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.dismiss_action))
+                }
+            }
+        )
+    }
+
+
+    if (showLeaveDialog) {
+        AlertDialog(
+            icon = {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+            },
+            title = {
+                Text(text = stringResource(R.string.leave_team_title))
+            },
+            text = {
+                Text(stringResource(R.string.leave_team_confirmation))
+            },
+            onDismissRequest = {
+                showLeaveDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onLeave()
+
+                        showLeaveDialog = false
+
+                        onClose()
+
+                        Toast.makeText(
+                            context,
+                            R.string.left_team_success,
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()  // Show a confirmation toast
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm_action))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLeaveDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.dismiss_action))
+                }
+            }
+        )
     }
 }

@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    extra["kotlin_version"] = "1.9.10"
+    extra["kotlin_version"] = "1.9.24"
     repositories {
         google()
         mavenCentral()
@@ -13,7 +13,12 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${project.extra["kotlin_version"]}")
     }
 }
-
+allprojects {
+    repositories {
+//        google()
+//        mavenCentral()
+    }
+}
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false

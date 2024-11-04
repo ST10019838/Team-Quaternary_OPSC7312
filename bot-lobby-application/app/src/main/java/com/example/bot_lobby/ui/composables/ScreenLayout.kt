@@ -1,10 +1,13 @@
 package com.example.bot_lobby.ui.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
@@ -18,6 +21,9 @@ import com.example.bot_lobby.ui.pages.*
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.ui.theme.GreyUnselected
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.bot_lobby.MainActivity
+import com.example.bot_lobby.observers.ConnectivityObserver
 
 // Main layout function for the screen, defining the scaffold with a top bar and a bottom navigation bar
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +33,7 @@ fun ScreenLayout(tabNavigator: TabNavigator) {
         // Bottom navigation bar with tab items
         bottomBar = {
             NavigationBar {
-                TabNavigationItem(EventsTab)  // Events tab
+                TabNavigationItem(AnnouncementsTab)  // announcements tab
                 TabNavigationItem(TeamsTab)   // Teams tab
                 TabNavigationItem(HomeTab)    // Home tab
                 TabNavigationItem(ProfileTab) // Profile tab
@@ -53,10 +59,18 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
     val tabNavigator = LocalTabNavigator.current
     val isSelected = tabNavigator.current == tab
 
+    val connectivity by MainActivity.connectivityObserver.observe()
+        .collectAsState(initial = ConnectivityObserver.Status.Unavailable)
+    val offlineCapablePages = listOf(HomeTab, ProfileTab, TeamsTab)
+    val canWorkOffline = offlineCapablePages.contains(tab)
+
     // Define the appearance and behavior of a navigation item
     NavigationBarItem(
         selected = isSelected, // Whether the item is selected
+
+        enabled = canWorkOffline || connectivity == ConnectivityObserver.Status.Available /* connectivity != ConnectivityObserver.Status.Available || */,
         onClick = { tabNavigator.current = tab }, // Handle click events for the tab
+
         icon = {
             // Display the icon for the tab
             Icon(

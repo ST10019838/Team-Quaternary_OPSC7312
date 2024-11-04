@@ -11,12 +11,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+import com.example.bot_lobby.R
+import com.example.bot_lobby.models.Announcement
+import com.example.bot_lobby.ui.composables.AnnouncementItem
+import com.example.bot_lobby.ui.theme.BlueStandard
+
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
@@ -29,6 +37,7 @@ import com.example.bot_lobby.ui.composables.PlayerListItem
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.AnnouncementViewModelFactory
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -42,6 +51,7 @@ fun AnnouncementsScreen(
     onAnnouncementClick: (Announcement) -> Unit
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+
 
     val context = LocalContext.current
     val announcementViewModel = viewModel { AnnouncementViewModel(context) }
@@ -69,6 +79,7 @@ fun AnnouncementsScreen(
         isLoading = false
     }
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +91,7 @@ fun AnnouncementsScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Announcements",
+                text = stringResource(id = R.string.announcments),
                 style = MaterialTheme.typography.headlineMedium.copy( // Changed h5 to headlineSmall
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -90,6 +101,7 @@ fun AnnouncementsScreen(
                     .padding(vertical = 8.dp),
                 textAlign = TextAlign.Center
             )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -144,7 +156,7 @@ fun AnnouncementsScreen(
         ) {
             Icon(
                 Icons.Default.Add,
-                contentDescription = "Add announcement",
+                contentDescription = stringResource(id = R.string.add_announcments),
                 tint = Color.White
             )
         }

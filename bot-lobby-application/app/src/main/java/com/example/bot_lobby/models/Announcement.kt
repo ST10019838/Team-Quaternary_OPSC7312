@@ -1,6 +1,5 @@
 package com.example.bot_lobby.models
 
-
 import kotlinx.serialization.descriptors.PrimitiveKind
 import java.util.Date
 import java.util.UUID

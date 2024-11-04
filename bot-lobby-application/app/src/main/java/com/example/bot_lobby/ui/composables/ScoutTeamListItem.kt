@@ -105,7 +105,7 @@ fun ScoutTeamListItem(
                         .width(120.dp)
                 ) {
                     Text(
-                        text = "${if (team.userIdsAndRoles.isEmpty()) 0 else team.userIdsAndRoles.size} / 10", // Example for team count
+                        text = "${if (team.userIdsAndRoles?.isEmpty() == true) 0 else team.userIdsAndRoles?.size} / 10", // Example for team count
                         fontSize = 14.sp
                     )
                 }

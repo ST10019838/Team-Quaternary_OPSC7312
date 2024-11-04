@@ -1,5 +1,57 @@
 <resources>
     <string name="app_name">Bot-Lobby</string>
+    <string name="confirm_action">Confirm</string>
+    <string name="dismiss_action">Dismiss</string>
+
+
+    <!-- MainActivity -->
+    <string name="student_notice_title">Student Notice!</string>
+    <string name="student_notice_body" translatable="false">
+        This is a student application that was developed to complete a university course
+        and is not intended, optimized, or secured for consumption. \n\n
+        But who knows, one day the application might gain popularity resulting in a better more optimized version ;)
+    </string>
+
+    <string name="offline_notice_title">You are now in Offline Mode</string>
+    <string name="offline_notice_body">
+        No internet connection detected.
+        Some features will be disabled until an internet connection is found.
+        \n\nThese features include: \n
+            - Logging In / Registering\n
+            - Announcement Creation\n
+            - Scouting\n
+            - Account Deleting\n
+            - Syncing to the Online Database\n \n
+        Ps: Don\'t forget to Sync when online :)
+    </string>
+
+
+
+    <!-- TeamProfile -->
+    <string name="team_profile_offline">
+        You are currently in Offline Mode.
+        Connect to the internet then close and re-open the team to see the members.
+    </string>
+    <string name="left_team_success">Successfully Left The Team</string>
+    <string name="delete_team_success">Successfully Deleted The Team</string>
+    <string name="leave_team_title">Leave Team</string>
+    <string name="leave_team_confirmation">Are you sure you want to leave this team?</string>
+    <string name="delete_team_title">Delete Team</string>
+    <string name="delete_team_confirmation">Are you sure you want to delete this team?</string>
+
+
+    <!-- PlayerListItem -->
+    <string name="team_role_owner">Owner</string>
+
+
+    <!-- ProfileScreen -->
+    <string name="account_sign_out_success">Successfully Signed Out</string>
+    <string name="account_deleted_success">Successfully Deleted Account</string>
+    <string name="starting_data_sync">Syncing to Online Database…</string>
+    <string name="successful_data_sync">Successfully Synced Data</string>
+
+    <string name="delete_account_title">Delete Account</string>
+    <string name="delete_account_body">Are you sure you want to delete your account?</string>
 
     <!-- AccountScreen -->
     <string name="register">Register</string>
@@ -13,24 +65,50 @@
     <string name="error_something_wrong">Something went wrong, please try again</string>
     <string name="error_invalid_login">Username or Password doesn\'t exist</string>
     <string name="already_have_account">Already have an account? Sign in here</string>
+    <string name="error_invalid_login2">Username or Password can\'t be empty</string>
+    <string name="register_with_biometrics"> Register with biometrics </string>
+    <string name="password_null"> Password can\t be null  </string>
+    <string name="login_failed"> Login failed</string>
+    <string name="login_success"> Login successful</string>
+    <string name="registration_failed"> Registration failed </string>
+
+    <!-- Announcements -->
+    <string name="announcments"> Announcements</string>
+    <string name="add_announcments"> Add Announcements </string>
+
+    <!-- Announcements -->
+    <string name="new_announcment"> New Announcement</string>
+    <string name="team"> Team</string>
+    <string name="select_team"> Select a Team</string>
+    <string name="title"> Title</string>
+    <string name="add_title"> Add a Title</string>
+    <string name="description"> Description</string>
+    <string name="add_description"> Add a Description</string>
+    <string name="post_announcement"> Post Announcement</string>
+
 
     <!-- AuthScreen -->
     <string name="login_title">Login</string>
     <string name="first_name_placeholder">First Name</string>
     <string name="last_name_placeholder">Last Name</string>
     <string name="age_placeholder">Age</string>
+    <string name="registration_successful"> Registration Successful\! </string>
     <string name="no_account_register">Don\'t have an account? Register</string>
     <string name="already_have_account_login">Already have an account? Login</string>
 
-    <!-- EventsScreen -->
-    <string name="coming_soon">Coming soon...</string>
-
     <!-- HomeScreen -->
     <string name="welcome_back">Welcome Back!</string>
-    <string name="upcoming_events">Upcoming Events</string>
-    <string name="announcements">Announcements</string>
+    <string name="announcements">Announcements Will Appear Here Soon\!</string>
 
     <!-- LoginScreen -->
+    <string name="biometric_login"> Biometric Login </string>
+    <string name="biometric_cred"> Use biometric credentials to log in </string>
+    <string name="cancel"> Cancel</string>
+    <string name="biometric_login_failed"> Biometric Login Failed</string>
+    <string name="biometric_authentication_failed"> Biometric Authentication Failed</string>
+    <string name="login_with_biometric"> Login with biometrics </string>
+    <string name="login_with_biometric_unavailable"> Login with biometrics </string>
+    <string name="username_required"> Username Required</string>
     <string name="sign_in_title">Sign in Your Account</string>
     <string name="username_placeholder_login">Username</string>
     <string name="password_placeholder_login">Password</string>
@@ -39,7 +117,8 @@
 
     <!-- ScoutingPlayersScreen -->
     <string name="search_player_tag">Search a Player\'s Tag</string>
-    <string name="players_found">Players found: %1$d</string>
+    <string name="search_clear">Clear Search</string>
+    <string name="players_found">Players found: </string>
     <string name="enter_player_name">Enter a Player\'s Name to Search.</string>
     <string name="no_players_found">No Players Found</string>
     <string name="searching">Searching...</string>
@@ -49,10 +128,13 @@
     <string name="teams_found">Teams found: %1$d</string>
     <string name="enter_team_name">Enter a Team\'s Name to Search.</string>
     <string name="no_teams_found">No Teams Found</string>
+    <string name="successfully_joined_team"> Successfully Joined Team\!</string>
 
     <!-- TeamsScreen -->
     <string name="team_created_success">Successfully Created a Team</string>
     <string name="teams_header">Teams Header</string>
+    <string name="add_new_team"> Add New Team </string>
+
 
     <!-- Misc -->
     <string name="arrow_back"> Back Arrow </string>
@@ -64,7 +146,6 @@
     <string name="confirm_password_icon"> Confirm Password Icon </string>
     <string name="password_reset_unimplemented"> Password Reset </string>
     <string name="sign_in_here"> Sign In Here </string>
-    <string name="login_success"> Succesfully Logged In </string>
     <string name="search_team_placeholder"> </string>
     <string name="search_team_icon"> Search team icon</string>
     <string name="enter_team_name_to_search"> Enter team name to search </string>

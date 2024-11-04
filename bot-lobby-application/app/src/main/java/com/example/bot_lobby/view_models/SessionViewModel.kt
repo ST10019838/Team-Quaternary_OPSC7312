@@ -133,6 +133,7 @@ class SessionViewModel(context: Context) : ViewModel() {
 
     }
 
+
     suspend fun refreshUsersTeams() {
         val announcementViewModel = AnnouncementViewModel(context)
 
@@ -166,6 +167,7 @@ class SessionViewModel(context: Context) : ViewModel() {
 
 
     }
+
 
     fun signOut(
 //        userViewModel: UserViewModel,

@@ -70,7 +70,7 @@ fun TeamItem(team: Team) {
                 .size(80.dp, 40.dp)  // Square button with rounded edges
         ) {
 
-            Text(text = "${team.userIdsAndRoles.size}/${team.maxNumberOfUsers}")  // XX/XX format
+            Text(text = "${team.userIdsAndRoles?.size}/${team.maxNumberOfUsers}")  // XX/XX format
         }
     }
 }
