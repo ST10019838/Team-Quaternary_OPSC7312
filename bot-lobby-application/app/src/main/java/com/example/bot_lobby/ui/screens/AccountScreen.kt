@@ -1,17 +1,15 @@
-package com.example.bot_lobby.ui.screens
+    package com.example.bot_lobby.ui.screens
 
+import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,14 +27,20 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.example.bot_lobby.MainActivity.Companion.loginService
 import com.example.bot_lobby.R
+import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.forms.SignUpForm
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.utils.onFormValueChange
 import com.example.bot_lobby.view_models.UserViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class Mode {
     SignUp, ForgotPassword
@@ -45,14 +49,20 @@ enum class Mode {
 data class AccountScreen(
     val mode: Mode
 ) : Screen {
+    override val key = uniqueScreenKey
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val context = LocalContext.current
+        val context = LocalContext.current as AppCompatActivity
         val navigator = LocalNavigator.currentOrThrow
         val form = SignUpForm()
-        val userViewModel = UserViewModel()
+//        val userViewModel = UserViewModel()
+//        val auth = remember { FirebaseAuth.getInstance() }
+
+        var isBiometricEnabled by remember { mutableStateOf(false) }
+        var actionWasSuccessful by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
 
         Scaffold(
             topBar = {
@@ -72,15 +82,15 @@ data class AccountScreen(
                                 contentDescription = stringResource(R.string.arrow_back)
                             )
                         }
-                    },
+                    }
                 )
             },
-            content = {
+            content = { paddingValues ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 25.dp)
-                        .padding(it)
+                        .padding(paddingValues)
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
@@ -102,65 +112,40 @@ data class AccountScreen(
 
                     OutlinedTextField(
                         value = form.username.state.value ?: "",
-                        onValueChange = { value ->
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.username
-                            )
-                        },
+                        onValueChange = { value -> onFormValueChange(value, form, form.username) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text(stringResource(R.string.username_placeholder)) },
                         isError = form.username.hasError(),
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Person,
+                                Icons.Default.Person,
                                 contentDescription = stringResource(R.string.username_icon)
                             )
                         },
-                        singleLine = true,
-                        visualTransformation = VisualTransformation.None,
-                        trailingIcon = {
-                            if (form.username.hasError()) {
-                                Icon(
-                                    imageVector = Icons.Default.Error,
-                                    contentDescription = stringResource(R.string.error_icon),
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                            }
-                        }
+                        singleLine = true
                     )
 
                     var passwordVisible by remember { mutableStateOf(false) }
                     OutlinedTextField(
                         value = form.password.state.value ?: "",
-                        onValueChange = { value ->
-                            onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.password
-                            )
-                        },
+                        onValueChange = { value -> onFormValueChange(value, form, form.password) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text(stringResource(if (mode == Mode.SignUp) R.string.password_placeholder_signup else R.string.password_placeholder_reset)) },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Lock,
+                                Icons.Default.Lock,
                                 contentDescription = stringResource(R.string.password_icon)
                             )
                         },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible)
-                                Icons.Filled.Visibility
-                            else
-                                Icons.Filled.VisibilityOff
-
-                            val description =
-                                if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
-
+                            val image =
+                                if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, contentDescription = description)
+                                Icon(
+                                    image,
+                                    contentDescription = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
+                                )
                             }
                         },
                         singleLine = true,
@@ -171,31 +156,28 @@ data class AccountScreen(
                         value = form.passwordConfirmation.state.value ?: "",
                         onValueChange = { value ->
                             onFormValueChange(
-                                value = value,
-                                form = form,
-                                fieldState = form.passwordConfirmation
+                                value,
+                                form,
+                                form.passwordConfirmation
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text(stringResource(R.string.confirm_password_placeholder)) },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Lock,
+                                Icons.Default.Lock,
                                 contentDescription = stringResource(R.string.confirm_password_icon)
                             )
                         },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image = if (passwordVisible)
-                                Icons.Filled.Visibility
-                            else
-                                Icons.Filled.VisibilityOff
-
-                            val description =
-                                if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
-
+                            val image =
+                                if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, contentDescription = description)
+                                Icon(
+                                    image,
+                                    contentDescription = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password)
+                                )
                             }
                         },
                         singleLine = true,
@@ -204,7 +186,20 @@ data class AccountScreen(
 
                     Spacer(Modifier.height(20.dp))
 
-                    var actionWasSuccessful by remember { mutableStateOf(true) }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(stringResource(R.string.register_with_biometrics))
+                        Switch(
+                            checked = isBiometricEnabled,
+                            onCheckedChange = { isBiometricEnabled = it }
+                        )
+                    }
+
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -216,49 +211,123 @@ data class AccountScreen(
                                 textAlign = TextAlign.Center
                             )
                         }
-
                         Button(
                             onClick = {
                                 form.validate(true)
+
                                 if (form.isValid) {
-                                    if (mode == Mode.SignUp) {
-                                        userViewModel.createUser(
-                                            User(
-                                                username = form.username.state.value!!,
-                                                password = form.password.state.value!!
-                                            )
-                                        ){
-                                            userViewModel.loginUser(
-                                                username = form.username.state.value!!,
-                                                password = form.password.state.value!!
-                                            ) { user ->
-                                                if(user == null){
-                                                    Toast.makeText(context,
-                                                       R.string.error_invalid_login,
-                                                        Toast.LENGTH_SHORT)
-                                                        .show()
-                                                } else{
-                                                    navigator.push(LandingScreen())
-                                                }
-                                            }
-                                        }
-                                    } else {
+                                    val username = form.username.state.value!!
+                                    val password = form.password.state.value!!
+
+
+                                    if (username.isNullOrEmpty() || password.isNullOrEmpty()) {
                                         Toast.makeText(
                                             context,
-                                            (R.string.password_reset_unimplemented),
+                                            R.string.error_invalid_login2,
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
+
+                                    val newUser = User(
+                                        username = username,
+                                        password = password,
+                                        isBiometricEnabled = isBiometricEnabled
+                                    )
+
+                                    UserViewModel.createUser(
+                                        User(
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!
+                                        )
+                                    ) {
+                                        UserViewModel.loginUser(
+                                            username = form.username.state.value!!,
+                                            password = form.password.state.value!!,
+                                            context
+                                        ) { user ->
+                                            if (user == null) {
+                                                Toast.makeText(
+                                                    context,
+                                                    R.string.error_invalid_login,
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show() // Toast message to indicate the process
+                                            } else {
+                                                navigator.push(LandingScreen())
+                                            }
+                                        }
+                                    }
+
+                                    // User registration with callback
+                                    UserViewModel.createUser(newUser) { createdUser ->
+                                        if (createdUser != null) {
+                                            // Successfully created user, now log in
+                                            coroutineScope.launch {
+                                                try {
+                                                    // Log the user in after registration
+                                                    val loginResult = withContext(Dispatchers.IO) {
+                                                        val usernameNonNull = createdUser.username
+                                                        val passwordNonNull = createdUser.password
+                                                            ?: throw IllegalArgumentException(R.string.password_null)
+
+                                                        loginService.login(
+                                                            usernameNonNull,
+                                                            passwordNonNull
+                                                        )
+                                                    }
+
+                                                    if (loginResult.isSuccessful) {
+                                                        withContext(Dispatchers.Main) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                R.string.login_success,
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                            navigator.push(LandingScreen())
+                                                        }
+                                                    } else {
+                                                        withContext(Dispatchers.Main) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                R.string.login_failed,
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                    }
+                                                } catch (loginException: Exception) {
+                                                    withContext(Dispatchers.Main) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            R.string.login_failed,
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            // Handle registration failure
+                                            Toast.makeText(
+                                                context,
+                                                R.string.registration_failed,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+
+                                    }
+                                } else {
+                                    // Handle forgot password
+                                    Toast.makeText(
+                                        context,
+                                        R.string.password_reset_unimplemented,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = BlueStandard
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = BlueStandard)
                         ) {
                             Text(text = stringResource(if (mode == Mode.SignUp) R.string.register else R.string.reset_password))
                         }
-
                         if (mode == Mode.SignUp) {
                             TextButton(
                                 modifier = Modifier.fillMaxWidth(),
@@ -267,11 +336,11 @@ data class AccountScreen(
                                 Text(
                                     buildAnnotatedString {
                                         append(stringResource(R.string.already_have_account))
-                                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                                        withStyle(style = SpanStyle(color = BlueStandard)) {
                                             append(stringResource(R.string.sign_in_here))
                                         }
                                     },
-                                    style = MaterialTheme.typography.bodyMedium
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }

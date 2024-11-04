@@ -20,7 +20,8 @@ interface TeamApi {
     @GET("teams")
     suspend fun getTeamsByName(
         @Header("apiKey") key: String,
-        @Query("name") id: String? = null
+        @Query("name") name: String? = null,
+        @Query("isPublic") isPublic: String? = null,
     ): Response<List<Team>>
 
     @GET("teams")
