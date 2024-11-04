@@ -149,7 +149,7 @@ class SessionViewModel(context: Context) : ViewModel() {
             var usersTeams = emptyList<Team>()
             val response = onlineProfile?.let { it1 -> TeamViewModel.getUsersTeams(it1) }
 
-            if (response?.errors.isNullOrEmpty()) {
+            if (response?.errors.isNullOrEmpty() && !(response?.data.isNullOrEmpty())) {
                 usersTeams = response?.data!!
             }
 
