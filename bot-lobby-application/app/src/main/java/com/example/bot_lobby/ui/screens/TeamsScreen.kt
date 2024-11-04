@@ -38,6 +38,7 @@ import com.example.bot_lobby.ui.composables.TeamListItem
 import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.composables.TeamsHeader
 import com.example.bot_lobby.ui.theme.BlueStandard
+import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
@@ -58,6 +59,8 @@ fun TeamsScreen() {
     // Collect the list of filtered teams from the view model
     val sessionViewModel = viewModel { SessionViewModel(context) }
     val session by sessionViewModel.session.collectAsState()
+
+    val announcementViewModel = viewModel { AnnouncementViewModel(context) }
 
     // Get the total number of teams
     val totalTeams = session?.usersTeams?.size ?: 0
@@ -139,7 +142,7 @@ fun TeamsScreen() {
                     }
 
                     teamViewModel.createTeam(newTeam) {
-
+                        announcementViewModel.subscribeToTeamAnnouncements(newTeam.id)
                     }
 
                     // Save the team to the users data
@@ -220,6 +223,9 @@ fun TeamsScreen() {
                         }
 
                         teamViewModel.deleteTeam(teamToDelete.id)
+
+                        announcementViewModel.unsubscribeFromTeamAnnouncements(teamToDelete.id)
+
                     }
                 },
                 sessionViewModel = sessionViewModel,
@@ -243,6 +249,8 @@ fun TeamsScreen() {
                         )
 
                         teamViewModel.updateTeam(updatedTeam)
+
+                        announcementViewModel.unsubscribeFromTeamAnnouncements(updatedTeam.id)
                     }
 
                     sessionViewModel.removeTeamFromUser(team = teamToView!!) {

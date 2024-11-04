@@ -7,11 +7,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
+import com.example.bot_lobby.models.Announcement
 import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.formFields.Select
 import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.ui.composables.formFields.TextField
+import java.util.UUID
 
 @Composable
 fun NewAnnouncementScreen(
@@ -162,13 +164,25 @@ fun NewAnnouncementScreen(
         Column {
             Button(
                 onClick = {
-                    selectedTeam?.let {
-                        viewModel.saveAnnouncement(
-                            title = title,
-                            content = description,
-                            team = it,
-                            currentUserId = session.userLoggedIn
-                        )
+                    session.userLoggedIn.id?.let { it1 ->
+                        selectedTeam?.let {
+//                            viewModel.saveAnnouncement(
+//                                title = title,
+//                                body = description,
+//                                forTeamId = it.id,
+//                                createdByUserId = it1
+//                            )
+
+                            viewModel.postAnnouncement(
+                                Announcement(
+                                    title = title,
+                                    body = description,
+                                    forTeamId = it.id,
+                                    createdByUserId = it1
+                                )
+                            )
+                        }
+
                     }
                     onPostAnnouncement()  // Trigger callback to close or refresh the screen
                 },

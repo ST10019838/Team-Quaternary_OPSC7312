@@ -94,6 +94,7 @@ fun TeamProfile(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLeaveDialog by remember { mutableStateOf(false) }
 
+    var teamToDisplay by remember { mutableStateOf(team) }
 
     val connectivity by connectivityObserver.observe()
         .collectAsStateWithLifecycle(ConnectivityObserver.Status.Unavailable)
@@ -102,28 +103,53 @@ fun TeamProfile(
 //    var teamsUsers by remember { mutableStateOf<FetchResponse<List<User>>?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-    var teamTag by remember { mutableStateOf(team.tag) }
-    var teamName by remember { mutableStateOf(team.name) }
-    var teamBio by remember { mutableStateOf(team.bio) }
-    var teamIsOpen by remember { mutableStateOf(team.isOpen) }
-    var teamIsPublic by remember { mutableStateOf(team.isPublic) }
-    var teamIsLFM by remember { mutableStateOf(team.isPublic) }
+    var teamTag by remember { mutableStateOf(teamToDisplay.tag) }
+    var teamName by remember { mutableStateOf(teamToDisplay.name) }
+    var teamBio by remember { mutableStateOf(teamToDisplay.bio) }
+    var teamIsOpen by remember { mutableStateOf(teamToDisplay.isOpen) }
+    var teamIsPublic by remember { mutableStateOf(teamToDisplay.isPublic) }
+    var teamIsLFM by remember { mutableStateOf(teamToDisplay.isPublic) }
+
+    // if online
+    if (connectivity == ConnectivityObserver.Status.Available) {
+        LaunchedEffect(true) {
+            isLoading = true
+
+            // Get the most up to date info for the team
+            TeamViewModel.getTeam(team.id) {
+                teamToDisplay = it
+
+                sessionViewModel?.updateUsersTeam(it)
+
+                teamTag = it.tag
+                teamName = it.name
+                teamBio = it.bio
+                teamIsOpen = it.isOpen
+                teamIsPublic = it.isPublic
+                teamIsLFM = it.isLFM
+            }
 
 
-    LaunchedEffect(true) {
-        isLoading = true
+            // Get the members for the user
+            val response = userViewModel.getTeamsUsers(team)
 
-        val response = userViewModel.getTeamsUsers(team)
+            if (response.errors.isNullOrEmpty()) {
+                users = response.data
+            } else {
+                error = response.errors
+            }
 
-        if (response.errors.isNullOrEmpty()) {
-            users = response.data
-        } else {
-            error = response.errors
+            isLoading = false
         }
-
-        isLoading = false
     }
 
+
+    // if is online and is loading
+    if (connectivity == ConnectivityObserver.Status.Available && isLoading) {
+        Text("Loading...")
+    } else {
+        Text(teamToDisplay.tag.toString())
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -336,15 +362,15 @@ fun TeamProfile(
             Button(
                 onClick = {
                     val updatedTeam = Team(
-                        id = team.id,
+                        id = teamToDisplay.id,
                         tag = teamTag,
                         name = teamName,
                         bio = teamBio,
                         isPublic = teamIsPublic,
                         isLFM = teamIsLFM,
                         isOpen = teamIsOpen,
-                        userIdsAndRoles = team.userIdsAndRoles, // TODO fix this to accomodate for multiple users
-                        maxNumberOfUsers = team.maxNumberOfUsers
+                        userIdsAndRoles = teamToDisplay.userIdsAndRoles, // TODO fix this to accomodate for multiple users
+                        maxNumberOfUsers = teamToDisplay.maxNumberOfUsers
                     )
 
                     sessionViewModel!!.updateUsersTeam(updatedTeam)
@@ -425,7 +451,7 @@ fun TeamProfile(
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = "${team.userIdsAndRoles?.size} / 10",  // Assuming a max of 10 members
+                text = "${teamToDisplay.userIdsAndRoles?.size} / 10",  // Assuming a max of 10 members
                 color = Color.Black,
                 style = MaterialTheme.typography.titleLarge
             )

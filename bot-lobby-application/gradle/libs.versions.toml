@@ -8,7 +8,10 @@ authKtVersion = "3.0"
 biometric = "1.1.0"
 biometricVersion = "1.2.0"
 converterGson = "2.9.0"
+converterMoshi = "2.9.0"
+firebaseBom = "33.5.1"
 firebaseMessaging = "24.0.3"
+googleAuthLibraryOauth2Http = "1.19.0"
 gotrueKtVersion = "1.3.2"
 gsonVersion = "2.11.0"
 kotlin = "1.9.0"
@@ -47,6 +50,10 @@ artifactid = { module = "groupId:artifactId", version.ref = "artifactid" }
 auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 auth-kt-v30 = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "authKtVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "converterMoshi" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2Http" }
+google-firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 google-gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
 google-firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx" }

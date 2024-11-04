@@ -49,6 +49,7 @@ import com.example.bot_lobby.ui.theme.BlackCursor
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.ui.theme.FocusedContainerGray
 import com.example.bot_lobby.ui.theme.UnfocusedContainerGray
+import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
@@ -59,6 +60,7 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
     val sessionViewModel = viewModel { SessionViewModel(context) }
     val session by sessionViewModel.session.collectAsState()
     val userViewModel = viewModel<UserViewModel>()
+    val announcementViewModel = viewModel { AnnouncementViewModel(context) }
 
 
     // State variables observed from the TeamViewModel
@@ -211,6 +213,9 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
 
 
                         teamViewModel.updateTeam(updatedTeam)
+
+                        announcementViewModel.subscribeToTeamAnnouncements(updatedTeam.id)
+
 
                         sessionViewModel.addTeamToUser(updatedTeam) {
                             if (it != null) {
