@@ -19,16 +19,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ChipColors
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,7 +37,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,8 +50,7 @@ fun PlayerListItem(
     user: User,
     teams: List<Team>? = null,
     onView: () -> Unit = {},
-    canView: Boolean = false,
-    isRoleOwner: Boolean? = null
+    canView: Boolean = false
 ) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
@@ -112,8 +106,10 @@ fun PlayerListItem(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                // TODO: Add role badge
 
                 // View Profile Button
+
                 if (canView) {
                     IconButton(onClick = onView) {
                         Icon(
@@ -122,13 +118,6 @@ fun PlayerListItem(
                             modifier = Modifier.size(32.dp)
                         )
                     }
-                } else if (isRoleOwner != null && isRoleOwner) { // Role badge
-                    AssistChip(
-                        onClick = { },
-                        label = { Text(stringResource(R.string.team_role_owner)) },
-                        // TODO add colors
-                        // colors = ChipColors()
-                    )
                 }
 
             }

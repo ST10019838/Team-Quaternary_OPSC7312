@@ -19,9 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -33,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,32 +39,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.bot_lobby.R
 import com.example.bot_lobby.view_models.AuthViewModel
-import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerSettings(
-    onSignOut: () -> Unit = {},
-    onDeleteAccount: () -> Unit = {},
-    onSync: () -> Unit = {},
-    isOffline: Boolean = false
-) {
+fun PlayerSettings() {
+    val userViewModel = UserViewModel()
+
     // Variables for toggles and dropdown
     var isPushNotificationsEnabled by remember { mutableStateOf(false) }
     var isDarkModeEnabled by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
 
+    val navigator = LocalNavigator.currentOrThrow
+
+    val context = LocalContext.current
 
     // List of supported languages
     val languages = listOf("English", "Afrikaans")
@@ -76,16 +68,12 @@ fun PlayerSettings(
     // State to control dropdown expansion
     var expanded by remember { mutableStateOf(false) }
 
-    var isDeleteDialogOpen by remember { mutableStateOf(false) }
-
-
     // Scrollable Column for the settings content
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
         // Centered Heading for Settings
         Text(
             text = "Settings",
@@ -113,14 +101,13 @@ fun PlayerSettings(
             ) {
                 Text("Sync to Online Database", fontSize = 16.sp)
                 IconButton(
-                    onClick = onSync,
-//                    modifier = Modifier.size(24.dp) // Icon button with no border
-                    enabled = !isOffline
+                    onClick = { /* Handle Sync */ },
+                    modifier = Modifier.size(24.dp) // Icon button with no border
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "Sync",
-//                        tint = Color.Black // Icon color
+                        tint = Color.Black // Icon color
                     )
                 }
             }
@@ -243,8 +230,17 @@ fun PlayerSettings(
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(
-                onClick = onSignOut,
+                onClick = {
+//                auth.signOut()  // Sign out the current user
+                    navigator.popUntilRoot()  // Navigate back to the root screen
+                    AuthViewModel.signOut()
+
+                    Toast.makeText(context, "Successfully Signed Out", Toast.LENGTH_SHORT)
+                        .show()  // Show a confirmation toast
+
 //                navigator.push(LoginScreen())  // Push the LoginScreen back onto the stack
+
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
@@ -259,51 +255,24 @@ fun PlayerSettings(
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(
-                onClick = { isDeleteDialogOpen = true },
+                onClick = {
+                    navigator.popUntilRoot()  // Navigate back to the root screen
+                    userViewModel.deleteUser(AuthViewModel.userLoggedIn.value?.id!!)
+
+                    AuthViewModel.signOut()
+                    Toast.makeText(context, "Successfully Deleted Account", Toast.LENGTH_SHORT)
+                        .show()  // Show a confirmation toast
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Red,
                     contentColor = Color.White
                 ),
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isOffline
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Delete Account", fontSize = 16.sp)
             }
         }
-    }
-
-    if (isDeleteDialogOpen) {
-        AlertDialog(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Offline Mode"
-                )
-            },
-            title = {
-                Text(
-                    text = stringResource(R.string.delete_account_title),
-                    textAlign = TextAlign.Center
-                )
-            },
-            text = {
-                Text(stringResource(R.string.delete_account_body))
-            },
-            onDismissRequest = {
-                isDeleteDialogOpen = false
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDeleteAccount()
-                        isDeleteDialogOpen = false
-                    }
-                ) {
-                    Text(stringResource(R.string.confirm_action))
-                }
-            },
-        )
     }
 }

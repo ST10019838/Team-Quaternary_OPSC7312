@@ -109,7 +109,7 @@ fun TeamListItem(
                     },
                     label = {
                         Text(
-                            text = "${team.userIdsAndRoles?.size} / 10", // Example for team count
+                            text = "${team.userIdsAndRoles.size} / 10", // Example for team count
                             fontSize = 14.sp
                         )
                     },
@@ -146,14 +146,14 @@ fun TeamListItem(
 //                modifier = Modifier.padding(vertical = 8.dp)
 //            )
 //
-//            // Second Row: "Next announcement:" text and today's date
+//            // Second Row: "Next Event:" text and today's date
 //            Row(
 //                verticalAlignment = Alignment.CenterVertically,
 //                modifier = Modifier.fillMaxWidth()
 //            ) {
-//                // Text for "Next announcement:"
+//                // Text for "Next Event:"
 //                Text(
-//                    text = "Next announcement:",
+//                    text = "Next Event:",
 //                    color = Color.Black,
 //                    fontSize = 14.sp,
 //                    modifier = Modifier.weight(1f) // This will take up the available space on the left

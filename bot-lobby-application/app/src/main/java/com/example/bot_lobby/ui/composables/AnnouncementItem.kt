@@ -1,92 +1,61 @@
 package com.example.bot_lobby.ui.composables
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.Dp
 import com.example.bot_lobby.models.Announcement
-import java.text.SimpleDateFormat
-import java.util.*
 
+// Composable function to display a single announcement item
 @Composable
-fun AnnouncementItem(
-    announcement: Announcement,
-    onClick: () -> Unit,
-    cornerRadius: Dp = 12.dp  // Default corner radius for rounded edges
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var isOpen by rememberSaveable { mutableStateOf(false) }
-    val rotation by animateFloatAsState(if (isOpen) 180f else 0f, label = "arrowRotationAnimation")
+fun AnnouncementItem(announcement: Announcement) {
+    var expanded by remember { mutableStateOf(false) }  // State to track whether the announcement details are expanded
 
+    // Create a surface with a border for each announcement
     Surface(
         modifier = Modifier
-            .clip(RoundedCornerShape(cornerRadius))
-            .fillMaxWidth()
-//            .padding(5.dp)
-            .clickable(onClick = {
-                isOpen = !isOpen
-            }),  // Make the entire item clickable
-        border = BorderStroke(1.dp, Color.Gray),
-        shape = RoundedCornerShape(cornerRadius),  // Rounded corners with specified radius
-        color = MaterialTheme.colors.surface
+            .fillMaxWidth()  // Fill available width
+            .padding(vertical = 4.dp),  // Add vertical padding between announcement items
+        border = BorderStroke(1.dp, Color.Gray),  // Add a grey border around the announcement box
+        shape = MaterialTheme.shapes.small,  // Apply small rounded corners to the box
     ) {
-        Column(modifier = Modifier.padding(6.dp)) {
-//            TextButton(
-//                onClick = { isOpen = !isOpen },
-//                modifier = Modifier.fillMaxWidth(),
-////            colors = if (isOpen) ButtonColors(
-////                containerColor = MaterialTheme.colorScheme.primary,
-////                contentColor = MaterialTheme.colorScheme.background,
-////                disabledContainerColor = MaterialTheme.colorScheme.primary,
-////                disabledContentColor = MaterialTheme.colorScheme.primary
-////            ) else ButtonDefaults.textButtonColors()
-//            ) {
-////            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-//
-//
-////            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-////            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-//
-//
-//            }
-
+        // Column to arrange announcement content vertically
+        Column(
+            modifier = Modifier.padding(8.dp)  // Add padding inside the announcement box
+        ) {
+            // First row contains the team and player tag, along with a dropdown arrow
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-//                horizontalAlignment = Alignment.CenterHorizontally,
-//                verticalArrangement = Arrangement.spacedBy(10.dp)
+                modifier = Modifier.fillMaxWidth(),  // Fill available width
+                verticalAlignment = Alignment.CenterVertically  // Center the content vertically
             ) {
-                Text(
-                    text = announcement.title,
-                    style = MaterialTheme.typography.subtitle1
-                )
-//                Icon(
-//                    Icons.Filled.KeyboardArrowDown,
-//                    contentDescription = "arrow",
-//                    modifier = Modifier.rotate(rotation)
-//                )
+                // Display the team and player tag
+                Text(text = "${announcement.teamTag} - ${announcement.playerTag}")
+                Spacer(modifier = Modifier.weight(1f))  // Push the arrow to the right side
+                // Dropdown arrow to expand/collapse announcement details
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Expand announcement details"
+                    )  // Dropdown icon
+                }
             }
 
 
@@ -173,80 +142,5 @@ fun AnnouncementItem(
                 }
             }
         }
-
-
     }
-
-//    Column(
-//        modifier = Modifier
-//            .padding(10.dp)
-//            .clip(RoundedCornerShape(12.dp))
-//            .border(BorderStroke(1.dp, SolidColor(Color.Black)))
-//    ) {
-//
-//
-//        Surface(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(vertical = 4.dp)
-//                .clickable(onClick = onClick),  // Make the entire item clickable
-//            border = BorderStroke(1.dp, Color.Gray),
-//            shape = RoundedCornerShape(cornerRadius),  // Rounded corners with specified radius
-//            color = MaterialTheme.colors.surface
-//        ) {
-//            Column(
-//                modifier = Modifier.padding(8.dp)
-//            ) {
-//                // Header with title and dropdown icon
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Text(
-//                        text = "${announcement.team}: ${announcement.title}",
-//                        style = MaterialTheme.typography.subtitle1
-//                    )
-//                    Spacer(modifier = Modifier.weight(1f))
-//                    IconButton(onClick = { expanded = !expanded }) {
-//                        Icon(
-//                            imageVector = Icons.Default.ArrowDropDown,
-//                            contentDescription = "Expand announcement details",
-//                            tint = if (expanded) MaterialTheme.colors.primary else Color.Gray
-//                        )
-//                    }
-//                }
-//
-//                // Expanded content layout
-//                if (expanded) {
-//                    Column(modifier = Modifier.padding(top = 4.dp)) {
-//                        Text(
-//                            text = announcement.content,
-//                            style = MaterialTheme.typography.body2,
-//                            modifier = Modifier.padding(bottom = 8.dp)
-//                        )
-//
-//                        // Format date
-//                        val dateFormatter =
-//                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-//                        val formattedDate = dateFormatter.format(announcement.dateCreated)
-//
-//                        // Date Created
-//                        Text(
-//                            text = "Date Created: $formattedDate",
-//                            style = MaterialTheme.typography.caption,
-//                            color = Color.Gray
-//                        )
-//
-//                        // Created By (on a new line)
-//                        Text(
-//                            text = "Created By: ${announcement.createdByUserId}",
-//                            style = MaterialTheme.typography.caption,
-//                            color = Color.Gray
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//
-//    }
 }

@@ -1,6 +1,5 @@
 package com.example.bot_lobby.ui.screens
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,28 +11,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
+import com.example.bot_lobby.R
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.models.IdAndRole
-import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.composables.FullScreenModal
@@ -43,25 +40,18 @@ import com.example.bot_lobby.ui.composables.TeamsHeader
 import com.example.bot_lobby.ui.theme.BlueStandard
 import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.AuthViewModel
-import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
 import com.example.bot_lobby.view_models.UserViewModel
-import com.google.android.gms.auth.api.Auth
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import java.util.UUID
-
 
 @Composable
 fun TeamsScreen() {
-    // Get the TeamViewModel instance
     val teamViewModel: TeamViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
     val context = LocalContext.current
 
-    // Collect the list of filtered teams from the view model
-    val sessionViewModel = viewModel { SessionViewModel(context) }
-    val session by sessionViewModel.session.collectAsState()
+    val teams = AuthViewModel.usersTeams.collectAsState()
+    val userLoggedIn by AuthViewModel.userLoggedIn.collectAsState()
 
     val announcementViewModel = viewModel { AnnouncementViewModel(context) }
 
@@ -70,7 +60,6 @@ fun TeamsScreen() {
 
     var isDialogOpen by remember { mutableStateOf(false) }
     var teamToView by remember { mutableStateOf<Team?>(null) }
-    val coroutineScope = rememberCoroutineScope()
 
     val connectivity by connectivityObserver.observe()
         .collectAsState(ConnectivityObserver.Status.Unavailable)
@@ -97,35 +86,24 @@ fun TeamsScreen() {
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            if (session?.usersTeams != null) {
-                LazyColumn {
-                    items(session?.usersTeams!!) { team ->
-                        TeamListItem(team = team, onView = {
-                            teamToView = team
-                            isDialogOpen = true
-                        }) // No navController needed here
-                        Spacer(modifier = Modifier.height(8.dp)) // Add spacing between team items
-                    }
+            LazyColumn {
+                items(teams.value) { team ->
+                    TeamListItem(team = team, onView = {
+                        teamToView = team
+                        isDialogOpen = true
+                    })
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
-                    item {
-                        Spacer(modifier = Modifier.height(60.dp))
-                    }
+                item {
+                    Spacer(modifier = Modifier.height(60.dp))
                 }
             }
-
-
-//            // Loop through each team and display the team list item
-//            teams.value.forEach { team ->
-//                TeamListItem(team = team) // No navController needed here
-//                Spacer(modifier = Modifier.height(8.dp)) // Add spacing between team items
-//            }
         }
 
-        // Floating button in the bottom-right corner with a plus sign
-        if (totalTeams < 10) {
+        if (teams.value.size < 10) {
             FloatingActionButton(
                 onClick = {
-                    // Handle the button click event here
                     val user = session?.userLoggedIn
 
                     val newTeam = Team(
@@ -142,12 +120,6 @@ fun TeamsScreen() {
                         maxNumberOfUsers = 10
                     )
 
-//                    AuthViewModel.addTeamToUser(newTeam) {
-//                        if (it != null) {
-//                            userViewModel.updateUser(it)
-//                        }
-//                    }
-
                     sessionViewModel.addTeamToUser(newTeam) {
                         if (it != null) {
                             userViewModel.updateUser(it)
@@ -158,36 +130,25 @@ fun TeamsScreen() {
                         announcementViewModel.subscribeToTeamAnnouncements(newTeam.id)
                     }
 
-                    // Save the team to the users data
-//                    val updatedUser = user
-//                    var updatedTeamIds = user.teamIds?.toMutableList()
-//
-//                    if (updatedTeamIds == null) {
-//                        updatedTeamIds = mutableListOf(newTeam.id)
-//                    } else{
-//                        updatedTeamIds += newTeam.id
-//                    }
-//
-//                    updatedUser.teamIds = updatedTeamIds.toList()
-//
-//                    userViewModel.updateUser(updatedUser)
 
-                    Toast.makeText(context, "Successfully Created a Team", Toast.LENGTH_SHORT)
-                        .show()  // Show a confirmation toast
+                    Toast.makeText(
+                        context,
+                        R.string.team_created_success,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 },
                 modifier = Modifier
-                    .align(Alignment.BottomEnd) // Align to bottom-right corner
+                    .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                containerColor = BlueStandard, // Set the background color to white
-                contentColor = Color.White  // Set the plus sign color to black
+                containerColor = BlueStandard,
+                contentColor = Color.White
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add New Team"
+                    contentDescription = stringResource(id = R.string.register)
                 )
             }
         }
-
     }
 
     if (isDialogOpen) {
