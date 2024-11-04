@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import com.example.bot_lobby.models.Announcement
@@ -13,6 +14,8 @@ import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.formFields.Select
 import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.ui.composables.formFields.TextField
+import com.example.bot_lobby.view_models.SessionViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.UUID
 
 @Composable
@@ -28,8 +31,14 @@ fun NewAnnouncementScreen(
     var selectedTeam: Team? by remember { mutableStateOf(null) }
     val teamList = listOf("Team A", "Team B", "Team C")
 
+    val context = LocalContext.current
+    val sessionViewModel = viewModel { SessionViewModel(context) }
 
     var teamDropdownExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(true) {
+        sessionViewModel.refreshUsersTeams()
+    }
 
     Column(
         modifier = Modifier

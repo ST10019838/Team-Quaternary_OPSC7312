@@ -17,6 +17,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,10 +30,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.models.IdAndRole
 import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.TeamListItem
 import com.example.bot_lobby.ui.composables.TeamProfile
@@ -68,6 +71,16 @@ fun TeamsScreen() {
     var isDialogOpen by remember { mutableStateOf(false) }
     var teamToView by remember { mutableStateOf<Team?>(null) }
     val coroutineScope = rememberCoroutineScope()
+
+    val connectivity by connectivityObserver.observe()
+        .collectAsState(ConnectivityObserver.Status.Unavailable)
+    val isOnline = connectivity == ConnectivityObserver.Status.Available
+
+    if (isOnline) {
+        LaunchedEffect(true) {
+            sessionViewModel.refreshUsersTeams()
+        }
+    }
 
 
     // Main content area

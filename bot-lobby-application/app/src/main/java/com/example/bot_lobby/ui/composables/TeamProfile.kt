@@ -143,14 +143,6 @@ fun TeamProfile(
         }
     }
 
-
-    // if is online and is loading
-    if (connectivity == ConnectivityObserver.Status.Available && isLoading) {
-        Text("Loading...")
-    } else {
-        Text(teamToDisplay.tag.toString())
-    }
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
