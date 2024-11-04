@@ -17,6 +17,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,16 +31,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
 import com.example.bot_lobby.R
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.models.IdAndRole
 import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.Team
+import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.composables.FullScreenModal
 import com.example.bot_lobby.ui.composables.TeamListItem
 import com.example.bot_lobby.ui.composables.TeamProfile
 import com.example.bot_lobby.ui.composables.TeamsHeader
 import com.example.bot_lobby.ui.theme.BlueStandard
+import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
@@ -61,6 +65,9 @@ fun TeamsScreen() {
     val sessionViewModel = viewModel { SessionViewModel(context) }
     val session by sessionViewModel.session.collectAsState()
 
+
+    val announcementViewModel = viewModel { AnnouncementViewModel(context) }
+
     // Get the total number of teams
     val totalTeams = session?.usersTeams?.size ?: 0
 
@@ -68,6 +75,16 @@ fun TeamsScreen() {
     var teamToView by remember { mutableStateOf<Team?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
+
+    val connectivity by connectivityObserver.observe()
+        .collectAsState(ConnectivityObserver.Status.Unavailable)
+    val isOnline = connectivity == ConnectivityObserver.Status.Available
+
+    if (isOnline) {
+        LaunchedEffect(true) {
+            sessionViewModel.refreshUsersTeams()
+        }
+    }
 
     // Main content area
     Box(
@@ -111,7 +128,6 @@ fun TeamsScreen() {
         if (totalTeams < 10) {
             FloatingActionButton(
                 onClick = {
-                    // Handle the button click event here
                     val user = session?.userLoggedIn
 
                     val newTeam = Team(
@@ -128,12 +144,6 @@ fun TeamsScreen() {
                         maxNumberOfUsers = 10
                     )
 
-//                    AuthViewModel.addTeamToUser(newTeam) {
-//                        if (it != null) {
-//                            userViewModel.updateUser(it)
-//                        }
-//                    }
-
                     sessionViewModel.addTeamToUser(newTeam) {
                         if (it != null) {
                             userViewModel.updateUser(it)
@@ -141,22 +151,8 @@ fun TeamsScreen() {
                     }
 
                     teamViewModel.createTeam(newTeam) {
-
+                        announcementViewModel.subscribeToTeamAnnouncements(newTeam.id)
                     }
-
-                    // Save the team to the users data
-//                    val updatedUser = user
-//                    var updatedTeamIds = user.teamIds?.toMutableList()
-//
-//                    if (updatedTeamIds == null) {
-//                        updatedTeamIds = mutableListOf(newTeam.id)
-//                    } else{
-//                        updatedTeamIds += newTeam.id
-//                    }
-//
-//                    updatedUser.teamIds = updatedTeamIds.toList()
-//
-//                    userViewModel.updateUser(updatedUser)
 
                     Toast.makeText(context, R.string.team_created_success, Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
@@ -222,6 +218,7 @@ fun TeamsScreen() {
                         }
 
                         teamViewModel.deleteTeam(teamToDelete.id)
+                        announcementViewModel.unsubscribeFromTeamAnnouncements(teamToDelete.id)
                     }
                 },
                 sessionViewModel = sessionViewModel,
@@ -245,6 +242,7 @@ fun TeamsScreen() {
                         )
 
                         teamViewModel.updateTeam(updatedTeam)
+                        announcementViewModel.unsubscribeFromTeamAnnouncements(updatedTeam.id)
                     }
 
                     sessionViewModel.removeTeamFromUser(team = teamToView!!) {

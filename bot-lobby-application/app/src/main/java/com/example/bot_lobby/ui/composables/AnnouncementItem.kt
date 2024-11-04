@@ -111,7 +111,7 @@ fun AnnouncementItem(
                     ) {
                         // Header with title and dropdown icon
                         Text(
-                            text = announcement.content,
+                            text = announcement.body,
 //                            style = MaterialTheme.typography.subtitle1
                         )
                     }
@@ -140,17 +140,20 @@ fun AnnouncementItem(
 //                            style = MaterialTheme.typography.subtitle1
                         )
 
-                        Text(
-                            text = announcement.team.tag,
-//                            style = MaterialTheme.typography.subtitle1
-                        )
+                        announcement.teams?.tag?.let {
+                            Text(
+                                text = it,
+                                //                            style = MaterialTheme.typography.subtitle1
+                            )
+                        }
                     }
 
 
                     // Format date
                     val dateFormatter =
                         SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    val formattedDate = dateFormatter.format(announcement.dateCreated)
+                    val formattedDate = dateFormatter.format(announcement.createdAt)
+
 
                     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         // Date Created
@@ -162,7 +165,7 @@ fun AnnouncementItem(
 
                         // Created By (on a new line)
                         Text(
-                            text = "Created By: ${announcement.createdByUserId.username}",
+                            text = "Created By: ${announcement.users?.username}",
                             style = MaterialTheme.typography.caption,
                             color = Color.Gray
                         )

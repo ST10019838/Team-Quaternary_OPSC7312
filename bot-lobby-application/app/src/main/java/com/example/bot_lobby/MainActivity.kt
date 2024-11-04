@@ -2,11 +2,30 @@ package com.example.bot_lobby
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.StrictMode
 import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+
+import androidx.appcompat.app.AppCompatActivity
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,11 +53,37 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
+
 import com.example.bot_lobby.api.RetrofitInstance
 import com.example.bot_lobby.api.UserApi
 import com.example.bot_lobby.services.LoginService
 import com.example.bot_lobby.services.RegisterService
 import com.example.bot_lobby.ui.pages.AnnouncementsTab
+
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
+import com.example.bot_lobby.models.AccessToken
+import com.example.bot_lobby.observers.ConnectivityObserver
+import com.example.bot_lobby.observers.NetworkConnectivityObserver
+import com.example.bot_lobby.ui.screens.LoginScreen
+import com.example.bot_lobby.ui.theme.BotLobbyTheme
+import com.example.bot_lobby.view_models.SessionViewModel
+
+
+
+import com.example.bot_lobby.ui.pages.EventsTab
 import com.example.bot_lobby.ui.pages.HomeTab
 import com.example.bot_lobby.ui.pages.ProfileTab
 import com.example.bot_lobby.ui.pages.ScoutingTab
@@ -103,7 +148,16 @@ class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
             requestNotificationPermission()
         }
 
+        
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        
         setContent {
+            var showStudentNotice by remember { mutableStateOf(true) }
+
+            val context = LocalContext.current
+            val sessionViewModel = viewModel { SessionViewModel(context) }
+          
             val connectivity by connectivityObserver.observe()
                 .collectAsState(ConnectivityObserver.Status.Unavailable)
             var dismissedOfflineDialog by remember { mutableStateOf(false) }
@@ -112,15 +166,124 @@ class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
 
             val showOfflineDialog =
                 connectivity != ConnectivityObserver.Status.Available && !dismissedOfflineDialog
-
+          
             if (connectivity == ConnectivityObserver.Status.Available) {
                 dismissedOfflineDialog = false
             }
 
-            var showStudentNotice by remember { mutableStateOf(true) }
+//        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(policy);
 
-            val context = LocalContext.current
-            val sessionViewModel = viewModel { SessionViewModel(context) }
+        
+
+        setContent {
+            BotLobbyTheme {
+                Navigator(
+//                    if (auth.currentUser != null)
+//                        LandingScreen()
+//                    else
+                    LoginScreen()
+                ) {
+                    SlideTransition(it)
+                }
+            }
+
+            if (showOfflineDialog) {
+                AlertDialog(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.SignalWifiStatusbarConnectedNoInternet4,
+                            contentDescription = "Offline Mode"
+                        )
+                    },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.offline_notice_title),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    text = {
+                        Text(stringResource(R.string.offline_notice_body))
+                    },
+                    onDismissRequest = {
+                        dismissedOfflineDialog = true
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                dismissedOfflineDialog = true
+                            }
+                        ) {
+                            Text(stringResource(R.string.confirm_action))
+                        }
+                    },
+                )
+            }
+
+            if (showStudentNotice) {
+                AlertDialog(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Student Alert"
+                        )
+                    },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.student_notice_title),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    text = {
+                        Text(
+                            stringResource(R.string.student_notice_body),
+                            textAlign = TextAlign.Justify
+                        )
+                    },
+                    onDismissRequest = {
+                        showStudentNotice = false
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showStudentNotice = false
+                            }
+                        ) {
+                            Text(stringResource(R.string.confirm_action))
+                        }
+                    },
+                )
+            }
+
+            // FIREBASE MESSAGING TEST
+//            Surface(
+//                color = MaterialTheme.colorScheme.background,
+//                modifier = Modifier.fillMaxSize()
+//            ) {
+//                val state = viewModel.state
+//                if (state.isEnteringToken) {
+//                    EnterTokenDialog(
+//                        token = state.remoteToken,
+//                        onTokenChange = viewModel::onRemoteTokenChange,
+//                        onSubmit = viewModel::onSubmitRemoteToken
+//                    )
+//                } else {
+//                    ChatScreen(
+//                        messageText = state.messageText,
+//                        onMessageSend = {
+//                            viewModel.sendMessage(isBroadcast = false)
+//                        },
+//                        onMessageBroadcast = {
+//                            viewModel.sendMessage(isBroadcast = true)
+//                        },
+//                        onMessageChange = viewModel::onMessageChange
+//                    )
+//                }
+//            }
+        }
+    }
+
+            
 //            val session by sessionViewModel.session.collectAsState()
 //            var isLoading by remember { mutableStateOf(false) }
 //
@@ -172,12 +335,6 @@ class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
 //            ) {
 //                Text(text = "Network status: $status")
 //            }
-
-            BotLobbyTheme {
-                Navigator(LoginScreen()) {
-                    SlideTransition(it)
-                }
-            }
         }
     }
 

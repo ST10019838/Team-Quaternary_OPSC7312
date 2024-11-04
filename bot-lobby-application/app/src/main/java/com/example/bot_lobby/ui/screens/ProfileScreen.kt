@@ -24,6 +24,7 @@ import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.composables.PlayerProfile
 import com.example.bot_lobby.ui.composables.PlayerSettings
+import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.TeamViewModel
@@ -59,6 +60,9 @@ fun ProfileScreen(
     val isOffline = connectivity != ConnectivityObserver.Status.Available
     val coroutineScope = rememberCoroutineScope()
 
+
+    val announcementViewModel = viewModel { AnnouncementViewModel(context) }
+
     LazyColumn {
         item {
             if (session?.userLoggedIn != null) {
@@ -74,7 +78,11 @@ fun ProfileScreen(
         item {
             PlayerSettings(isOffline = isOffline,
                 onSignOut = {
-                    sessionViewModel.signOut {
+                    sessionViewModel.signOut { user ->
+                        user?.teamIds?.forEach {
+                            announcementViewModel.unsubscribeFromTeamAnnouncements(it)
+                        }
+
                         runBlocking {
                             delay(300L)
 
@@ -120,6 +128,10 @@ fun ProfileScreen(
                                         }
 
                                         TeamViewModel.deleteTeam(teamId)
+
+                                        announcementViewModel.unsubscribeFromTeamAnnouncements(
+                                            teamId
+                                        )
                                     }
                                     // If the user is not the owner of the team, leave the team
                                     else if (isOwner == false) {
@@ -143,6 +155,10 @@ fun ProfileScreen(
                                         )
 
                                         TeamViewModel.updateTeam(updatedTeam)
+
+                                        announcementViewModel.unsubscribeFromTeamAnnouncements(
+                                            updatedTeam.id
+                                        )
                                     }
                                 }
                             }
@@ -194,7 +210,9 @@ fun ProfileScreen(
 
                             // the user needs to be the owner of the team to add it
                             if (teamToAdd != null && isOwner == true) {
-                                TeamViewModel.createTeam(teamToAdd)
+                                TeamViewModel.createTeam(teamToAdd) {
+                                    announcementViewModel.subscribeToTeamAnnouncements(teamToAdd.id)
+                                }
                             }
                         }
 
@@ -224,6 +242,8 @@ fun ProfileScreen(
                                     )
 
                                     TeamViewModel.updateTeam(updatedTeam)
+
+                                    announcementViewModel.subscribeToTeamAnnouncements(updatedTeam.id)
                                 }
                             }
                         }
@@ -258,6 +278,9 @@ fun ProfileScreen(
                                     }
 
                                     TeamViewModel.deleteTeam(teamId)
+
+                                    announcementViewModel.unsubscribeFromTeamAnnouncements(teamId)
+
                                 } else if (isOwner == false) {
                                     // If the user is not a member of the team and it is no longer there,
                                     // the user has left the team
@@ -279,6 +302,10 @@ fun ProfileScreen(
                                     )
 
                                     TeamViewModel.updateTeam(updatedTeam)
+                                    
+                                    announcementViewModel.unsubscribeFromTeamAnnouncements(
+                                        updatedTeam.id
+                                    )
 
 //                                    sessionViewModel.removeTeamFromUser(team = teamToUpdate) {
 //                                        if (it != null) {

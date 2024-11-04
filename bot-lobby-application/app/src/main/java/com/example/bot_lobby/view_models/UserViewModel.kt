@@ -196,6 +196,9 @@ object UserViewModel : ViewModel() {
                         if (isAuthenticated) {
                             val sessionViewModel = SessionViewModel(context)
 
+                            val announcementViewModel = AnnouncementViewModel(context)
+
+
                             // save user to state
 //                AuthViewModel.updateUsersDetails(user)
 
@@ -213,8 +216,11 @@ object UserViewModel : ViewModel() {
                             )
 
                             sessionViewModel.upsertSession(newSession)
-//                            TODO: convert to session updation
-//                            AuthViewModel.updateUsersDetails(user)
+
+                            user.teamIds?.forEach {
+                                announcementViewModel.subscribeToTeamAnnouncements(it)
+                            }
+
                             callback(user) // Successful login
                         } else {
                             Log.e("UserViewModel", "Biometric authentication failed")
@@ -362,6 +368,7 @@ object UserViewModel : ViewModel() {
                 val user = response.body()!![0] // Get the first user from the list
 
                 val sessionViewModel = SessionViewModel(context)
+                val announcementViewModel = AnnouncementViewModel(context)
 
                 // save user to state
 //                AuthViewModel.updateUsersDetails(user)
@@ -381,7 +388,9 @@ object UserViewModel : ViewModel() {
 
                 sessionViewModel.upsertSession(newSession)
 
-//                AuthViewModel.setUsersTeams(usersTeams)
+                user.teamIds?.forEach {
+                    announcementViewModel.subscribeToTeamAnnouncements(it)
+                }
 
                 Log.d("USER LOGGED IN AS", sessionViewModel.session.value?.userLoggedIn.toString())
 

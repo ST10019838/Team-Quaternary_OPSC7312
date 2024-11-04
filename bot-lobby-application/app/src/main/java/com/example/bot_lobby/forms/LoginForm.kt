@@ -10,7 +10,6 @@ import com.example.bot_lobby.forms.validators.IsRequiredValidator
 import com.example.bot_lobby.forms.validators.MaxLengthValidator
 
 class LoginForm : Form() {
-
     override fun self(): Form {
         return this
     }

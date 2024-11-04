@@ -58,15 +58,19 @@ object AnnouncementsTab : Tab {
                 )
             }
         } else {
-            AnnouncementsScreen(
-                announcements = announcementViewModel.announcements,
-                onAddAnnouncement = {
-                    showNewAnnouncementScreen = true
-                },
-                onAnnouncementClick = { announcement ->
-                    // Optional click action
-                }
-            )
+            session?.userLoggedIn?.let {
+                AnnouncementsScreen(
+                    //                announcementViewModel = announcementViewModel,
+                    //                announcements = announcements,
+                    user = it,
+                    onAddAnnouncement = {
+                        showNewAnnouncementScreen = true
+                    },
+                    onAnnouncementClick = { announcement ->
+                        // Optional click action
+                    }
+                )
+            }
         }
     }
 }

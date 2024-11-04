@@ -87,12 +87,28 @@ class PushNotificationService : FirebaseMessagingService() {
         }
     }
 
+
+    //    override fun onMessageReceived(message: RemoteMessage) {
+//        super.onMessageReceived(message)
+//
+//        // Respond to received messages
+//    }
+
+//    override fun onNewToken(token: String) {
+//        super.onNewToken(token)
+//
+//        // Push token to server
+//
+//        // Then save token to db for the corresponding user
+//    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
         remoteMessage.data.let { data ->
-            val title = data["title"] ?: "New Announcement"
-            val message = data["message"] ?: "A new announcement has been added."
+            val title = data["title"] ?: "New Announcement!"
+            val message =
+                data["message"] ?: "A new announcement has been posted. Come check it out!"
             val dateCreated = data["dateCreated"] ?: SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",
                 Locale.getDefault()

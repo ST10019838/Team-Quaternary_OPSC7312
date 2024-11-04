@@ -133,6 +133,42 @@ class SessionViewModel(context: Context) : ViewModel() {
 
     }
 
+
+    suspend fun refreshUsersTeams() {
+        val announcementViewModel = AnnouncementViewModel(context)
+
+        session.value?.userLoggedIn?.let {
+            var onlineProfile: User? = null
+            val onlineProfileResponse = UserViewModel.getOnlineProfile(it.id!!)
+
+            if (onlineProfileResponse.errors.isNullOrEmpty()) {
+                onlineProfile = onlineProfileResponse.data!!
+            }
+
+            // get and save users teams
+            var usersTeams = emptyList<Team>()
+            val response = onlineProfile?.let { it1 -> TeamViewModel.getUsersTeams(it1) }
+
+            if (response?.errors.isNullOrEmpty()) {
+                usersTeams = response?.data!!
+            }
+
+            val newSession = Session(
+                userLoggedIn = onlineProfile ?: session.value!!.userLoggedIn,
+                usersTeams = usersTeams
+            )
+
+            upsertSession(newSession)
+
+            newSession.userLoggedIn.teamIds?.forEach {
+                announcementViewModel.subscribeToTeamAnnouncements(it)
+            }
+        }
+
+
+    }
+
+
     fun signOut(
 //        userViewModel: UserViewModel,
 //        teamViewModel: TeamViewModel,

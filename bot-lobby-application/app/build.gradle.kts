@@ -59,6 +59,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            
+            excludes += "/META-INF/DEPENDENCIES"
         }
     }
 
@@ -160,11 +162,23 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.2.0") // Check for latest version
 //    implementation("com.google.android.gms:play-services-auth:16.0.0")
 
+
+
     //Firebase messaging
 //    implementation("com.google.firebase:firebase-messaging:24.0.3")
     implementation(libs.firebase.messaging)
 //    implementation("com.google.firebase:firebase-common-ktx")
     implementation(libs.google.firebase.common.ktx)
+
+//    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation(platform(libs.firebase.bom))
+
+//    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation(libs.converter.moshi)
+
+//    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
+    implementation(libs.google.auth.library.oauth2.http)
+
 
 
     implementation("io.github.jan-tennert.supabase:postgrest-kt:1.3.2")
@@ -192,6 +206,21 @@ dependencies {
     // Room for database
     implementation(libs.room.ktx)
     kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
+    implementation(libs.google.gson)
+
+    // Room
+//    kapt("androidx.room:room-compiler:2.6.1")
+////    implementation(libs.room.ktx)
+//        implementation("androidx.room:room-ktx:2.6.1")
+//
+//    implementation("androidx.room:room-runtime:2.6.1")
+//    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
+    implementation(libs.room.ktx)
+    kapt("androidx.room:room-compiler:2.6.1")
+
 
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
     implementation(libs.google.gson)

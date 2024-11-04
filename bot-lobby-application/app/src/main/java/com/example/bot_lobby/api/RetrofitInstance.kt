@@ -2,6 +2,7 @@ package com.example.bot_lobby.api
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 object RetrofitInstance {
     const val apiKey =
@@ -10,6 +11,9 @@ object RetrofitInstance {
     private const val BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/rest/v1/"
 
     private const val AUTH_BASE_URL = "https://ynsntpgpunobawajnbow.supabase.co/auth/v1/"
+
+    private const val FCM_BASE_URL =
+        "https://fcm.googleapis.com/v1/"
 
     // AuthApi for login and registration
     val AuthApi by lazy {
@@ -34,5 +38,22 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(TeamApi::class.java)
+    }
+
+
+    val FcmApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(FCM_BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(FcmApi::class.java)
+    }
+
+    val AnnouncementApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(AnnouncementApi::class.java)
     }
 }
