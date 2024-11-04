@@ -1,6 +1,8 @@
 package com.example.bot_lobby.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -8,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import com.example.bot_lobby.models.Announcement
 import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.formFields.Select
@@ -16,6 +17,9 @@ import com.example.bot_lobby.view_models.AnnouncementViewModel
 import com.example.bot_lobby.ui.composables.formFields.TextField
 import com.example.bot_lobby.view_models.SessionViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.bot_lobby.forms.LoginForm
+import com.example.bot_lobby.models.Announcement
+import com.example.bot_lobby.utils.onFormValueChange
 import java.util.UUID
 
 @Composable
@@ -29,12 +33,12 @@ fun NewAnnouncementScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedTeam: Team? by remember { mutableStateOf(null) }
-    val teamList = listOf("Team A", "Team B", "Team C")
 
     val context = LocalContext.current
     val sessionViewModel = viewModel { SessionViewModel(context) }
 
     var teamDropdownExpanded by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(true) {
         sessionViewModel.refreshUsersTeams()
@@ -63,16 +67,18 @@ fun NewAnnouncementScreen(
             onSelect = {
                 if (it != null) {
                     selectedTeam = it
+
                 }
-                teamDropdownExpanded = false
+
+//                teamDropdownExpanded = false
 //                    onFormValueChange(
 //                        value = it,
 //                        form = form,
 //                        fieldState = form.category
 //                    )
             },
-//                hasError = form.category.hasError(),
-//                errorText = form.category.errorText,
+//            hasError = form.team.hasError(),
+//            errorText = form.team.errorText,
             placeholderText = "Select a Team",
             itemFormatter = { team ->
                 team?.tag!!
@@ -112,14 +118,18 @@ fun NewAnnouncementScreen(
             isRequired = true,
             onChange = {
                 title = it
+
+//                onFormValueChange(title, form, form.title)
+
+
 //                onFormValueChange(
 //                    value = it,
 //                    form = form,
 //                    fieldState = form.description
 //                )
             },
-//            hasError = form.description.hasError(),
-//            errorText = form.description.errorText,
+//            hasError = form.title.hasError(),
+//            errorText = form.title.errorText,
             placeholderText = "Add a Title"
         )
 
@@ -149,19 +159,25 @@ fun NewAnnouncementScreen(
 //        )
 
         TextField(
-            value = description,
+            value = /*form.body.state.value ?: "new"*/ description,
             label = "Description",
-            isRequired = false,
+            isRequired = true,
             onChange = {
                 description = it
+
+//                onFormValueChange(description, form, form.body)
+
 //                onFormValueChange(
 //                    value = it,
 //                    form = form,
 //                    fieldState = form.description
 //                )
             },
-//            hasError = form.description.hasError(),
-//            errorText = form.description.errorText,
+//            hasError = form.body.hasError(),
+//            errorText = form.body.errorText,
+//            hasError = form.password.hasError(),
+//            errorText = form.password.errorText,
+
             placeholderText = "Add a Description",
             singleLine = false,
             maxLines = 3,
@@ -172,9 +188,11 @@ fun NewAnnouncementScreen(
 
         Column {
             Button(
+                enabled = title.isNotEmpty() && description.isNotEmpty() && selectedTeam != null,
                 onClick = {
-                    session.userLoggedIn.id?.let { it1 ->
-                        selectedTeam?.let {
+
+                    session.userLoggedIn.id?.let {
+
 //                            viewModel.saveAnnouncement(
 //                                title = title,
 //                                body = description,
@@ -182,18 +200,18 @@ fun NewAnnouncementScreen(
 //                                createdByUserId = it1
 //                            )
 
-                            viewModel.postAnnouncement(
-                                Announcement(
-                                    title = title,
-                                    body = description,
-                                    forTeamId = it.id,
-                                    createdByUserId = it1
-                                )
+                        viewModel.postAnnouncement(
+                            Announcement(
+                                title = title,
+                                body = description,
+                                forTeamId = selectedTeam?.id!!,
+                                createdByUserId = it
                             )
-                        }
+                        )
 
+
+                        onPostAnnouncement()  // Trigger callback to close or refresh the screen
                     }
-                    onPostAnnouncement()  // Trigger callback to close or refresh the screen
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
