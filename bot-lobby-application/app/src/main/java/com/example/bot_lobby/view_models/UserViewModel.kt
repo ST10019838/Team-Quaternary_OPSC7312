@@ -284,21 +284,28 @@ object UserViewModel : ViewModel() {
 
     // Function to update an existing user
     fun updateUser(updatedUser: User) {
+
         viewModelScope.launch {
             try {
-                val response = UserApi.updateUser(
-                    apiKey,
-                    "eq.${updatedUser.id}",
-                    updatedUser
-                )
-                if (response.isSuccessful) {
-                    Log.i("SUCCESS", "User updated: ${response.body()}")
-//                    AuthViewModel.updateUsersDetails(updatedUser)
-                } else {
-                    Log.e(
-                        "UPDATE USER ERROR",
-                        "User update failed: ${response.errorBody()?.string()}"
+                val res = getOnlineProfile(updatedUser.id!!)
+
+                if(res.errors.isNullOrEmpty() && res.data != null){
+                    updatedUser.isBiometricEnabled = res.data.isBiometricEnabled
+
+                    val response = UserApi.updateUser(
+                        apiKey,
+                        "eq.${updatedUser.id}",
+                        updatedUser
                     )
+                    if (response.isSuccessful) {
+                        Log.i("SUCCESS", "User updated: ${response.body()}")
+//                    AuthViewModel.updateUsersDetails(updatedUser)
+                    } else {
+                        Log.e(
+                            "UPDATE USER ERROR",
+                            "User update failed: ${response.errorBody()?.string()}"
+                        )
+                    }
                 }
             } catch (exception: Exception) {
                 Log.e("ERROR!", exception.message.toString())
