@@ -146,7 +146,7 @@ fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {
 
         // Display the number of players found after filtering
         Text(
-            "Teams found: ${if (searchedTeams.isNullOrEmpty()) 0 else searchedTeams?.size}",
+            stringResource(id = R.string.teams_found)+": ${if (searchedTeams.isNullOrEmpty()) 0 else searchedTeams?.size}",
             style = MaterialTheme.typography.bodyMedium
         )
 

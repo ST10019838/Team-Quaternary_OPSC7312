@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -122,7 +123,7 @@ fun PlayerProfile(
             // Player image section
             Image(
                 painter = painterResource(id = R.drawable.ic_team_tag),  // Sample image resource
-                contentDescription = "Player Image",
+                contentDescription = R.string.player_image.toString(),
                 modifier = Modifier
                     .width(130.dp)
                     .height(130.dp)
@@ -163,7 +164,7 @@ fun PlayerProfile(
                         value = userTag,
                         readOnly = !isPersonalProfile,
                         onValueChange = { userTag = it },
-                        label = { Text("User Tag") },
+                        label = { R.string.user_tag },
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -175,19 +176,19 @@ fun PlayerProfile(
                     // LFT Button
                     AssistChip(
                         onClick = { if (isPersonalProfile) userIsLFT = !userIsLFT },
-                        label = { if (userIsLFT) Text(text = "LFT") else Text(text = "Not LFT") },
+                        label = { if (userIsLFT) Text(text = stringResource(id = R.string.lft)) else Text(text = stringResource(id = R.string.lft)) },
                         trailingIcon = {
                             if (userIsLFT) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Is LFT",
+                                    contentDescription = R.string.is_lft.toString(),
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Is Not LFT",
+                                    contentDescription = R.string.is_not_lft.toString(),
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -209,19 +210,19 @@ fun PlayerProfile(
                     // Public Button
                     AssistChip(
                         onClick = { if (isPersonalProfile) userIsPublic = !userIsPublic },
-                        label = { if (userIsPublic) Text(text = "Public") else Text(text = "Private") },
+                        label = { if (userIsPublic) Text(text = stringResource(id = R.string.public1)) else Text(text = stringResource(id = R.string.private1)) },
                         trailingIcon = {
                             if (userIsPublic) {
                                 Icon(
                                     imageVector = Icons.Default.Public,
-                                    contentDescription = "User is Public",
+                                    contentDescription = R.string.user_is_public.toString(),
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.PublicOff,
-                                    contentDescription = "User is Private",
+                                    contentDescription = R.string.user_is_private.toString(),
                                     modifier = Modifier.size(20.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -264,11 +265,11 @@ fun PlayerProfile(
 
         // TextField for player description input
         OutlinedTextField(
-            label = { Text("User Bio") },
+            label = { Text(R.string.bio.toString()) },
             readOnly = !isPersonalProfile,
             value = if (userBio.isNullOrEmpty()) "" else userBio!!,
             onValueChange = { newDesc -> userBio = newDesc },  // Update description state
-            placeholder = { Text("Enter player description") },  // Placeholder text
+            placeholder = { Text(R.string.enter_player_description.toString()) },  // Placeholder text
             modifier = Modifier
                 .fillMaxWidth(),
 //                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))  // Border styling
@@ -309,7 +310,7 @@ fun PlayerProfile(
 
                     UserViewModel.updateUser(updatedUser)
 
-                    Toast.makeText(context, "Successfully Saved Details", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, R.string.details_saved_successfully, Toast.LENGTH_SHORT)
                         .show()  // Show a confirmation toast
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -318,9 +319,9 @@ fun PlayerProfile(
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(imageVector = Icons.Default.SaveAlt, contentDescription = "Save Changes")
+                Icon(imageVector = Icons.Default.SaveAlt, contentDescription = stringResource(id = R.string.save_changes))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Changes", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(id = R.string.save_changes), style = MaterialTheme.typography.bodyLarge)
             }
         }
 
@@ -339,7 +340,7 @@ fun PlayerProfile(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Teams",
+                    text = stringResource(id = R.string.teams),
                     color = Color.Black,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -355,11 +356,11 @@ fun PlayerProfile(
             Spacer(Modifier.height(16.dp))
 
             if (isLoading) {
-                Text("Loading...")
+                Text(stringResource(id = R.string.loading))
             } else if (!error.isNullOrEmpty()) {
                 error?.let { Text(it) }
             } else if (teams.isNullOrEmpty()) {
-                Text("No Teams Found")
+                Text(stringResource(id = R.string.no_teams_found))
             } else {
                 Box(
                     modifier = Modifier

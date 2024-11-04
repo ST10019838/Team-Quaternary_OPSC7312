@@ -21,8 +21,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import com.example.bot_lobby.R
 import com.example.bot_lobby.models.Announcement
 import java.text.SimpleDateFormat
 import java.util.*
@@ -136,16 +138,14 @@ fun AnnouncementItem(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Team Tag: ",
+                            text = stringResource(id = R.string.team_tag),
 //                            style = MaterialTheme.typography.subtitle1
                         )
 
-                        announcement.teams?.tag?.let {
-                            Text(
-                                text = it,
-                                //                            style = MaterialTheme.typography.subtitle1
-                            )
-                        }
+                        Text(
+                            text = announcement.teams?.tag.toString(),
+//                            style = MaterialTheme.typography.subtitle1
+                        )
                     }
 
 
@@ -154,18 +154,17 @@ fun AnnouncementItem(
                         SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     val formattedDate = dateFormatter.format(announcement.createdAt)
 
-
                     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         // Date Created
                         Text(
-                            text = "Date Created: $formattedDate",
+                            text = stringResource(id = R.string.date_created)+": $formattedDate",
                             style = MaterialTheme.typography.caption,
                             color = Color.Gray
                         )
 
                         // Created By (on a new line)
                         Text(
-                            text = "Created By: ${announcement.users?.username}",
+                            text = stringResource(id = R.string.created_by)+": ${announcement.users?.username}",
                             style = MaterialTheme.typography.caption,
                             color = Color.Gray
                         )

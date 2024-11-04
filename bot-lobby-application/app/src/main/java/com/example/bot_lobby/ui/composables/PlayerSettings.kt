@@ -4,6 +4,7 @@ import android.app.LocaleManager
 import android.content.Context
 import android.os.Build
 import android.os.LocaleList
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -50,10 +53,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.example.bot_lobby.R
-import java.util.Locale
+import com.example.bot_lobby.view_models.AuthViewModel
+import com.example.bot_lobby.view_models.SessionViewModel
+import com.example.bot_lobby.view_models.UserViewModel
+import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +76,7 @@ fun PlayerSettings(
     var isDarkModeEnabled by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("English") }
 
+
     // List of supported languages
     val languages = listOf("English", "Afrikaans")
 
@@ -76,14 +85,6 @@ fun PlayerSettings(
 
     var isDeleteDialogOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val locale = Locale.getDefault().language
-
-
-    selectedLanguage = if(locale == "en"){
-        "English"
-    } else {
-        "Afrikaans"
-    }
 
     // Scrollable Column for the settings content
     Column(
@@ -94,7 +95,7 @@ fun PlayerSettings(
 
         // Centered Heading for Settings
         Text(
-            text = "Settings",
+            text = stringResource(id = R.string.settings),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black, // Set text color to black
@@ -106,7 +107,7 @@ fun PlayerSettings(
         // Row 1: Offline Mode
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Offline Mode",
+                stringResource(id = R.string.offline_mode),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold, // Bold text for section heading
                 color = Color.Black // Black text color
@@ -117,7 +118,7 @@ fun PlayerSettings(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Sync to Online Database", fontSize = 16.sp)
+                Text(stringResource(id = R.string.sync_to_online_database), fontSize = 16.sp)
                 IconButton(
                     onClick = onSync,
 //                    modifier = Modifier.size(24.dp) // Icon button with no border
@@ -125,7 +126,7 @@ fun PlayerSettings(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Sync",
+                        contentDescription = stringResource(id = R.string.sync),
 //                        tint = Color.Black // Icon color
                     )
                 }
@@ -136,7 +137,7 @@ fun PlayerSettings(
         // Row 2: Notifications
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Notifications",
+                stringResource(id = R.string.notifications),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold, // Bold text for section heading
                 color = Color.Black // Black text color
@@ -147,7 +148,7 @@ fun PlayerSettings(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Push Notifications", fontSize = 16.sp)
+                Text(stringResource(id = R.string.push_notifications), fontSize = 16.sp)
                 Switch(
                     checked = isPushNotificationsEnabled,
                     onCheckedChange = { isPushNotificationsEnabled = it }
@@ -159,7 +160,7 @@ fun PlayerSettings(
         // Row 3: Themes
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Themes",
+                stringResource(id = R.string.themes),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold, // Bold text for section heading
                 color = Color.Black // Black text color
@@ -170,7 +171,7 @@ fun PlayerSettings(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Dark Mode", fontSize = 16.sp)
+                Text(stringResource(id = R.string.dark_mode), fontSize = 16.sp)
                 Switch(
                     checked = isDarkModeEnabled,
                     onCheckedChange = { isDarkModeEnabled = it }
@@ -182,7 +183,7 @@ fun PlayerSettings(
         // Row 4: Language Dropdown
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Language",
+                stringResource(id = R.string.language),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold, // Bold text for section heading
                 color = Color.Black // Black text color
@@ -230,8 +231,10 @@ fun PlayerSettings(
                             onClick = {
                                 if(language == "English"){
                                     changeLocales(context,"en")
+
                                 } else{
                                     changeLocales(context,"af")
+
                                 }
 
 
@@ -248,7 +251,7 @@ fun PlayerSettings(
         // Row 5: Account
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Account",
+                stringResource(id = R.string.account),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold, // Bold text for section heading
                 color = Color.Black // Black text color
@@ -265,9 +268,9 @@ fun PlayerSettings(
                 ),
                 border = BorderStroke(1.dp, Color.Gray),
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Delete")
+                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = stringResource(id = R.string.delete))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign Out", fontSize = 16.sp)
+                Text(stringResource(id = R.string.sign_out), fontSize = 16.sp)
             }
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -280,9 +283,9 @@ fun PlayerSettings(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isOffline
             ) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Delete Account", fontSize = 16.sp)
+                Text(stringResource(id = R.string.delete_account), fontSize = 16.sp)
             }
         }
     }
@@ -292,7 +295,7 @@ fun PlayerSettings(
             icon = {
                 Icon(
                     imageVector = Icons.Default.Warning,
-                    contentDescription = "Offline Mode"
+                    contentDescription = stringResource(id = R.string.offline_mode)
                 )
             },
             title = {

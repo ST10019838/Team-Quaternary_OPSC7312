@@ -104,11 +104,11 @@ fun AnnouncementsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (isLoading) {
-                Text("Loading...")
+                Text(stringResource(id = R.string.loading))
             } else if (!error.isNullOrEmpty()) {
                 error?.let { Text(it) }
             } else if (announcements.isNullOrEmpty()) {
-                Text("No Announcements Found")
+                Text(stringResource(id = R.string.no_announcements_found))
             } else {
                 Box(
                     modifier = Modifier
