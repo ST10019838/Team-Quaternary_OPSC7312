@@ -214,7 +214,7 @@ private fun handleSignInResult(
                             if (registeredUser != null) {
                                 // Proceed to login after successful registration
                                 GlobalScope.launch {
-                                    val loginResult = loginService.login(newUser.username, "")
+                                    val loginResult = loginService.login(newUser.username, "password")
                                     if (loginResult.isSuccessful) {
                                         Log.d(
                                             "GoogleSignInButton",
