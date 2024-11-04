@@ -28,8 +28,6 @@ import com.example.bot_lobby.ui.theme.BlueStandard
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bot_lobby.MainActivity.Companion.connectivityObserver
-import com.example.bot_lobby.R
-import com.example.bot_lobby.models.Announcement
 import com.example.bot_lobby.models.User
 import com.example.bot_lobby.observers.ConnectivityObserver
 import com.example.bot_lobby.ui.composables.AnnouncementItem

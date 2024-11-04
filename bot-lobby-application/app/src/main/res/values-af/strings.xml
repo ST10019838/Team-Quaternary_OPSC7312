@@ -10,7 +10,7 @@
     <string name="student_notice_body" translatable="false">
         Dit is \'n studentetoepassing wat ontwikkel is om \'n universiteitskursus te voltooi
         en is nie bedoel, geoptimaliseer of beveilig vir verbruik nie. \n\n
-        Maar wie weet, eendag kan die toepassing gewild raak, wat lei tot 'n beter meer geoptimaliseerde weergawe ;)
+        Maar wie weet, eendag kan die toepassing gewild raak, wat lei tot \'n beter meer geoptimaliseerde weergawe ;)
     </string>
 
     <string name="offline_notice_title">Jy is nou in vanlyn modus</string>

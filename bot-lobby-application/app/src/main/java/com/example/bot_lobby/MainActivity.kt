@@ -12,19 +12,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 
-import androidx.appcompat.app.AppCompatActivity
-
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SignalWifiStatusbarConnectedNoInternet4
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,7 +44,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 
 import com.example.bot_lobby.api.RetrofitInstance
@@ -70,17 +62,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.example.bot_lobby.models.AccessToken
-import com.example.bot_lobby.observers.ConnectivityObserver
-import com.example.bot_lobby.observers.NetworkConnectivityObserver
-import com.example.bot_lobby.ui.screens.LoginScreen
 import com.example.bot_lobby.ui.theme.BotLobbyTheme
-import com.example.bot_lobby.view_models.SessionViewModel
-
 
 
 import com.example.bot_lobby.ui.pages.EventsTab
@@ -174,9 +160,7 @@ class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
 //        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 //        StrictMode.setThreadPolicy(policy);
 
-        
 
-        setContent {
             BotLobbyTheme {
                 Navigator(
 //                    if (auth.currentUser != null)
@@ -335,8 +319,6 @@ class MainActivity :  /*ComponentActivity(),*/ AppCompatActivity() {
 //            ) {
 //                Text(text = "Network status: $status")
 //            }
-        }
-    }
 
     private fun isNotificationPermissionGranted(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -268,7 +268,7 @@ data class AccountScreen(
                                                     val loginResult = withContext(Dispatchers.IO) {
                                                         val usernameNonNull = createdUser.username
                                                         val passwordNonNull = createdUser.password
-                                                            ?: throw IllegalArgumentException(R.string.password_null)
+                                                            ?: throw IllegalArgumentException(R.string.password_null.toString())
 
                                                         loginService.login(
                                                             usernameNonNull,

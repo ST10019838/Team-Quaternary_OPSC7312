@@ -1,6 +1,11 @@
 package com.example.bot_lobby.ui.composables
 
+import android.app.LocaleManager
+import android.content.Context
+import android.os.Build
+import android.os.LocaleList
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -55,6 +61,7 @@ import com.example.bot_lobby.R
 import com.example.bot_lobby.view_models.AuthViewModel
 import com.example.bot_lobby.view_models.SessionViewModel
 import com.example.bot_lobby.view_models.UserViewModel
+import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +84,7 @@ fun PlayerSettings(
     var expanded by remember { mutableStateOf(false) }
 
     var isDeleteDialogOpen by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
 
     // Scrollable Column for the settings content
     Column(
@@ -222,6 +229,15 @@ fun PlayerSettings(
                         DropdownMenuItem(
                             text = { Text(language) },
                             onClick = {
+                                if(language == "English"){
+                                    changeLocales(context,"en")
+
+                                } else{
+                                    changeLocales(context,"af")
+
+                                }
+
+
                                 selectedLanguage = language // Set selected language
                                 expanded = false // Close dropdown after selection
                             }
@@ -305,5 +321,14 @@ fun PlayerSettings(
                 }
             },
         )
+    }
+}
+
+fun changeLocales(context: Context, localeString: String){
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+        context.getSystemService(LocaleManager::class.java)
+            .applicationLocales = LocaleList.forLanguageTags(localeString)
+    } else{
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(localeString))
     }
 }

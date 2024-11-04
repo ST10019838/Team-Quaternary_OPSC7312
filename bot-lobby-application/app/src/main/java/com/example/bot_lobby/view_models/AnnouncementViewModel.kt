@@ -2,18 +2,8 @@ package com.example.bot_lobby.view_models
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bot_lobby.models.Announcement
-import com.example.bot_lobby.models.Team
-import com.example.bot_lobby.models.User
-import com.example.bot_lobby.services.PushNotificationService
-import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

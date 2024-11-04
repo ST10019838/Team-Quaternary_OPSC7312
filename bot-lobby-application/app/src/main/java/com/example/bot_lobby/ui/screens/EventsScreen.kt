@@ -18,7 +18,7 @@ fun EventsScreen() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(text = stringResource(id = R.string.coming_soon))
+//        Text(text = stringResource(id = R.string.coming_soon))
 
         // Uncomment and localize additional UI elements as needed
         // Text(text = stringResource(id = R.string.upcoming_events))

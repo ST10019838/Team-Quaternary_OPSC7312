@@ -14,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.bot_lobby.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
 import com.example.bot_lobby.models.Session
 import com.example.bot_lobby.models.Team
 import com.example.bot_lobby.ui.composables.formFields.Select
