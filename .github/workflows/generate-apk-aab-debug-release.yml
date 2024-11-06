@@ -7,7 +7,8 @@ env:
 on:
   push:
     branches:
-      - 'release/**'
+      - 'main'          # Triggers the workflow on the main branch updates
+      - 'release/**'    # Keeps the trigger for release branches (optional)
   workflow_dispatch:
 
 jobs:
