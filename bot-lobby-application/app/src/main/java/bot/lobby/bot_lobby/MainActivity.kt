@@ -44,7 +44,7 @@ import bot.lobby.bot_lobby.services.RegisterService
 import bot.lobby.bot_lobby.ui.screens.LoginScreen
 import bot.lobby.bot_lobby.ui.theme.BotLobbyTheme
 import bot.lobby.bot_lobby.view_models.SessionViewModel
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 
 
 // class MainActivity : ComponentActivity(), AppCompatActivity() {

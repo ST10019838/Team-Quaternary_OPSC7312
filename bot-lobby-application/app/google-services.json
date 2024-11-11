@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:883730076432:android:eacf154a3b31a579570b95",
         "android_client_info": {
-          "package_name": "com.example.bot_lobby"
+          "package_name": "bot.lobby.bot_lobby"
         }
       },
       "oauth_client": [],

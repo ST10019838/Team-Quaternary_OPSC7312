@@ -24,7 +24,7 @@ import bot.lobby.bot_lobby.view_models.TeamViewModel
 import bot.lobby.bot_lobby.view_models.UserViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

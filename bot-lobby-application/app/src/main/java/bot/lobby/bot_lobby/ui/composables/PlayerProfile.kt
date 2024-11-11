@@ -55,7 +55,7 @@ import bot.lobby.bot_lobby.models.User
 import bot.lobby.bot_lobby.view_models.SessionViewModel
 import bot.lobby.bot_lobby.view_models.TeamViewModel
 import bot.lobby.bot_lobby.view_models.UserViewModel
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

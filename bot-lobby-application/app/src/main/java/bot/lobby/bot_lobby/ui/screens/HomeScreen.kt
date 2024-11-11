@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 
 // Main content composable for the Home Screen, responsible for rendering all UI elements
 @Composable

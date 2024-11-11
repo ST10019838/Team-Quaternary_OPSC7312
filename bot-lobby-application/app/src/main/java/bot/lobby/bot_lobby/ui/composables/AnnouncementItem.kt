@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import bot.lobby.bot_lobby.models.Announcement
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 import java.text.SimpleDateFormat
 import java.util.Locale
 

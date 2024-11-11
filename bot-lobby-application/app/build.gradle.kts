@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.bot_lobby"
+    namespace = "bot.lobby.bot_lobby"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.bot_lobby"
+        applicationId = "bot.lobby.bot_lobby"
         minSdk = 28
         targetSdk = 35
         versionCode = 1

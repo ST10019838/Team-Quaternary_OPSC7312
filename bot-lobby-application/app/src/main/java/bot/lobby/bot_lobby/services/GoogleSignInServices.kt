@@ -35,7 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.navigator.Navigator
 import bot.lobby.bot_lobby.api.RetrofitInstance
 import bot.lobby.bot_lobby.ui.screens.LandingScreen
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.GlobalScope
 import org.json.JSONObject

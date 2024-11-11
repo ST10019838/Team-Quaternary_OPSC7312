@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import bot.lobby.bot_lobby.services.LoginService
 import bot.lobby.bot_lobby.services.RegisterService
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 import bot.lobby.bot_lobby.models.User
 import bot.lobby.bot_lobby.utils.BiometricAuthHelper
 import kotlinx.coroutines.launch

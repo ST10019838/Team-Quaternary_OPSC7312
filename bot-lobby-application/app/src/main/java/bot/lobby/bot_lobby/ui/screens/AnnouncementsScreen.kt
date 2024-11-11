@@ -37,7 +37,7 @@ import bot.lobby.bot_lobby.models.User
 import bot.lobby.bot_lobby.ui.composables.AnnouncementItem
 import bot.lobby.bot_lobby.ui.theme.BlueStandard
 import bot.lobby.bot_lobby.view_models.AnnouncementViewModel
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 import java.time.LocalDate
 
 @SuppressLint("NewApi")

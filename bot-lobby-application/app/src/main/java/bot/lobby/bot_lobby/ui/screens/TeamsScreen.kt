@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import bot.lobby.bot_lobby.MainActivity.Companion.connectivityObserver
+import bot.lobby.bot_lobby.R
 import bot.lobby.bot_lobby.models.IdAndRole
 import bot.lobby.bot_lobby.models.Team
 import bot.lobby.bot_lobby.observers.ConnectivityObserver
@@ -41,7 +42,6 @@ import bot.lobby.bot_lobby.view_models.AnnouncementViewModel
 import bot.lobby.bot_lobby.view_models.SessionViewModel
 import bot.lobby.bot_lobby.view_models.TeamViewModel
 import bot.lobby.bot_lobby.view_models.UserViewModel
-import com.example.bot_lobby.R
 import kotlinx.coroutines.launch
 import java.util.UUID
 

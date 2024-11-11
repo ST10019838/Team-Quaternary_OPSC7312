@@ -47,7 +47,7 @@ import bot.lobby.bot_lobby.view_models.AnnouncementViewModel
 import bot.lobby.bot_lobby.view_models.SessionViewModel
 import bot.lobby.bot_lobby.view_models.TeamViewModel
 import bot.lobby.bot_lobby.view_models.UserViewModel
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
 
 @Composable
 fun ScoutingTeamsScreen(teamViewModel: TeamViewModel = viewModel()) {

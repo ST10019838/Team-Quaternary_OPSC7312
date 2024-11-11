@@ -18,7 +18,8 @@ import bot.lobby.bot_lobby.view_models.AnnouncementViewModel
 import bot.lobby.bot_lobby.view_models.SessionViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import bot.lobby.bot_lobby.models.Announcement
-import com.example.bot_lobby.R
+import bot.lobby.bot_lobby.R
+import bot.lobby.bot_lobby.ui.composables.formFields.TextField
 
 
 @Composable
